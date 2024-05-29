@@ -1,0 +1,62 @@
+body {
+  background-color: #222222;
+}
+
+#menu {
+    display: block;
+    margin: 0 auto;
+}
+
+a {
+    cursor: pointer;
+    outline: none;
+}
+
+.item .sector {
+    transition: all .1s linear;
+    stroke: #111;
+}
+
+.item:hover .sector, .item:focus .sector {
+    fill: #eee;
+}
+
+.menu-trigger {
+    fill: #EA2A55;
+    pointer-events: auto;
+}
+
+.menu-trigger:hover, .menu-trigger:focus {
+    cursor: pointer;
+}
+symbol {
+    overflow: visible;
+}
+
+#item-1 {
+  fill: #a364d9;
+}
+#item-2 {
+  fill: #ee6579;
+}
+#item-3 {
+  fill: #db3937;
+}
+#item-4 {
+  fill: #f66320;
+}
+#item-5 {
+  fill: #f8a227;
+}
+#item-6 {
+  fill: #fecc2f;
+}
+#item-7 {
+  fill: #b2c224;
+}
+#item-8 {
+  fill: #33beb7
+}
+/* Next: #40a4d8 */
+
+use{pointer-events:none}
