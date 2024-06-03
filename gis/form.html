@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaflet Map with Form</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 400px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<form id="markerForm">
+  <label for="latitude">Latitude:</label>
+  <input type="text" id="latitude" name="latitude" required>
+
+  <label for="longitude">Longitude:</label>
+  <input type="text" id="longitude" name="longitude" required>
+
+  <label for="markerName">Marker Name:</label>
+  <input type="text" id="markerName" name="markerName" required>
+
+  <button type="button" onclick="addMarker()">Add Marker</button>
+</form>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+  var map = L.map('map').setView([51.505, -0.09], 13);
+
+  // Add a tile layer to the map (you can use your preferred tile layer)
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  var markers = L.layerGroup().addTo(map);
+
+  function addMarker() {
+    var latitude = parseFloat(document.getElementById('latitude').value);
+    var longitude = parseFloat(document.getElementById('longitude').value);
+    var markerName = document.getElementById('markerName').value;
+
+    if (isNaN(latitude) || isNaN(longitude)) {
+      alert('Please enter valid coordinates.');
+      return;
+    }
+
+    var newMarker = L.marker([latitude, longitude]).bindPopup(markerName);
+    markers.addLayer(newMarker);
+
+    // Create GeoJSON object for the new marker
+    var geoJsonFeature = {
+      "type": "Feature",
+      "properties": {
+        "name": markerName
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [longitude, latitude]
+      }
+    };
+
+    // Convert the GeoJSON object to a string and display it
+    var geoJsonString = JSON.stringify(geoJsonFeature, null, 2);
+    console.log(geoJsonString);
+  }
+</script>
+
+</body>
+</html>
