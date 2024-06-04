@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title>GIS by GansEast</title>
+
+	<link rel="stylesheet" href="css/leaflet.css">
+	<link rel="stylesheet" href="css/leaflet-search.css">
+	<link rel="stylesheet" href="css/style.css">
+	<script src="js/leaflet.js"></script>
+	<script src="js/leaflet-search.js"></script>
+   <script type="text/javascript" src="map.geojson"></script>
+</head>
+<body>
+	<div id="mapid"></div>
+	<script type="text/javascript">
+		var mymap = L.map('mapid').fitWorld().setView([62.48611, 117.5064], 14);
+		var address = JSON.parse(data);
+		var mapBounds = L.latLngBounds([
+                    [62.36, 117.38],
+                    [62.5, 117.62]
+                ]);
+                
+		var myStyle = {
+		    "color": "#ff7800",
+		    "weight": 0,
+		    "opacity": 0.65
+		};
+		var searchLayer = L.layerGroup().addTo(mymap);
+		
+		function onEachFeature(feature, layer) {
+		    if (feature.properties && feature.properties.amenity) {
+		        layer.bindPopup(feature.properties.amenity);
+		    }
+		}
+
+		L.tileLayer('http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+		}).addTo(mymap);
+
+		var searchLayer = L.geoJSON(address, {
+			onEachFeature: onEachFeature,
+			style: myStyle
+		}).addTo(mymap);
+
+		mymap.addControl( new L.Control.Search({
+			layer: searchLayer,
+			propertyName: 'amenity',
+			position: 'topright',
+			marker: false,
+			moveToLocation: function(latlng, title, map) {
+				//map.fitBounds( latlng.layer.getBounds() );
+				var zoom = map.getBoundsZoom(latlng.layer.getBounds());
+	  			map.setView(latlng, zoom); // access the zoom
+			}
+		}) );
+
+		mymap.setMaxBounds(mapBounds);
+	</script>
+</body>
+</html>
