@@ -9,41 +9,50 @@
 	<link rel="stylesheet" href="css/style.css">
 	<script src="js/leaflet.js"></script>
 	<script src="js/leaflet-search.js"></script>
-   <script type="text/javascript" src="map.geojson"></script>
+	<script type="text/javascript" src="map.geojson"></script>
 </head>
 <body>
 	<div id="mapid"></div>
 	<script type="text/javascript">
+		// map
 		var mymap = L.map('mapid').fitWorld().setView([62.48611, 117.5064], 14);
-		var address = JSON.parse(data);
+		L.tileLayer('https://tile.thunderforest.com/cycle/{z}/{x}/{y}.png?apikey=402ab828232544cda21a90ac9171af15', {
+			attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			minZoom: 14,
+			maxZoom: 18
+		}).addTo(mymap);
+
+		// geoJSON
+			var address = JSON.parse(data);
+
+		// boundsCoordinates
 		var mapBounds = L.latLngBounds([
-                    [62.36, 117.38],
-                    [62.5, 117.62]
-                ]);
+			[62.4717, 117.4756],
+			[62.50048, 117.54278]
+        ]);
                 
+        // style        
 		var myStyle = {
 		    "color": "#ff7800",
 		    "weight": 0,
 		    "opacity": 0.65
 		};
+
+		// searchLayer
 		var searchLayer = L.layerGroup().addTo(mymap);
 		
+		searchLayer = L.geoJSON(address, {
+			onEachFeature: onEachFeature,
+			style: myStyle
+		}).addTo(mymap);
+
 		function onEachFeature(feature, layer) {
 		    if (feature.properties && feature.properties.amenity) {
 		        layer.bindPopup(feature.properties.amenity);
 		    }
 		}
 
-		L.tileLayer('http://b.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-    		attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-		}).addTo(mymap);
-
-		var searchLayer = L.geoJSON(address, {
-			onEachFeature: onEachFeature,
-			style: myStyle
-		}).addTo(mymap);
-
-		mymap.addControl( new L.Control.Search({
+		mymap.addControl(new L.Control.Search({
 			layer: searchLayer,
 			propertyName: 'amenity',
 			position: 'topright',
@@ -55,7 +64,27 @@
 			}
 		}) );
 
+		// bounds
 		mymap.setMaxBounds(mapBounds);
+
+		var data = [
+			{ coord: [40.308746567390294, -105.08229135535235], desc: "Berthoud, CO", url: 'https://www.berthoud.org/' }
+		];
+
+		for (var i = 0; i < data.length; i++) {
+			L.marker(data[i].coord, {
+				alt: "Patrick Engineering logo",
+				title: "Click for more info",
+				riseOnHover: true,
+				myUrl: data[i].url
+			})
+			.addTo(mymap)
+			.bindTooltip("<h3>" + data[i].desc + "</h3>", { direction: "top" })
+			.on('click', function(evt) {
+				window.open(evt.target.options.myUrl, '_blank');
+			});
+		}
+
 	</script>
 </body>
 </html>
