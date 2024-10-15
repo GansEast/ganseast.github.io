@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>360 Panorama</title>
+        
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            html {
+                margin: 0;
+                padding: 0;      
+                text-align: center;
+            }
+            body {
+                font-size: 18px;
+                line-height: 1.5em;
+                position: relative;
+                width: 100%;
+                height: 100%;
+                margin: 0px auto;
+                padding: 0;
+                max-width: 1920px;
+                overflow-x: hidden;
+            }
+            a {
+                color: #528CE0;
+            }
+            #demo {
+                /* comment for fixed dimentsions */
+                position: relative;
+                width: 100%;
+                height: 100vh;
+                margin: 0 auto;
+                overflow: hidden;
+                cursor: move; /* fallback if grab cursor is unsupported */
+                cursor: grab;
+                cursor: -moz-grab;
+                cursor: -webkit-grab;
+            }
+            #demo:active { 
+                cursor: grabbing;
+                cursor: -moz-grabbing;
+                cursor: -webkit-grabbing;
+            }
+            #log {
+                display:none;
+                position: absolute;
+                background: #fff;
+                padding: 20px;
+                bottom: 20px;
+                left: 20px;
+                width: 150px;
+                font: normal 12px/18px Monospace, Arial, Helvetical, sans-serif;
+                text-align: left;
+                border: 3px double #ddd;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="demo">
+            <div id="log">
+                
+            </div>
+           <!--  <button id="myButton">Change Image</button> --> 
+        </div>        
+        <!-- <script src="http://threejs.org/build/three.min.js"></script> --> 
+        <script src="libs/threejs/build/three.min.js"></script>   
+
+        <script src="js/main.js"></script>        
+    </body>
+</html>
+
