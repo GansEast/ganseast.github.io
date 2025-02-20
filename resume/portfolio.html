@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<title>Гаврил Анатольевич</title>
+
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="manifest" href="manifest.json">
+
+	<meta name="theme-color" content="#a0ffdc">
+	<meta name="msapplication-TileColor" content="#a0ffdc">
+	<meta name="apple-mobile-web-app-status-bar-style" content="#a0ffdc">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="Гаврил Анатольевич" />
+	
+	<link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+	<link rel="shortcut icon" href="favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+	<link rel="manifest" href="site.webmanifest" />
+
+	<style>
+		#preloader {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-color: rgba(0, 0, 0, 1.0);
+			transition: all 5s linear;
+			display: flex;
+			visibility: visible;
+			justify-content: center;
+			align-items: center;
+			z-index: 9999;
+		}
+		.spinner {
+			width: 150px;
+			height: 150px;
+			border: 5px solid #c0fff1;
+			border-top-color: #02b875;
+			border-radius: 50%;
+			animation: spin 1s linear infinite;
+		}
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+	<script>
+		window.addEventListener('load', function () {
+			var preloader = document.getElementById('preloader');
+			preloader.style.visibility = 'hidden';
+			preloader.style.display = 'none';
+		});
+	</script>
+	<link rel="stylesheet" href="css/flexbox-grid.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/typo.css">
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+	<div id="preloader">
+		<div class="spinner"></div>
+	</div>
+	<div class="wrapper">
+		<nav class="sticky">
+			<div class="flex nav">
+				<ul class="flex nav-list">
+				<!-- 	<li>
+						<a href="">Blog</a>
+					</li> -->
+					<!-- <li>
+						<a href="">Портфолио</a>
+					</li> -->
+					<li>
+						<a href="#" class="nav-logo"><img src="img/favicon3.png" alt=""></a>
+					</li>
+			<!-- 		<li>
+						<a href="">Работы</a>
+					</li> -->
+		<!-- 			<li>
+						<a href="">Contacts</a>
+					</li> -->
+				</ul>
+			</div>
+		</nav>
+    <div class="container">
+      <div class="row">
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+          <h1>Портфолио</h1>
+        </div>
+        <div class="col-xs-12 col-sm-10 col-sm-offset-1 col-md-8 col-md-offset-2">
+          <div class="gallery">
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/yJfTVnt.jpg">
+                <img src="img/portfolio/thumbs/uzorbanner.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/7uz3tHu.png">
+                <img src="img/portfolio/thumbs/uzorlogo.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/BIECpZK.jpg">
+                <img src="img/portfolio/thumbs/01.17.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/nDFB2IA.jpg">
+                <img src="img/portfolio/thumbs/01.25.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/ugCn1u5.jpg">
+                <img src="img/portfolio/thumbs/01.30.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/LHJpWMU.jpg">
+                <img src="img/portfolio/thumbs/02.13.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/V5VqPlZ.jpg">
+                <img src="img/portfolio/thumbs/02.22.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/VX11grU.jpg">
+                <img src="img/portfolio/thumbs/02.23.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/ipchZef.jpg">
+                <img src="img/portfolio/thumbs/02.29.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/Mm31U32.jpg">
+                <img src="img/portfolio/thumbs/03.06.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/JsOgnzJ.jpg">
+                <img src="img/portfolio/thumbs/03.08.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/XLodZye.jpg">
+                <img src="img/portfolio/thumbs/03.09.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/U0MVWHq.jpg">
+                <img src="img/portfolio/thumbs/03.13.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/FEN2HGI.jpg">
+                <img src="img/portfolio/thumbs/03.18.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/Fiajn6X.jpg">
+                <img src="img/portfolio/thumbs/03.26.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/IeW0pzF.jpg">
+                <img src="img/portfolio/thumbs/04.02.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/Od4Tcuc.png">
+                <img src="img/portfolio/thumbs/250.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/lkFHBQu.jpg">
+                <img src="img/portfolio/thumbs/04.08.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/SRr0QxY.jpg">
+                <img src="img/portfolio/thumbs/04.24.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/A7jtNCf.jpg">
+                <img src="img/portfolio/thumbs/back.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/88JQn5C.jpg">
+                <img src="img/portfolio/thumbs/05.27.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/sgOoUyJ.jpg">
+                <img src="img/portfolio/thumbs/05.28.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/1nfnwR6.jpg">
+                <img src="img/portfolio/thumbs/skills.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/7Uo3QFB.jpg">
+                <img src="img/portfolio/thumbs/11.17.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/GIFNfim.jpg">
+                <img src="img/portfolio/thumbs/11.19.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/tr8C1a2.jpg">
+                <img src="img/portfolio/thumbs/12.15.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/qFP7Pxb.jpg">
+                <img src="img/portfolio/thumbs/12.22.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/Spmmj5z.jpg">
+                <img src="img/portfolio/thumbs/12.23.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/YJ4mME3.jpg">
+                <img src="img/portfolio/thumbs/12.24.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/ZsRY8kK.jpg">
+                <img src="img/portfolio/thumbs/smarthex.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/oPHvZP1.jpg">
+                <img src="img/portfolio/thumbs/smarthexbanner.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/DzJ6lcd.jpg">
+                <img src="img/portfolio/thumbs/tundra.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/uDTUefl.jpg">
+                <img src="img/portfolio/thumbs/esoch.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/LjzqbVZ.jpg">
+                <img src="img/portfolio/thumbs/banner.webp" alt="">
+              </a>
+            </div>
+            <div class="gallery-item">
+              <a data-fslightbox="gallery" href="https://i.imgur.com/ojq9Pr4.jpg">
+                <img src="img/portfolio/thumbs/tenke.webp" alt="">
+              </a>
+            </div>
+
+
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer>
+      <a href="#">
+        <img src="img/logo2.png" alt="">
+      </a>
+      <h4>Copyright © GansEast 2025 - All rights reserved</h4>
+    </footer>
+	</div>
+	<script src="js/fslightbox.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
