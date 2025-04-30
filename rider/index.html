@@ -2,24 +2,53 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генератор документа</title>
-    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h2>Генератор документа</h2>
+    <div>
         <form id="form">
-            <label>
-                Название мероприятия:
-                <input type="text" id="name" required placeholder="Название мероприятия">
-            </label>
-            <button type="submit">Скачать документ</button>
+            <label>Название мероприятия: <input type="text" id="event-name" required></label><br><br>
+            <button type="submit">Скачать DOCX</button>
         </form>
-        <div id="document"></div>
     </div>
+
     <script src="pizzip.min.js"></script>
-    <script src="docxtemplater.min.js"></script>
-    <script src="script.js"></script>
+    <script src="docxtemplater.js"></script>
+    <script src="FileSaver.min.js"></script>
+    <script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var eventName = document.getElementById('event-name').value;
+
+        var content = 
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+            'xmlns="http://www.w3.org/TR/REC-html40">' +
+            '<head><meta charset="utf-8"></head><body>' +
+            '<h1>Технический райдер</h1>' +
+            '<p><strong>Название мероприятия:</strong> ' + eventName + '</p>' +
+            '</body></html>';
+
+        var zip = new PizZip();
+        zip.file("word/document.xml", content);
+
+        var doc = new Docxtemplater();
+        doc.loadZip(zip);
+
+        try {
+            var out = doc.getZip().generate({
+                type: "blob",
+                mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            });
+
+            saveAs(out, "Технический_Райдер.docx");
+
+        } catch (e) {
+            console.error(e);
+            alert('Ошибка при создании документа!');
+        }
+    });
+    </script>
 </body>
 </html>
