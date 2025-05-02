@@ -2,53 +2,357 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Генератор документа</title>
+    <title>Генератор технического райдера by GansEast</title>
+    <script src="index.js"></script>
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+               -moz-box-sizing: border-box;
+                    box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #fff;
+        }
+        .container {
+            max-width: 600px;
+            background: white;
+            padding: 25px 50px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: auto;
+        }
+        .container-title {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .container-title h2,
+        .container-title p {
+          margin: 0;
+        }
+        .container-title img {
+          margin: 0 auto;
+          width: 64px;
+        }
+        .container-datetime {
+          display: flex;
+        }
+        .container-datetime-item {
+          width: 50%;
+        }
+        .container-datetime-item:first-child {
+          margin-right: 40px;
+        }
+        label {
+          font-size: 12px;
+          font-style: italic;
+        }
+        input, select, button, textarea {
+            width: 100%;
+            margin-top: 4px;
+            margin-bottom: 14px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 9px;
+        }
+        select {
+          appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url("data:image/svg+xml;utf8,<svg fill='121212' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
+            background-color: #fff;
+            background-size: 24px;
+            padding: 10px 40px 10px 10px; /* место для стрелки */
+        }
+        input[type="date"] {
+          padding: 10px 12px 10px 10px;
+        }
+        input[type="date"],
+        input[type="time"] {
+          height: 40px;
+          color: #999;
+        }
+        input::placeholder,
+        select::placeholder,
+        textarea::placeholder,
+        input[type="date"],
+        input[type="time"] {
+          font-family: Arial, sans-serif;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #007bff60 !important;
+            background-color: #007bff15 !important;
+            outline: none;
+        }
+        input:invalid,
+        select:invalid,
+        textarea:invalid {
+            border-color: #ff000060;
+            background-color: #ff000015;
+        }
+
+        input:valid,
+        select:valid,
+        textarea:valid {
+            border-color: #007bff60;
+            background-color: #007bff15;
+        }
+        textarea {
+          resize: none;
+          min-height: 40px;
+        }
+/*        textarea {
+            width: 100%;
+            padding: 10px 15px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border-color 0.3s;
+            min-height: 100px;
+        }*/
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .error {
+            border-color: red;
+        }
+    </style>
 </head>
 <body>
-    <div>
-        <form id="form">
-            <label>Название мероприятия: <input type="text" id="event-name" required></label><br><br>
-            <button type="submit">Скачать DOCX</button>
-        </form>
+
+<div class="container">
+    <div class="container-title">
+      <img src="1.png" alt="">
+      <h2>Генератор технического райдера</h2>
+      <p>
+        Дома дружбы народов им. А.Е. Кулаковского
+      </p>
+
     </div>
+    <label>
+      Мероприятие:
+      <input type="text" id="event" placeholder="Название мероприятия" required>
+    </label>
+    <div class="container-datetime">
+      <div class="container-datetime-item">
+        <label>
+          Дата:
+          <input type="date" id="date" required>
+        </label>
+      </div>
+      <div class="container-datetime-item">
+        <label>
+          Время:
+          <input type="time" id="time" required>
+        </label>
+        <label>
+          Репетиция:
+          <input type="time" id="rehearsal" placeholder="Репетиция" required>
+        </label>
+      </div>
+    </div>
+    <label>
+      Заказчик:
+      <input type="text" id="name" placeholder="Наименование организации" required>
+    </label>
+    <label>
+      Телефон:
+      <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" required maxlength="18">
+    </label>
+    <label>
+      Зал:
+      <select id="hall" required>
+          <option value="" disabled selected>-- Выберите зал --</option>
+          <option value="Большой зал">Большой зал</option>
+          <option value="Мраморный зал">Мраморный зал</option>
+          <option value="Гостиная">Гостиная</option>
+      </select>
+    </label>
+    <label>
+      Звуковое техническое обеспечение:
+      <textarea id="sound" required placeholder="Примечание:  Аудио материалы предоставляются за 2 часа до начала мероприятия"></textarea>
+    </label>
+    <label>
+      Световое техническое обеспечение:
+      <textarea id="light" required placeholder="Световое техническое обеспечение"></textarea>
+    </label>
+    <label>
+      Видео оформление мероприятия:
+      <textarea id="video" required placeholder="Примечание:  Видео материалы предоставляются за 2 часа до начала мероприятия"></textarea>
+    </label>
+    <label>
+      Постановочная часть (сценография):
+      <textarea id="scene" required placeholder="Постановочная часть (сценография)"></textarea>
+    </label>
+    <label>
+      Дополнительное техническое оборудование:
+      <textarea id="tech" placeholder="Дополнительное техническое оборудование"></textarea>
+    </label>
+    <label>
+      Примечание:
+      <input type="note" id="note">
+    </label>
+    <button onclick="generateDocx()">Скачать</button>
+</div>
 
-    <script src="pizzip.min.js"></script>
-    <script src="docxtemplater.min.js"></script>
-    <script src="FileSaver.min.js"></script>
-    <script>
-    document.getElementById('form').addEventListener('submit', function(event) {
-        event.preventDefault();
+<script>
+function generateDocx() {
+    const { Document, Packer, Paragraph, TextRun } = docx;
 
-        var eventName = document.getElementById('event-name').value;
+    // Получение значений
+    const fields = ["event", "name", "phone", "date", "time", "rehearsal", "hall", "sound", "light", "video", "scene"];
+    let isValid = true;
 
-        var content = 
-            '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
-            'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
-            'xmlns="http://www.w3.org/TR/REC-html40">' +
-            '<head><meta charset="utf-8"></head><body>' +
-            '<h1>Технический райдер</h1>' +
-            '<p><strong>Название мероприятия:</strong> ' + eventName + '</p>' +
-            '</body></html>';
-
-        var zip = new PizZip();
-        zip.file("word/document.xml", content);
-
-        var doc = new Docxtemplater();
-        doc.loadZip(zip);
-
-        try {
-            var out = doc.getZip().generate({
-                type: "blob",
-                mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            });
-
-            saveAs(out, "Технический_Райдер.docx");
-
-        } catch (e) {
-            console.error(e);
-            alert('Ошибка при создании документа!');
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            el.classList.add('error');
+            isValid = false;
+        } else {
+            el.classList.remove('error');
         }
     });
-    </script>
+
+    if (!isValid) {
+        alert("Заполните все обязательные поля!");
+        return;
+    }
+
+    // Значения
+    const event = document.getElementById('event').value;
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const rehearsal = document.getElementById('rehearsal').value;
+    const hall = document.getElementById('hall').value;
+    const sound = document.getElementById('sound').value;
+    const light = document.getElementById('light').value;
+    const video = document.getElementById('video').value;
+    const scene = document.getElementById('scene').value;
+    const tech = document.getElementById('tech').value || '-';
+    const note = document.getElementById('note').value || '-';
+
+    var today = new Date();
+    var formattedDate = today.getFullYear() + "" +
+                        String(today.getMonth()+1).padStart(2, '0') +
+                        String(today.getDate()).padStart(2, '0');
+
+    // Документ
+    const doc = new Document({
+        sections: [{
+            properties: {
+                page: {
+                    margin: { top: 1134, right: 850, bottom: 1134, left: 1700 }
+                }
+            },
+            children: [
+                new Paragraph({
+                    children: [new TextRun({ text: "Технический райдер", bold: true, uppersize:true, size: 36 })],
+                    alignment: "center"
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: " " })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `Название: ${event}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `Дата: ${date}           Время: ${time}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `                                        Репетиция: ${rehearsal}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: " " })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `Заказчик: ${name}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `Телефон: ${phone}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: " " })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `Зал: ${hall}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: " " })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Звуковое техническое обеспечение", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${sound}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Световое техническое обеспечение", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${light}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Видео оформление мероприятия", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${video}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Постановочная часть (сценография)", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${scene}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Дополнительное техническое оборудование", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${tech}`, size: 32 })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: "Примечание", bold: true, underline: {}, size: 32  })]
+                }),
+                new Paragraph({
+                    children: [new TextRun({ text: `${note}`, size: 32 })]
+                }),
+            ]
+        }]
+    });
+
+    Packer.toBlob(doc).then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = formattedDate + "_" + event.replace(/\s+/g, "_") + ".docx";
+        link.click();
+        URL.revokeObjectURL(link.href);
+    });
+}
+
+// Маска для телефона
+document.getElementById('phone').addEventListener('input', function(e) {
+    let x = e.target.value.replace(/\D/g, '').slice(1);
+    let formatted = '+7 ';
+    if (x.length > 0) formatted += '(' + x.slice(0,3);
+    if (x.length >= 4) formatted += ') ' + x.slice(3,6);
+    if (x.length >= 7) formatted += '-' + x.slice(6,8);
+    if (x.length >= 9) formatted += '-' + x.slice(8,10);
+    e.target.value = formatted;
+});
+</script>
+
 </body>
 </html>
