@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генератор технического райдера by GansEast</title>
     <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/inputmask@5/dist/inputmask.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <!-- <script src="index.js"></script> -->
     <style>
         * {
@@ -18,8 +19,10 @@
             font-family: Arial, sans-serif;
             margin: 0;
             background: #fff;
-            background: url(ddn.webp) no-repeat center center fixed;
+            background: url(ddn.webp);
             background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
         }
         .container {
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -38,8 +41,15 @@
           margin: 0 auto;
           width: 64px;
         }
-        .container-datetime { display: flex; gap: 20px; }
-        .container-datetime-item { flex: 1; }
+        .container-datetime {
+          display: flex;
+        }
+        .container-datetime-item {
+          width: 50%;
+        }
+        .container-datetime-item:first-child {
+          margin-right: 40px;
+        }
         label {
           font-size: 12px;
           font-style: italic;
@@ -203,91 +213,187 @@
 </div>
 
 <script>
-// Маски для телефона и времени
-Inputmask({ mask: "+7 (999) 999-99-99", showMaskOnHover: false }).mask("#phone");
-Inputmask({ alias: "datetime", inputFormat: "HH:MM", hourFormat: "24" }).mask("#time");
-Inputmask({ alias: "datetime", inputFormat: "HH:MM", hourFormat: "24" }).mask("#rehearsal");
+// Инициализация flatpickr для даты и времени
+flatpickr("#date", {
+    altInput: true,
+    altFormat: "d.m.Y",
+    dateFormat: "Y-m-d",
+    minDate: "today" // Нельзя выбрать прошедшие даты
+});
 
+flatpickr("#time", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    minuteIncrement: 30 // Интервал времени 30 минут
+});
+
+flatpickr("#rehearsal", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    minuteIncrement: 30 // Интервал времени 30 минут
+});
+
+// Генерация документа
 function generateDocx() {
-  const { Document, Packer, Paragraph, TextRun } = docx;
+    const eventTime = document.getElementById('time').value;
+    const rehearsalTime = document.getElementById('rehearsal').value;
+    const eventDate = document.getElementById('date').value;
 
-  const event = document.getElementById('event').value.trim();
-  const name = document.getElementById('name').value.trim();
-  const phone = document.getElementById('phone').value.trim();
-  const date = document.getElementById('date').value;
-  const time = document.getElementById('time').value;
-  const rehearsal = document.getElementById('rehearsal').value;
-  const hall = document.getElementById('hall').value;
-  const sound = document.getElementById('sound').value.trim();
-  const light = document.getElementById('light').value.trim();
-  const video = document.getElementById('video').value.trim();
-  const scene = document.getElementById('scene').value.trim();
-  const tech = document.getElementById('tech').value.trim() || "-";
-  const note = document.getElementById('note').value.trim() || "-";
+    if (!eventDate || !eventTime || !rehearsalTime) {
+        alert("Заполните дату и время мероприятия и репетиции.");
+        return;
+    }
 
-  if (!event || !name || !phone || !date || !time || !rehearsal || !hall || !sound || !light || !video || !scene) {
-    alert("Пожалуйста, заполните все обязательные поля!");
-    return;
-  }
+    const [eventHour, eventMinute] = eventTime.split(":").map(Number);
+    const [rehearsalHour, rehearsalMinute] = rehearsalTime.split(":").map(Number);
 
-  // Проверка даты
-  const selectedDate = dayjs(date);
-  const today = dayjs().startOf('day');
-  if (selectedDate.isAfter(today)) {
-    alert("Дата мероприятия не может быть позже сегодняшнего дня!");
-    return;
-  }
+    const eventTotalMinutes = eventHour * 60 + eventMinute;
+    const rehearsalTotalMinutes = rehearsalHour * 60 + rehearsalMinute;
 
-  // Проверка времени
-  const eventTime = dayjs(`${date}T${time}`);
-  const rehearsalTime = dayjs(`${date}T${rehearsal}`);
-  if (!rehearsalTime.isBefore(eventTime)) {
-    alert("Репетиция должна быть раньше времени начала мероприятия!");
-    return;
-  }
+    if (rehearsalTotalMinutes >= eventTotalMinutes) {
+        alert("Время репетиции должно быть раньше начала мероприятия!");
+        return;
+    }
 
-  const now = dayjs();
-  const fileDate = now.format('YYYYMMDD');
+    const fields = ["event", "name", "phone", "date", "time", "rehearsal", "hall", "sound", "light", "video", "scene"];
+    let isValid = true;
 
-  const doc = new Document({
-    sections: [{
-      properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } },
-      children: [
-        new Paragraph({ children: [new TextRun({ text: "ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })], alignment: "center" }),
-        new Paragraph({ children: [new TextRun("")] }),
-        new Paragraph({ children: [new TextRun({ text: `Название: ${event}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: `Дата: ${date}  Время: ${time}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: `Репетиция: ${rehearsal}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun("")] }),
-        new Paragraph({ children: [new TextRun({ text: `Заказчик: ${name}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: `Телефон: ${phone}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun("")] }),
-        new Paragraph({ children: [new TextRun({ text: `Зал: ${hall}`, size: 28 })] }),
-        new Paragraph({ children: [new TextRun("")] }),
-        new Paragraph({ children: [new TextRun({ text: "Звуковое техническое обеспечение", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: sound, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: "Световое техническое обеспечение", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: light, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: "Видео оформление мероприятия", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: video, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: "Постановочная часть (сценография)", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: scene, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: "Дополнительное техническое оборудование", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: tech, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: "Примечание", bold: true, underline: {}, size: 28 })] }),
-        new Paragraph({ children: [new TextRun({ text: note, size: 28 })] }),
-      ]
-    }]
-  });
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            el.classList.add('error');
+            isValid = false;
+        } else {
+            el.classList.remove('error');
+        }
+    });
 
-  Packer.toBlob(doc).then(blob => {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${fileDate}_${event.replace(/\s+/g, "_")}.docx`;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  });
+    if (!isValid) {
+        alert("Заполните все обязательные поля!");
+        return;
+    }
+
+    const event = document.getElementById('event').value;
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const rehearsal = document.getElementById('rehearsal').value;
+    const hall = document.getElementById('hall').value;
+    const sound = document.getElementById('sound').value;
+    const light = document.getElementById('light').value;
+    const video = document.getElementById('video').value;
+    const scene = document.getElementById('scene').value;
+    const tech = document.getElementById('tech').value;
+    const note = document.getElementById('note').value
+
+    // Документ
+
+    const doc = new docx.Document({
+        sections: [{
+            properties: {
+                page: {
+                    margin: { top: 720, right: 720, bottom: 720, left: 720 }
+                }
+            },
+            children: [
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })],
+                    alignment: "center"
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " " })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `Название: ${event}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " " })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `Дата: ${date}           Время: ${time}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text:                                         `Репетиция: ${rehearsal}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " " })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `Заказчик: ${name}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `Телефон: ${phone}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " " })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `Зал: ${hall}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: " " })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Звуковое техническое обеспечение", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${sound}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Световое техническое обеспечение", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${light}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Видео оформление мероприятия", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${video}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Постановочная часть (сценография)", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${scene}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Дополнительное техническое оборудование", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${tech}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: "Примечание", bold: true, underline: {}, size: 32  })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `${note}`, size: 32 })]
+                }),
+            ]
+        }]
+    });
+
+    // Сохраняем документ
+    docx.Packer.toBlob(doc).then(blob => {
+        saveAs(blob, `Райдер_${date}_${event}.docx`);
+    });
 }
+
+// Маска для телефона
+document.getElementById('phone').addEventListener('input', function(e) {
+    let x = e.target.value.replace(/\D/g, '').slice(1);
+    let formatted = '+7 ';
+    if (x.length > 0) formatted += '(' + x.slice(0,3);
+    if (x.length >= 4) formatted += ') ' + x.slice(3,6);
+    if (x.length >= 7) formatted += '-' + x.slice(6,8);
+    if (x.length >= 9) formatted += '-' + x.slice(8,10);
+    e.target.value = formatted;
+});
 </script>
 
 </body>
