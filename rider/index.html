@@ -2,8 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генератор технического райдера by GansEast</title>
-    <script src="index.js"></script>
+    <script src="https://unpkg.com/docx@7.1.0/build/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/inputmask@5/dist/inputmask.min.js"></script>
+    <!-- <script src="index.js"></script> -->
     <style>
         * {
             -webkit-box-sizing: border-box;
@@ -12,15 +16,15 @@
         }
         body {
             font-family: Arial, sans-serif;
-            padding: 30px;
+            margin: 0;
             background: #fff;
+            background: url(ddn.webp) no-repeat center center fixed;
+            background-size: cover;
         }
         .container {
-            max-width: 600px;
-            background: white;
-            padding: 25px 50px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            margin: auto;
+            padding: 25px 30px;
+            background: #fff;
         }
         .container-title {
           text-align: center;
@@ -34,42 +38,37 @@
           margin: 0 auto;
           width: 64px;
         }
-        .container-datetime {
-          display: flex;
-        }
-        .container-datetime-item {
-          width: 50%;
-        }
-        .container-datetime-item:first-child {
-          margin-right: 40px;
-        }
+        .container-datetime { display: flex; gap: 20px; }
+        .container-datetime-item { flex: 1; }
         label {
           font-size: 12px;
           font-style: italic;
         }
         input, select, button, textarea {
-            width: 100%;
-            margin-top: 4px;
-            margin-bottom: 14px;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 9px;
+          display: block;
+          width: 100%;
+          margin-top: 4px;
+          margin-bottom: 12px;
+          padding: 10px;
+          font-size: 16px;
+          border: 1px solid #ccc;
+          border-radius: 9px;
         }
         select {
           appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background: url("data:image/svg+xml;utf8,<svg fill='121212' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
-            background-color: #fff;
-            background-size: 24px;
-            padding: 10px 40px 10px 10px; /* место для стрелки */
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          background: url("data:image/svg+xml;utf8,<svg fill='121212' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
+          background-color: #fff;
+          background-size: 24px;
+          padding: 10px 40px 10px 10px; /* место для стрелки */
         }
         input[type="date"] {
           padding: 10px 12px 10px 10px;
         }
         input[type="date"],
         input[type="time"] {
+          width: 100%;
           height: 40px;
           color: #999;
         }
@@ -104,17 +103,6 @@
           resize: none;
           min-height: 40px;
         }
-/*        textarea {
-            width: 100%;
-            padding: 10px 15px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 16px;
-            resize: vertical;
-            transition: border-color 0.3s;
-            min-height: 100px;
-        }*/
         button {
             background-color: #007bff;
             color: white;
@@ -128,13 +116,20 @@
         .error {
             border-color: red;
         }
+        @media (min-width: 601px) {
+          .container {
+            max-width: 600px;
+            padding: 25px 50px;
+            margin: 30px auto;
+          }
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="container-title">
-      <img src="1.png" alt="">
+      <img src="1.webp" alt="">
       <h2>Генератор технического райдера</h2>
       <p>
         Дома дружбы народов им. А.Е. Кулаковского
@@ -155,11 +150,11 @@
       <div class="container-datetime-item">
         <label>
           Время:
-          <input type="time" id="time" required>
+          <input type="time" id="time" step="1800" required>
         </label>
         <label>
           Репетиция:
-          <input type="time" id="rehearsal" placeholder="Репетиция" required>
+          <input type="time" id="rehearsal" step="1800" placeholder="Репетиция" required>
         </label>
       </div>
     </div>
@@ -208,150 +203,91 @@
 </div>
 
 <script>
+// Маски для телефона и времени
+Inputmask({ mask: "+7 (999) 999-99-99", showMaskOnHover: false }).mask("#phone");
+Inputmask({ alias: "datetime", inputFormat: "HH:MM", hourFormat: "24" }).mask("#time");
+Inputmask({ alias: "datetime", inputFormat: "HH:MM", hourFormat: "24" }).mask("#rehearsal");
+
 function generateDocx() {
-    const { Document, Packer, Paragraph, TextRun } = docx;
+  const { Document, Packer, Paragraph, TextRun } = docx;
 
-    // Получение значений
-    const fields = ["event", "name", "phone", "date", "time", "rehearsal", "hall", "sound", "light", "video", "scene"];
-    let isValid = true;
+  const event = document.getElementById('event').value.trim();
+  const name = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+  const date = document.getElementById('date').value;
+  const time = document.getElementById('time').value;
+  const rehearsal = document.getElementById('rehearsal').value;
+  const hall = document.getElementById('hall').value;
+  const sound = document.getElementById('sound').value.trim();
+  const light = document.getElementById('light').value.trim();
+  const video = document.getElementById('video').value.trim();
+  const scene = document.getElementById('scene').value.trim();
+  const tech = document.getElementById('tech').value.trim() || "-";
+  const note = document.getElementById('note').value.trim() || "-";
 
-    fields.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el.value.trim()) {
-            el.classList.add('error');
-            isValid = false;
-        } else {
-            el.classList.remove('error');
-        }
-    });
+  if (!event || !name || !phone || !date || !time || !rehearsal || !hall || !sound || !light || !video || !scene) {
+    alert("Пожалуйста, заполните все обязательные поля!");
+    return;
+  }
 
-    if (!isValid) {
-        alert("Заполните все обязательные поля!");
-        return;
-    }
+  // Проверка даты
+  const selectedDate = dayjs(date);
+  const today = dayjs().startOf('day');
+  if (selectedDate.isAfter(today)) {
+    alert("Дата мероприятия не может быть позже сегодняшнего дня!");
+    return;
+  }
 
-    // Значения
-    const event = document.getElementById('event').value;
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
-    const date = document.getElementById('date').value;
-    const time = document.getElementById('time').value;
-    const rehearsal = document.getElementById('rehearsal').value;
-    const hall = document.getElementById('hall').value;
-    const sound = document.getElementById('sound').value;
-    const light = document.getElementById('light').value;
-    const video = document.getElementById('video').value;
-    const scene = document.getElementById('scene').value;
-    const tech = document.getElementById('tech').value || '-';
-    const note = document.getElementById('note').value || '-';
+  // Проверка времени
+  const eventTime = dayjs(`${date}T${time}`);
+  const rehearsalTime = dayjs(`${date}T${rehearsal}`);
+  if (!rehearsalTime.isBefore(eventTime)) {
+    alert("Репетиция должна быть раньше времени начала мероприятия!");
+    return;
+  }
 
-    var today = new Date();
-    var formattedDate = today.getFullYear() + "" +
-                        String(today.getMonth()+1).padStart(2, '0') +
-                        String(today.getDate()).padStart(2, '0');
+  const now = dayjs();
+  const fileDate = now.format('YYYYMMDD');
 
-    // Документ
-    const doc = new Document({
-        sections: [{
-            properties: {
-                page: {
-                    margin: { top: 1134, right: 850, bottom: 1134, left: 1700 }
-                }
-            },
-            children: [
-                new Paragraph({
-                    children: [new TextRun({ text: "Технический райдер", bold: true, uppersize:true, size: 36 })],
-                    alignment: "center"
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: " " })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `Название: ${event}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `Дата: ${date}           Время: ${time}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `                                        Репетиция: ${rehearsal}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: " " })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `Заказчик: ${name}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `Телефон: ${phone}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: " " })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `Зал: ${hall}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: " " })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Звуковое техническое обеспечение", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${sound}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Световое техническое обеспечение", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${light}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Видео оформление мероприятия", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${video}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Постановочная часть (сценография)", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${scene}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Дополнительное техническое оборудование", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${tech}`, size: 32 })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: "Примечание", bold: true, underline: {}, size: 32  })]
-                }),
-                new Paragraph({
-                    children: [new TextRun({ text: `${note}`, size: 32 })]
-                }),
-            ]
-        }]
-    });
+  const doc = new Document({
+    sections: [{
+      properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } },
+      children: [
+        new Paragraph({ children: [new TextRun({ text: "ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })], alignment: "center" }),
+        new Paragraph({ children: [new TextRun("")] }),
+        new Paragraph({ children: [new TextRun({ text: `Название: ${event}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: `Дата: ${date}  Время: ${time}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: `Репетиция: ${rehearsal}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun("")] }),
+        new Paragraph({ children: [new TextRun({ text: `Заказчик: ${name}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: `Телефон: ${phone}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun("")] }),
+        new Paragraph({ children: [new TextRun({ text: `Зал: ${hall}`, size: 28 })] }),
+        new Paragraph({ children: [new TextRun("")] }),
+        new Paragraph({ children: [new TextRun({ text: "Звуковое техническое обеспечение", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: sound, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: "Световое техническое обеспечение", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: light, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: "Видео оформление мероприятия", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: video, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: "Постановочная часть (сценография)", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: scene, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: "Дополнительное техническое оборудование", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: tech, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: "Примечание", bold: true, underline: {}, size: 28 })] }),
+        new Paragraph({ children: [new TextRun({ text: note, size: 28 })] }),
+      ]
+    }]
+  });
 
-    Packer.toBlob(doc).then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = formattedDate + "_" + event.replace(/\s+/g, "_") + ".docx";
-        link.click();
-        URL.revokeObjectURL(link.href);
-    });
+  Packer.toBlob(doc).then(blob => {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${fileDate}_${event.replace(/\s+/g, "_")}.docx`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  });
 }
-
-// Маска для телефона
-document.getElementById('phone').addEventListener('input', function(e) {
-    let x = e.target.value.replace(/\D/g, '').slice(1);
-    let formatted = '+7 ';
-    if (x.length > 0) formatted += '(' + x.slice(0,3);
-    if (x.length >= 4) formatted += ') ' + x.slice(3,6);
-    if (x.length >= 7) formatted += '-' + x.slice(6,8);
-    if (x.length >= 9) formatted += '-' + x.slice(8,10);
-    e.target.value = formatted;
-});
 </script>
 
 </body>
