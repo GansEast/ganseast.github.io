@@ -57,8 +57,7 @@
         input, select, button, textarea {
           display: block;
           width: 100%;
-          margin-top: 4px;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           padding: 10px;
           font-size: 16px;
           border: 1px solid #ccc;
@@ -154,23 +153,27 @@
       <div class="container-datetime-item">
         <label>
           Дата:
-          <input type="date" id="date" required>
+          <input type="date" id="date" placeholder="Дата" required>
         </label>
       </div>
       <div class="container-datetime-item">
         <label>
           Время:
-          <input type="time" id="time" step="1800" required>
+          <input type="time" id="time" placeholder="Время" required>
         </label>
         <label>
           Репетиция:
-          <input type="time" id="rehearsal" step="1800" placeholder="Репетиция" required>
+          <input type="time" id="rehearsal" placeholder="Репетиция" required>
         </label>
       </div>
     </div>
     <label>
       Заказчик:
-      <input type="text" id="name" placeholder="Наименование организации" required>
+      <input type="text" id="customer" placeholder="Наименование организации" required>
+    </label>
+    <label>
+      ФИО ответственного лица:
+      <input type="text" id="name" placeholder="ФИО" required>
     </label>
     <label>
       Телефон:
@@ -183,28 +186,32 @@
           <option value="Большой зал">Большой зал</option>
           <option value="Мраморный зал">Мраморный зал</option>
           <option value="Гостиная">Гостиная</option>
+          <option value="Конференц-зал">Конференц-зал</option>
+          <option value="Выставка">Выставка</option>
       </select>
     </label>
-    <label>
-      Звуковое техническое обеспечение:
-      <textarea id="sound" required placeholder="Примечание:  Аудио материалы предоставляются за 2 часа до начала мероприятия"></textarea>
-    </label>
-    <label>
-      Световое техническое обеспечение:
-      <textarea id="light" required placeholder="Световое техническое обеспечение"></textarea>
-    </label>
-    <label>
-      Видео оформление мероприятия:
-      <textarea id="video" required placeholder="Примечание:  Видео материалы предоставляются за 2 часа до начала мероприятия"></textarea>
-    </label>
-    <label>
-      Постановочная часть (сценография):
-      <textarea id="scene" required placeholder="Постановочная часть (сценография)"></textarea>
-    </label>
-    <label>
-      Дополнительное техническое оборудование:
-      <textarea id="tech" placeholder="Дополнительное техническое оборудование"></textarea>
-    </label>
+    <div id="bigHallOptions" style="display: none;">
+      <label>
+        Звуковое техническое обеспечение:
+        <textarea id="sound" placeholder="Примечание:  Аудио материалы предоставляются за 2 часа до начала мероприятия"></textarea>
+      </label>
+      <label>
+        Световое техническое обеспечение:
+        <textarea id="light" placeholder="Световое техническое обеспечение"></textarea>
+      </label>
+      <label>
+        Видео оформление мероприятия:
+        <textarea id="video" placeholder="Примечание:  Видео материалы предоставляются за 2 часа до начала мероприятия"></textarea>
+      </label>
+      <label>
+        Постановочная часть (сценография):
+        <textarea id="scene" placeholder="Постановочная часть (сценография)"></textarea>
+      </label>
+      <label>
+        Дополнительное техническое оборудование:
+        <textarea id="tech" placeholder="Дополнительное техническое оборудование"></textarea>
+      </label>
+    </div>
     <label>
       Примечание:
       <input type="note" id="note">
@@ -225,16 +232,32 @@ flatpickr("#time", {
     enableTime: true,
     noCalendar: true,
     dateFormat: "H:i",
-    time_24hr: true,
-    minuteIncrement: 30 // Интервал времени 30 минут
+    time_24hr: true
 });
 
 flatpickr("#rehearsal", {
     enableTime: true,
     noCalendar: true,
     dateFormat: "H:i",
-    time_24hr: true,
-    minuteIncrement: 30 // Интервал времени 30 минут
+    time_24hr: true
+});
+
+const hallSelect = document.getElementById('hall');
+const bigHallOptions = document.getElementById('bigHallOptions');
+
+hallSelect.addEventListener('change', function() {
+  if (this.value === 'Большой зал') {
+    bigHallOptions.style.display = 'block';
+    document.getElementById('sound').required = true;
+    document.getElementById('light').required = true;
+    document.getElementById('video').required = true;
+    document.getElementById('scene').required = true;
+    document.getElementById('tech').required = true;
+  } else {
+    bigHallOptions.style.display = 'none';
+    // Сбросить введённые значения
+    bigHallOptions.querySelectorAll('input').forEach(input => input.value = '');
+  }
 });
 
 // Генерация документа
@@ -259,7 +282,7 @@ function generateDocx() {
         return;
     }
 
-    const fields = ["event", "name", "phone", "date", "time", "rehearsal", "hall", "sound", "light", "video", "scene"];
+    const fields = ["event", "name", "phone", "date", "time", "rehearsal", "hall", "customer"];
     let isValid = true;
 
     fields.forEach(id => {
@@ -278,6 +301,7 @@ function generateDocx() {
     }
 
     const event = document.getElementById('event').value;
+    const customer = document.getElementById('customer').value;
     const name = document.getElementById('name').value;
     const phone = document.getElementById('phone').value;
     const date = document.getElementById('date').value;
@@ -324,7 +348,10 @@ function generateDocx() {
                     children: [new docx.TextRun({ text: " " })]
                 }),
                 new docx.Paragraph({
-                    children: [new docx.TextRun({ text: `Заказчик: ${name}`, size: 32 })]
+                    children: [new docx.TextRun({ text: `Заказчик: ${customer}`, size: 32 })]
+                }),
+                new docx.Paragraph({
+                    children: [new docx.TextRun({ text: `ФИО отв. лица: ${name}`, size: 32 })]
                 }),
                 new docx.Paragraph({
                     children: [new docx.TextRun({ text: `Телефон: ${phone}`, size: 32 })]
