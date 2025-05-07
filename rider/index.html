@@ -60,9 +60,10 @@
         display: flex;
         gap: 5%;
       }
-      label {
+      .caption {
         font-size: 12px;
         padding-left: 10px;
+        margin: 10px 0 0;
       }
       input, select, button, textarea {
         display: block;
@@ -116,7 +117,8 @@
       select:focus,
       textarea:focus,
       input[type="date"]:focus,
-      input[type="time"]:focus {
+      input[type="time"]:focus,
+      .flatpickr-time-separator {
         border-color: #007bff60 !important;
         background-color: #007bff15 !important;
         outline: none;
@@ -129,15 +131,18 @@
         border-color: #ff000060;
         background-color: #ff000015;
       }
-
       input:valid,
       select:valid,
       textarea:valid,
       input[type="date"]:valid,
       input[type="time"]:valid,
-      .flatpickr-input[readonly]:invalid {
+      .flatpickr-time-separator {
         border-color: #007bff60;
         background-color: #007bff15;
+      }
+      input[type="checkbox"] {
+        width: auto;
+        display: inline-block;
       }
       textarea {
         resize: none;
@@ -156,7 +161,20 @@
       button:hover {
         background-color: #0056b3;
       }
+      .flatpickr-calendar.hasTime .flatpickr-time {
+        border: none;
+      }
+      .flatpickr-calendar {
+        box-shadow: none;
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      body {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
 
+      }
       @media (min-width: 601px) {
         .container {
           max-width: 600px;
@@ -167,6 +185,54 @@
       .error {
         border-color: red;
         background-color: #ff000040;
+      }
+      .field-option {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        height: 40px;
+        position: relative;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 9px;
+        justify-content: space-around;
+        margin-left: 10px;
+      }
+      .field-option input[type='number'] {
+        width: auto;
+        margin: 0;
+      }
+      .field-option input[type="checkbox"] {
+        opacity: 0;
+        position: absolute;
+        cursor: pointer;
+      }
+      .checkmark {
+        width: 22px;
+        height: 22px;
+        background-color: #007bff15;
+        border-radius: 6px;
+        /*border: 2px solid #ccc;*/
+        display: inline-block;
+        position: relative;
+      }
+      .field-option input[type="checkbox"]:checked ~ .checkmark {
+        background-color: #007bff;
+      }
+      .checkmark::after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+      .field-option input[type="checkbox"]:checked ~ .checkmark::after {
+        display: block;
+        left: 7px;
+        top: 3px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
       }
   </style>
 </head>
@@ -179,99 +245,178 @@
         Дома дружбы народов им. А.Е. Кулаковского
       </p>
     </div>
-    <label>
+    <label class="caption">
       Мероприятие:
       <input type="text" id="event" placeholder="Мероприятие" required>
     </label>
-    <label>
+    <label class="caption">
       Заказчик:
       <input type="text" id="customer" placeholder="Заказчик" required>
     </label>
     <div class="container-datetime">
       <div class="container-datetime-item">
-        <label>
+        <label class="caption">
           Дата:
           <input type="date" id="date" placeholder="Дата" required>
         </label>
       </div>
       <div class="container-datetime-item">
-        <label>
+        <label class="caption">
           Время:
           <input type="time" id="time" placeholder="Время" required>
         </label>
       </div>
       <div class="container-datetime-item">
-        <label>
+        <label class="caption">
           Репетиция:
           <input type="time" id="rehearsal" placeholder="Репетиция" required>
         </label>
       </div>
     </div>
-    <label>
+    <label class="caption">
       ФИО ответственного лица:
       <input type="text" id="name" placeholder="ФИО ответственного лица" required>
     </label>
-    <label>
+    <label class="caption">
       Телефон:
       <input type="tel" id="phone" placeholder="+7 (___) ___-__-__" required maxlength="18">
     </label>
-    <label>
+    <label class="caption">
       Зал:
       <select id="hall" required>
         <option value="Большой зал">Большой зал</option>
         <option value="Мраморный зал">Мраморный зал</option>
         <option value="Гостиная">Гостиная</option>
         <option value="Конференц-зал">Конференц-зал</option>
-        <option value="Фойе">Фойе</option>
       </select>
     </label>
-    <div id="bigHallFields" class="hall-fields" style="display: block;">
-      <label>
-        Звуковое техническое обеспечение:
-        <textarea id="sound" placeholder="Звуковое техническое обеспечение" required></textarea>
+    <div id="bigHallFields" style="display: block;">
+      <p class="caption">Звуковое техническое обеспечение:</p>
+      <label class="field-option">
+        <input type="checkbox" name="soundBig[]" value="Беспроводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Беспроводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
       </label>
-      <label>
-        Световое техническое обеспечение:
-        <textarea id="light" placeholder="Световое техническое обеспечение" required></textarea>
+      <label class="field-option">
+        <input type="checkbox" name="soundBig[]" value="Проводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Проводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
       </label>
-      <label>
-        Видео оформление мероприятия:
-        <textarea id="video" placeholder="Видео оформление мероприятия" required></textarea>
+      <label class="field-option">
+        <input type="checkbox" name="soundBig[]" value="Микрофонные стойки">
+        <span class="checkmark"></span>
+        <span class="label-text">Микрофонные стойки</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
       </label>
-      <label>
-        Постановочная часть (сценография):
-        <textarea id="scene" placeholder="Постановочная часть (сценография)" required></textarea>
+
+      <p class="caption">Световое техническое обеспечение:</p>
+      <label class="field-option">
+        <input type="checkbox" name="lightBig[]" value="Статическое освещение">
+        <span class="checkmark"></span>
+        <span class="label-text">Статическое освещение</span>
       </label>
-      <label>
-        Дополнительное техническое оборудование:
-        <textarea id="tech" placeholder="Дополнительное техническое оборудование" required></textarea>
+      <label class="field-option">
+        <input type="checkbox" name="lightBig[]" value="Затемнение зала">
+        <span class="checkmark"></span>
+        <span class="label-text">Затемнение зала</span>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="lightBig[]" value="Использование спецэффектов">
+        <span class="checkmark"></span>
+        <span class="label-text">Использование спецэффектов</span>
+      </label>
+
+      <p class="caption">Видео оформление мероприятия:</p>
+      <label class="field-option">
+        <input type="checkbox" name="videoBig[]" value="Предоставляются">
+        <span class="checkmark"></span>
+        <span class="label-text">Предоставляются</span>
+      </label>
+
+      <p class="caption">Постановочная часть (сценография):</p>
+      <label class="field-option">
+        <input type="checkbox" name="sceneBig[]" value="Утвержденный сценарий">
+        <span class="checkmark"></span>
+        <span class="label-text">Утвержденный сценарий</span>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="sceneBig[]" value="Программа">
+        <span class="checkmark"></span>
+        <span class="label-text">Программа</span>
       </label>
     </div>
-    <div id="smallHallFields" class="hall-fields" style="display: none;">
-      <label>
-        Звуковое техническое обеспечение:
-        <textarea id="soundSmall" placeholder="Звуковое техническое обеспечение" required></textarea>
+
+    <div id="smallHallFields" style="display: none;">
+      <p class="caption">Звуковое техническое обеспечение:</p>
+      <label class="field-option">
+        <input type="checkbox" name="soundSmall[]" value="Беспроводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Беспроводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="soundSmall[]" value="Проводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Проводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="soundSmall[]" value="Микрофонные стойки">
+        <span class="checkmark"></span>
+        <span class="label-text">Микрофонные стойки</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
       </label>
     </div>
-    <div id="salonFields" class="hall-fields" style="display: none;">
-      <label>
-        Звуковое техническое обеспечение:
-        <textarea id="soundSalon" placeholder=" " required></textarea>
+
+    <div id="salonFields" style="display: none;">
+      <p class="caption">Звуковое техническое обеспечение:</p>
+      <label class="field-option">
+        <input type="checkbox" name="soundSalon[]" value="Беспроводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Беспроводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="soundSalon[]" value="Проводные микрофоны">
+        <span class="checkmark"></span>
+        <span class="label-text">Проводные микрофоны</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="soundSalon[]" value="Микрофонные стойки">
+        <span class="checkmark"></span>
+        <span class="label-text">Микрофонные стойки</span>
+        <input type="number" placeholder="Кол-во" min="1" max="10" disabled>
+      </label>
+
+      <p class="caption">Видео оформление мероприятия:</p>
+      <label class="field-option">
+        <input type="checkbox" name="videoSalon[]" value="Видео">
+        <span class="checkmark"></span>
+        <span class="label-text">Видео</span>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="videoSalon[]" value="Презентация">
+        <span class="checkmark"></span>
+        <span class="label-text">Презентация</span>
       </label>
     </div>
-    <div id="roomFields" class="hall-fields" style="display: none;">
-      <label>
-        ВКС:
-        <textarea id="videoRoom" placeholder=" " required></textarea>
+    <div id="roomFields" style="display: none;">
+      <p class="caption">Техническое обеспечение:</p>
+      <label class="field-option">
+        <input type="checkbox" name="videoRoom[]" value="Видеоконференция">
+        <span class="checkmark"></span>
+        <span class="label-text">Видеоконференция</span>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="videoRoom[]" value="Конференция">
+        <span class="checkmark"></span>
+        <span class="label-text">Конференция</span>
       </label>
     </div>
-    <div id="foyerFields" class="hall-fields" style="display: none;">
-      <label>
-        Экран:
-        <textarea id="videoFoyer" placeholder=" " required></textarea>
-      </label>
-    </div>
-    <label>
+    <label class="caption">
       Примечание (Необязательное поле):
       <textarea id="note" placeholder=" "></textarea>
     </label>
@@ -317,8 +462,7 @@
     'Большой зал': document.getElementById('bigHallFields'),
     'Мраморный зал': document.getElementById('smallHallFields'),
     'Гостиная': document.getElementById('salonFields'),
-    'Конференц-зал': document.getElementById('roomFields'),
-    'Фойе': document.getElementById('foyerFields')
+    'Конференц-зал': document.getElementById('roomFields')
   };
 
   function hideAllHallFields() {
@@ -345,9 +489,25 @@
   }
   // Форматирование даты
 
+  // Checkbox
+  function getSelectedCheckboxes(groupName) {
+    const results = [];
+    document.querySelectorAll(`input[name="${groupName}"]:checked`).forEach(cb => {
+      const label = cb.parentElement.querySelector('.label-text').innerText;
+      const quantityInput = cb.parentElement.querySelector('input[type="number"]');
+      let quantityText = '';
+      if (quantityInput && quantityInput.value.trim() !== '') {
+        quantityText = ` — ${quantityInput.value} шт.`;
+      }
+      results.push(`${label}${quantityText}`);
+    });
+    return results;
+  }
+
+  // Checkbox
+
   // Генерация документа
   function generateDocx() {
-
     // Сравнение времени репетиции и начала мероприятия
     const eventTime = document.getElementById('time').value;
     const rehearsalTime = document.getElementById('rehearsal').value;
@@ -358,182 +518,178 @@
     const rehearsalTotalMinutes = rehearsalHour * 60 + rehearsalMinute;
 
     if (rehearsalTotalMinutes >= eventTotalMinutes) {
-      alert("Время репетиции должно быть раньше начала мероприятия!");
-      return;
+        alert("Время репетиции должно быть раньше начала мероприятия!");
+        return;
     }
-    // Сравнение времени репетиции и начала мероприятия
 
     // Проверка заполненности обязательных полей
     const fields = ["event", "customer", "date", "time", "rehearsal", "name", "phone", "hall"];
-    let isValid = true;
-
+    let valid = true;
     fields.forEach(id => {
-      const el = document.getElementById(id);
-      if (!el.value.trim()) {
-        el.classList.add('error');
-        isValid = false;
-      } else {
-        el.classList.remove('error');
-      }
+        const el = document.getElementById(id);
+        if (!el.value.trim()) {
+            el.classList.add('error');
+            valid = false;
+        } else {
+            el.classList.remove('error');
+        }
     });
-
-    if (!isValid) {
-      alert("Заполните все обязательные поля!");
-      return;
+    if (!valid) {
+        alert('Заполните все обязательные поля!');
+        return;
     }
-    // Проверка заполненности обязательных полей
 
-    const event = document.getElementById('event');
-    const customer = document.getElementById('customer');
-    const date = document.getElementById('date');
-    const time = document.getElementById('time');
-    const rehearsal = document.getElementById('rehearsal');
-    const name = document.getElementById('name');
-    const phone = document.getElementById('phone');
-    const hall = document.getElementById('hall');
-
-    const sound = document.getElementById('sound');
-    const light = document.getElementById('light');
-    const video = document.getElementById('video');
-    const scene = document.getElementById('scene');
-    const tech = document.getElementById('tech');
-    const note = document.getElementById('note');
-
-    const soundSmall = document.getElementById('soundSmall');
-
-    const soundSalon = document.getElementById('soundSalon');
-
-    const videoRoom = document.getElementById('videoRoom');
-
-    const videoFoyer = document.getElementById('videoFoyer');
+    const event = document.getElementById('event').value;
+    const customer = document.getElementById('customer').value;
+    const date = document.getElementById('date').value;
+    const time = document.getElementById('time').value;
+    const rehearsal = document.getElementById('rehearsal').value;
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+    const hall = document.getElementById('hall').value;
+    const note = document.getElementById('note').value;
 
     const paragraphs = [
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })],alignment: "center" }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Название: `, bold: true, size: 32 }), new docx.TextRun({ text: `${event.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Заказчик: `, bold: true, size: 32 }), new docx.TextRun({ text: `${customer.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Дата мероприятия: `, bold: true, size: 32 }), new docx.TextRun({ text: `${formatDate(date.value)} в ${time.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Репетиция: `, bold: true, size: 32 }), new docx.TextRun({ text: `${rehearsal.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `ФИО отв. лица: `, bold: true, size: 32 }), new docx.TextRun({ text: `${name.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Телефон: `, bold: true, size: 32 }), new docx.TextRun({ text: `${phone.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: `Зал: `, bold: true, size: 32 }), new docx.TextRun({ text: `${hall.value}`, size: 32 })] }),
-      new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })], alignment: "center" }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Название: `, bold: true, size: 32 }), new docx.TextRun({ text: `${event}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Заказчик: `, bold: true, size: 32 }), new docx.TextRun({ text: `${customer}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Дата мероприятия: `, bold: true, size: 32 }), new docx.TextRun({ text: `${formatDate(date)} в ${time}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Репетиция: `, bold: true, size: 32 }), new docx.TextRun({ text: `${rehearsal}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `ФИО отв. лица: `, bold: true, size: 32 }), new docx.TextRun({ text: `${name}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Телефон: `, bold: true, size: 32 }), new docx.TextRun({ text: `${phone}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: `Зал: `, bold: true, size: 32 }), new docx.TextRun({ text: `${hall}`, size: 32 })] }),
+        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
     ];
 
-    if (hallSelect.value === 'Большой зал') {
-      const requiredFields = [ sound, light, video, scene, tech ];
+    // Обработка разных залов
+    if (hall === 'Большой зал') {
+        const soundBig = getSelectedCheckboxes('soundBig[]');
+        const lightBig = getSelectedCheckboxes('lightBig[]');
+        const videoBig = getSelectedCheckboxes('videoBig[]');
+        const sceneBig = getSelectedCheckboxes('sceneBig[]');
 
-      const allFilled = requiredFields.every(field => field.value.trim() !== '');
-      if (!allFilled) {
-        alert('Пожалуйста, заполните все поля для Большого зала.');
-        return;
+        if (soundBig.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })]  }),
+                ...soundBig.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+
+        if (lightBig.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Световое техническое обеспечение:", bold: true, size: 32 })] }),
+                ...lightBig.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+
+        if (videoBig.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Видео оформление мероприятия:", bold: true, size: 32 })] }),
+                ...videoBig.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        } else {
+          paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Видео оформление мероприятия:", bold: true, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Не предоставляются", size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+
+        if (sceneBig.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Постановочная часть (сценография):", bold: true, size: 32 })] }),
+                ...sceneBig.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+    } 
+    else if (hall === 'Мраморный зал') {
+        const soundSmall = getSelectedCheckboxes('soundSmall[]');
+        
+        if (soundSmall.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })]  }),
+                ...soundSmall.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+    }
+    else if (hall === 'Гостиная') {
+        const soundSalon = getSelectedCheckboxes('soundSalon[]');
+        const videoSalon = getSelectedCheckboxes('videoSalon[]');
+        
+        if (soundSalon.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })]  }),
+                ...soundSalon.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+        
+        if (videoSalon.length > 0) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Видео оформление мероприятия:", bold: true, size: 32 })] }),
+                ...videoSalon.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] }))
+            );
+        }
+    }
+    else if (hall === 'Конференц-зал') {
+      const videoRoom = getSelectedCheckboxes('videoRoom[]');
+      if (videoRoom.length > 0) {
+          paragraphs.push(
+              new docx.Paragraph({ children: [new docx.TextRun({ text: "Видео оформление мероприятия:", bold: true, size: 32 })] }),
+              ...videoRoom.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] }))
+          );
       }
-
-      paragraphs.push(
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32  })] }),
-        new docx.Paragraph({  children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })]
-        }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${sound.value}`, size: 32 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Световое техническое обеспечение:", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${light.value}`, size: 32 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Видео оформление мероприятия:", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${video.value}`, size: 32 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Постановочная часть (сценография):", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${scene.value}`, size: 32 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Дополнительное техническое оборудование:", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${tech.value}`, size: 32 })]  })
-      );
-
-    } else if (hallSelect.value === 'Мраморный зал') {
-      const requiredFieldsSmall = [ soundSmall ];
-      const allFilledSmall = requiredFieldsSmall.every(field => field.value.trim() !== '');
-      if (!allFilledSmall) {
-        alert('Пожалуйста, заполните все поля для Мраморного зала.');
-        return;
-      }
-
-      paragraphs.push(
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32  })] }),
-        new docx.Paragraph({  children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${soundSmall.value}`, size: 32 })] })
-      );
-
-    } else if (hallSelect.value === 'Гостиная') {
-      const requiredFieldsSalon = [ soundSalon ];
-      const allFilledSalon = requiredFieldsSalon.every(field => field.value.trim() !== '');
-      if (!allFilledSalon) {
-        alert('Пожалуйста, заполните все поля для Гостиной.');
-        return;
-      }
-
-      paragraphs.push(
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Звуковое техническое обеспечение:", bold: true, size: 32  })] }),
-        new docx.Paragraph({  children: [new docx.TextRun({ text: "Примечание: Аудио материалы предоставляются за 2 часа до начала мероприятия", size: 20 })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${soundSalon.value}`, size: 32 })] })
-      );
-    } else if (hallSelect.value === 'Конференц-зал') {
-      const requiredFieldsRoom = [ videoRoom ];
-      const allFilledRoom = requiredFieldsRoom.every(field => field.value.trim() !== '');
-      if (!allFilledRoom) {
-        alert('Пожалуйста, заполните все поля для Конференц-зала.');
-        return;
-      }
-
-      paragraphs.push(
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "ВКС:", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${videoRoom.value}`, size: 32 })] })
-      );
-    } else if (hallSelect.value === 'Фойе') {
-      const requiredFieldsFoyer = [ videoFoyer ];
-      const allFilledFoyer = requiredFieldsFoyer.every(field => field.value.trim() !== '');
-      if (!allFilledFoyer) {
-        alert('Пожалуйста, заполните все поля для Фойе.');
-        return;
-      }
-
-      paragraphs.push(
-        new docx.Paragraph({ children: [new docx.TextRun({ text: "Экран:", bold: true, size: 32  })] }),
-        new docx.Paragraph({ children: [new docx.TextRun({ text: `${videoFoyer.value}`, size: 32 })] })
-      );
     }
 
-    paragraphs.push(
-      new docx.Paragraph({
-        children: [new docx.TextRun({ text: " " })]
-      }),
-      new docx.Paragraph({
-        children: [new docx.TextRun({ text: "Примечание:", bold: true, size: 32  })]
-      }),
-      new docx.Paragraph({
-        children: [new docx.TextRun({ text: `${note.value}`, size: 32 })]
-      })
-    );
+    // Добавляем примечание, если оно есть
+    if (note.trim()) {
+        paragraphs.push(
+            new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+            new docx.Paragraph({ children: [new docx.TextRun({ text: "Примечание:", bold: true, size: 32 })] }),
+            new docx.Paragraph({ children: [new docx.TextRun({ text: note, size: 32 })] })
+        );
+    }
 
-    // Документ
-    
+    // Создаем документ
     const doc = new docx.Document({
-      sections: [{
-        properties: {
-          page: {
-            margin: { top: 720, right: 720, bottom: 720, left: 720 }
-          }
-        },
-        children: paragraphs
-      }]
+        sections: [{
+            properties: {
+                page: {
+                    margin: { top: 720, right: 720, bottom: 720, left: 720 }
+                }
+            },
+            children: paragraphs
+        }]
     });
 
     // Сохраняем документ
     docx.Packer.toBlob(doc).then(blob => {
-      saveAs(blob, `Технический_Райдер_${date.value}_${event.value}.docx`);
+        saveAs(blob, `Технический_Райдер_${date}_${event}.docx`);
     });
   }
+
+  // Включение/выключение полей ввода количества для чекбоксов
+  document.querySelectorAll('.field-option input[type="checkbox"]').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+          const numberInput = this.parentElement.querySelector('input[type="number"]');
+          if (numberInput) {
+              numberInput.disabled = !this.checked;
+              if (!this.checked) numberInput.value = '';
+          }
+      });
+  });
 
   // Маска для телефона
   document.getElementById('phone').addEventListener('input', function(e) {
