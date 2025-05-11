@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Генератор технического райдера by GansEast</title>
+    <title>Генератор технического райдера @gavril_anatolievich</title>
     <link rel="manifest" href="manifest.json">
 
-    <meta name="theme-color" content="#a0ffdc">
-    <meta name="msapplication-TileColor" content="#a0ffdc">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#a0ffdc">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="Генератор технического райдера by GansEast" />
     
@@ -35,6 +35,77 @@
         background-size: cover;
         background-position: center center;
         background-attachment: fixed;
+        -webkit-user-select: none; 
+        -ms-user-select: none;
+        user-select: none;
+      }
+      input, select, button, textarea {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 10px;
+        font-size: 16px;
+        border:  none;
+        border-radius: 9px;
+        font-family: Arial, sans-serif;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background: url("data:image/svg+xml;utf8,<svg fill='121212' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
+        background-color: #fff;
+        background-size: 24px;
+        padding: 10px 40px 10px 10px; /* место для стрелки */
+      }
+      input::placeholder,
+      select::placeholder,
+      textarea::placeholder,
+      input[type="date"],
+      input[type="time"] {
+        font-family: Arial, sans-serif;
+      }
+      input:focus,
+      input:valid,
+      select:focus,
+      select:valid,
+      textarea:focus,
+      textarea:valid,
+      input[type="date"]:focus,
+      input[type="date"]:valid,
+      input[type="time"]:focus,
+      input[type="time"]:valid,
+      .flatpickr-time-separator {
+        background-color: #00a69315 !important;
+        outline: none;
+      }
+      input:invalid,
+      select:invalid,
+      textarea:invalid,
+      input[type="date"]:invalid,
+      input[type="time"]:invalid {
+        background-color: #ff000015;
+      }
+      input[type="checkbox"] {
+        width: 85px;
+        display: inline-block;
+      }
+      textarea {
+        resize: none;
+        min-height: 40px;
+      }
+      button {
+        background-color: #00a693;
+        color: white;
+        border: none;
+        cursor: pointer;
+        -webkit-transition: background 0.3s;
+        -o-transition: background 0.3s;
+        transition: background 0.3s;
+        margin-top: 28px;
+      }
+      button:hover {
+        background-color: #0056b3;
       }
       .container {
         -webkit-box-shadow: 0 0 10px rgba(0,0,0,0.1);
@@ -45,6 +116,9 @@
       .container-title {
         text-align: center;
         margin-bottom: 20px;
+      }
+      .container-title p {
+        font-size: 14px;
       }
       .container-title h2,
       .container-title p {
@@ -65,131 +139,13 @@
         padding-left: 10px;
         margin: 10px 0 0;
       }
-      input, select, button, textarea {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 10px;
-        font-size: 16px;
-        /*border: 1px solid #ccc;*/
-        border:  none;
-        border-radius: 9px;
-        font-family: Arial, sans-serif;
-      }
-      select {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background: url("data:image/svg+xml;utf8,<svg fill='121212' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
-        background-color: #fff;
-        background-size: 24px;
-        padding: 10px 40px 10px 10px; /* место для стрелки */
-      }
-      input[type="date"] {
-        padding: 10px 12px 10px 10px;
-      }
-      input[type="date"],
-      input[type="time"] {
-        width: 100%;
-        height: 40px;
-        color: #999;
-      }
-      input::-webkit-input-placeholder, select::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
-        font-family: Arial, sans-serif;
-      }
-      input::-moz-placeholder, select::-moz-placeholder, textarea::-moz-placeholder {
-        font-family: Arial, sans-serif;
-      }
-      input:-ms-input-placeholder, select:-ms-input-placeholder, textarea:-ms-input-placeholder {
-        font-family: Arial, sans-serif;
-      }
-      input::-ms-input-placeholder, select::-ms-input-placeholder, textarea::-ms-input-placeholder {
-        font-family: Arial, sans-serif;
-      }
-      input::placeholder,
-      select::placeholder,
-      textarea::placeholder,
-      input[type="date"],
-      input[type="time"] {
-        font-family: Arial, sans-serif;
-      }
-      input:focus,
-      select:focus,
-      textarea:focus,
-      input[type="date"]:focus,
-      input[type="time"]:focus,
-      .flatpickr-time-separator {
-        border-color: #007bff60 !important;
-        background-color: #007bff15 !important;
-        outline: none;
-      }
-      input:invalid,
-      select:invalid,
-      textarea:invalid,
-      input[type="date"]:invalid,
-      input[type="time"]:invalid {
-        border-color: #ff000060;
-        background-color: #ff000015;
-      }
-      input:valid,
-      select:valid,
-      textarea:valid,
-      input[type="date"]:valid,
-      input[type="time"]:valid,
-      .flatpickr-time-separator {
-        border-color: #007bff60;
-        background-color: #007bff15;
-      }
-      input[type="checkbox"] {
-        width: auto;
-        display: inline-block;
-      }
-      textarea {
-        resize: none;
-        min-height: 40px;
-      }
-      button {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-        -webkit-transition: background 0.3s;
-        -o-transition: background 0.3s;
-        transition: background 0.3s;
-        margin-top: 28px;
-      }
-      button:hover {
-        background-color: #0056b3;
-      }
-      .flatpickr-calendar.hasTime .flatpickr-time {
-        border: none;
-      }
-      .flatpickr-calendar {
-        box-shadow: none;
-        border-radius: 9px;
-        overflow: hidden;
-      }
-      body {
-        -webkit-user-select: none; /* Safari */
-        -ms-user-select: none; /* IE 10 and IE 11 */
-        user-select: none; /* Standard syntax */
-
-      }
-      @media (min-width: 601px) {
-        .container {
-          max-width: 600px;
-          padding: 25px 50px;
-          margin: 30px auto;
-        }
-      }
       .error {
-        border-color: red;
         background-color: #ff000040;
       }
       .field-option {
         display: inline-flex;
         align-items: center;
-        gap: 7px;
+        gap: 6px;
         height: 40px;
         position: relative;
         font-size: 16px;
@@ -199,7 +155,7 @@
         margin-left: 10px;
       }
       .field-option input[type='number'] {
-        width: 100px;
+        width: auto;
         margin: 0;
       }
       .field-option input[type="checkbox"] {
@@ -207,22 +163,8 @@
         position: absolute;
         cursor: pointer;
       }
-      .checkmark {
-        width: 22px;
-        height: 22px;
-        background-color: #007bff15;
-        border-radius: 6px;
-        /*border: 2px solid #ccc;*/
-        display: inline-block;
-        position: relative;
-      }
       .field-option input[type="checkbox"]:checked ~ .checkmark {
-        background-color: #007bff;
-      }
-      .checkmark::after {
-        content: "";
-        position: absolute;
-        display: none;
+        background-color: #00a693;
       }
       .field-option input[type="checkbox"]:checked ~ .checkmark::after {
         display: block;
@@ -234,6 +176,34 @@
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
       }
+      .checkmark {
+        width: 22px;
+        height: 22px;
+        background-color: #00a69315;
+        border-radius: 6px;
+        display: inline-block;
+        position: relative;
+      }
+      .checkmark::after {
+        content: "";
+        position: absolute;
+        display: none;
+      }
+      .flatpickr-calendar.hasTime .flatpickr-time {
+        border: none;
+      }
+      .flatpickr-calendar {
+        box-shadow: none;
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      @media (min-width: 601px) {
+        .container {
+          max-width: 600px;
+          padding: 25px 50px;
+          margin: 30px auto;
+        }
+      }
   </style>
 </head>
 <body>
@@ -244,6 +214,7 @@
       <p>
         Дома дружбы народов им. А.Е. Кулаковского
       </p>
+      <p>@gavril_anatolievich</p>
     </div>
     <label class="caption">
       Мероприятие:
@@ -346,6 +317,29 @@
         <span class="checkmark"></span>
         <span class="label-text">Программа</span>
       </label>
+
+      <!-- <p class="caption">Размещение :</p> -->
+      <br>
+      <label class="caption">
+        Размещение (Коллективы, участники)
+        <textarea id="teams" placeholder="Коллективы, участники"></textarea>
+      </label>
+      <label class="caption">
+        Размещение (Отдельные исполнители – артисты)
+        <textarea id="artists" placeholder="Отдельные исполнители – артисты"></textarea>
+      </label>
+
+      <p class="caption">Постановочная часть (сценография):</p>
+      <label class="field-option">
+        <input type="checkbox" name="sceneBig[]" value="Утвержденный сценарий">
+        <span class="checkmark"></span>
+        <span class="label-text">Утвержденный сценарий</span>
+      </label>
+      <label class="field-option">
+        <input type="checkbox" name="sceneBig[]" value="Программа">
+        <span class="checkmark"></span>
+        <span class="label-text">Программа</span>
+      </label>
     </div>
 
     <div id="smallHallFields" style="display: none;">
@@ -431,7 +425,8 @@
     altInput: true,
     altFormat: "d.m.Y",
     dateFormat: "Y-m-d",
-    minDate: "today"
+    minDate: "today",
+    disableMobile: "true"
   });
 
   flatpickr("#time", {
@@ -440,7 +435,8 @@
     noCalendar: true,
     dateFormat: "H:i",
     time_24hr: true,
-    defaultDate: "18:30"
+    defaultDate: "18:30",
+    disableMobile: "true"
   });
 
   flatpickr("#rehearsal", {
@@ -449,7 +445,8 @@
     noCalendar: true,
     dateFormat: "H:i",
     time_24hr: true,
-    defaultDate: "15:00"
+    defaultDate: "15:00",
+    disableMobile: "true"
   });
   // Инициализация flatpickr для даты и времени
 
@@ -486,7 +483,7 @@
   }
   // Форматирование даты
 
-  // Checkbox
+  // Получение данных из чекбоксов
   function getSelectedCheckboxes(groupName) {
     const results = [];
     document.querySelectorAll(`input[name="${groupName}"]:checked`).forEach(cb => {
@@ -500,10 +497,9 @@
     });
     return results;
   }
+  // Получение данных из чекбоксов
 
-  // Checkbox
-
-  // Генерация документа
+  // Генерация документа DOCX
   function generateDocx() {
     // Сравнение времени репетиции и начала мероприятия
     const eventTime = document.getElementById('time').value;
@@ -518,6 +514,7 @@
         alert("Время репетиции должно быть раньше начала мероприятия!");
         return;
     }
+    // Сравнение времени репетиции и начала мероприятия
 
     // Проверка заполненности обязательных полей
     const fields = ["event", "customer", "date", "time", "rehearsal", "name", "phone", "hall"];
@@ -535,6 +532,7 @@
         alert('Заполните все обязательные поля!');
         return;
     }
+    // Проверка заполненности обязательных полей
 
     const event = document.getElementById('event').value;
     const customer = document.getElementById('customer').value;
@@ -545,6 +543,8 @@
     const phone = document.getElementById('phone').value;
     const hall = document.getElementById('hall').value;
     const note = document.getElementById('note').value;
+    const teams = document.getElementById('teams').value;
+    const artists = document.getElementById('artists').value;
 
     const paragraphs = [
         new docx.Paragraph({ children: [new docx.TextRun({ text: " ТЕХНИЧЕСКИЙ РАЙДЕР", bold: true, size: 32 })], alignment: "center" }),
@@ -602,11 +602,18 @@
 
         if (sceneBig.length > 0) {
             paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
                 new docx.Paragraph({ children: [new docx.TextRun({ text: "Постановочная часть (сценография):", bold: true, size: 32 })] }),
                 ...sceneBig.map(item => new docx.Paragraph({ children: [new docx.TextRun({ text: item, size: 32 })] })),
-                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
             );
         }
+
+        paragraphs.push(
+          new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
+          new docx.Paragraph({ children: [new docx.TextRun({ text: `Размещение : `, bold: true, size: 32 })] }),
+          new docx.Paragraph({ children: [new docx.TextRun({ text: `Коллективы, участники: ${teams}`, size: 32 })] }),
+          new docx.Paragraph({ children: [new docx.TextRun({ text: `Отдельные исполнители – артисты: ${artists}`, size: 32 })] })
+        )
     } 
     else if (hall === 'Мраморный зал') {
         const soundSmall = getSelectedCheckboxes('soundSmall[]');
@@ -649,8 +656,8 @@
           );
       }
     }
+    // Обработка разных залов
 
-    // Добавляем примечание, если оно есть
     if (note.trim()) {
         paragraphs.push(
             new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
@@ -659,7 +666,6 @@
         );
     }
 
-    // Создаем документ
     const doc = new docx.Document({
         sections: [{
             properties: {
@@ -671,11 +677,11 @@
         }]
     });
 
-    // Сохраняем документ
     docx.Packer.toBlob(doc).then(blob => {
         saveAs(blob, `Технический_Райдер_${date}_${event}.docx`);
     });
   }
+  // Генерация документа DOCX
 
   // Включение/выключение полей ввода количества для чекбоксов
   document.querySelectorAll('.field-option input[type="checkbox"]').forEach(checkbox => {
@@ -687,6 +693,7 @@
           }
       });
   });
+  // Включение/выключение полей ввода количества для чекбоксов
 
   // Маска для телефона
   document.getElementById('phone').addEventListener('input', function(e) {
@@ -698,6 +705,7 @@
     if (x.length >= 9) formatted += '-' + x.slice(8,10);
     e.target.value = formatted;
   });
+  // Маска для телефона
 </script>
 
 </body>
