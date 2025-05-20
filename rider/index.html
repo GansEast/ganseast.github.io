@@ -210,11 +210,10 @@
   <div class="container">
     <div class="container-title">
       <img src="1.webp" alt="">
-      <h2>Генератор технического райдера</h2>
+      <h2>Технический райдер</h2>
       <p>
         Дома дружбы народов им. А.Е. Кулаковского
       </p>
-      <p>@gavril_anatolievich</p>
     </div>
     <label class="caption">
       Мероприятие:
@@ -308,18 +307,21 @@
 
       <p class="caption">Постановочная часть (сценография):</p>
       <label class="field-option">
-        <input type="checkbox" name="sceneBig[]" value="Утвержденный сценарий">
+        <input type="checkbox" name="sceneBig[]" value="Черная одежда сцены">
         <span class="checkmark"></span>
-        <span class="label-text">Утвержденный сценарий</span>
+        <span class="label-text">Черная одежда сцены</span>
       </label>
       <label class="field-option">
-        <input type="checkbox" name="sceneBig[]" value="Программа">
+        <input type="checkbox" name="sceneBig[]" value="Белая одежда сцены">
         <span class="checkmark"></span>
-        <span class="label-text">Программа</span>
+        <span class="label-text">Белая одежда сцены</span>
+      </label>
+      <label class="caption">
+        Дополнительная информация по сценографии:
+        <textarea id="sceneInfo" placeholder="Дополнительная информация по сценографии"></textarea>
       </label>
 
       <!-- <p class="caption">Размещение :</p> -->
-      <br>
       <label class="caption">
         Размещение (Коллективы, участники)
         <textarea id="teams" placeholder="Коллективы, участники"></textarea>
@@ -532,6 +534,7 @@
     const phone = document.getElementById('phone').value;
     const hall = document.getElementById('hall').value;
     const note = document.getElementById('note').value;
+    const sceneInfo = document.getElementById('sceneInfo').value;
     const teams = document.getElementById('teams').value;
     const artists = document.getElementById('artists').value;
 
@@ -597,9 +600,17 @@
             );
         }
 
+        if (sceneInfo.trim()) {
+            paragraphs.push(
+                new docx.Paragraph({ children: [new docx.TextRun({ text: "Дополнительная информация по сценографии:", bold: true, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: sceneInfo, size: 32 })] }),
+                new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] })
+            );
+        }
+
         paragraphs.push(
           new docx.Paragraph({ children: [new docx.TextRun({ text: " " })] }),
-          new docx.Paragraph({ children: [new docx.TextRun({ text: `Размещение : `, bold: true, size: 32 })] }),
+          new docx.Paragraph({ children: [new docx.TextRun({ text: `Размещение: `, bold: true, size: 32 })] }),
           new docx.Paragraph({ children: [new docx.TextRun({ text: `Коллективы, участники: ${teams}`, size: 32 })] }),
           new docx.Paragraph({ children: [new docx.TextRun({ text: `Отдельные исполнители – артисты: ${artists}`, size: 32 })] })
         )
