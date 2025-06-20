@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог локальных шрифтов</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Каталог шрифтов с поддержкой Якутских символов</h1>
+            <div class="controls">
+                <input type="text" id="search" placeholder="Поиск шрифтов...">
+                <select id="filter">
+                    <option value="all">Все категории</option>
+                    <option value="sans-serif">Без засечек</option>
+                    <option value="serif">С засечками</option>
+                    <option value="monospace">Моноширинные</option>
+                    <option value="display">Декоративные</option>
+                    <option value="handwriting">Рукописные</option>
+                </select>
+                <button id="reset">Сбросить</button>
+            </div>
+        </header>
+        
+        <main>
+            <div class="font-grid" id="font-grid">
+                <!-- Шрифты будут загружены через JavaScript -->
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 Каталог шрифтов с поддержкой Якутских символов. Все права защищены.</p>
+        </footer>
+    </div>
+    
+    <div class="font-preview-modal" id="preview-modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-font-name">Название шрифта</h2>
+            <div class="preview-text" id="modal-preview-text">
+                Съешь ещё этих мягких французских булок, да выпей чаю.
+            </div>
+            <div class="custom-text">
+                <textarea id="custom-text" placeholder="Введите свой текст для предпросмотра..."></textarea>
+            </div>
+            <div class="font-info">
+                <p><strong>Семейство:</strong> <span id="font-family"></span></p>
+                <p><strong>Категория:</strong> <span id="font-category"></span></p>
+                <p><strong>Формат:</strong> <span id="font-format"></span></p>
+                <p><strong>Вес:</strong> <span id="font-weight"></span></p>
+                <p><strong>Стиль:</strong> <span id="font-style"></span></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
