@@ -216,7 +216,18 @@ footer {
     background-color: #e0f7fa !important;
     color: #00acc1 !important;
 }
+/* В модальном окне добавьте блок с демонстрацией вариантов */
+.variants-demo {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+}
 
+.variant-example {
+    margin: 10px 0;
+    font-size: 18px;
+}
 /* Адаптивность */
 @media (max-width: 768px) {
     .controls {

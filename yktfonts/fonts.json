@@ -1,94 +1,50 @@
 {
     "fonts": [
         {
-            "name": "Arial",
-            "family": "Arial",
+            "name": "Roboto",
+            "family": "Roboto",
             "category": "sans-serif",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Arial - стандартный sans-serif шрифт"
+            "variants": [
+                {
+                    "file": "Roboto-Regular.ttf",
+                    "weight": "400",
+                    "style": "normal"
+                },
+                {
+                    "file": "Roboto-Bold.ttf",
+                    "weight": "700",
+                    "style": "normal"
+                },
+                {
+                    "file": "Roboto-Italic.ttf",
+                    "weight": "400",
+                    "style": "italic"
+                },
+                {
+                    "file": "Roboto-BoldItalic.ttf",
+                    "weight": "700",
+                    "style": "italic"
+                }
+            ],
+            "previewText": "Roboto - современный sans-serif шрифт"
         },
         {
-            "name": "Times New Roman",
-            "family": "Times New Roman",
+            "name": "Lora",
+            "family": "Lora",
             "category": "serif",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Times New Roman - классический шрифт с засечками"
-        },
-        {
-            "name": "Courier New",
-            "family": "Courier New",
-            "category": "monospace",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Courier New - моноширинный шрифт для кода"
-        },
-        {
-            "name": "Comic Sans MS",
-            "family": "Comic Sans MS",
-            "category": "display",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Comic Sans MS - неформальный декоративный шрифт"
-        },
-        {
-            "name": "Segoe Script",
-            "family": "Segoe Script",
-            "category": "handwriting",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Segoe Script - элегантный рукописный шрифт"
-        },
-        {
-            "name": "Verdana",
-            "family": "Verdana",
-            "category": "sans-serif",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Verdana - удобочитаемый sans-serif шрифт"
-        },
-        {
-            "name": "Georgia",
-            "family": "Georgia",
-            "category": "serif",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Georgia - элегантный шрифт с засечками"
-        },
-        {
-            "name": "Consolas",
-            "family": "Consolas",
-            "category": "monospace",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Consolas - современный моноширинный шрифт"
-        },
-        {
-            "name": "Impact",
-            "family": "Impact",
-            "category": "display",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Impact - жирный декоративный шрифт"
-        },
-        {
-            "name": "Lucida Handwriting",
-            "family": "Lucida Handwriting",
-            "category": "handwriting",
-            "format": "TTF",
-            "weight": "Normal",
-            "style": "Normal",
-            "previewText": "Lucida Handwriting - красивый рукописный шрифт"
+            "variants": [
+                {
+                    "file": "Lora-Regular.ttf",
+                    "weight": "400",
+                    "style": "normal"
+                },
+                {
+                    "file": "Lora-Bold.ttf",
+                    "weight": "700",
+                    "style": "normal"
+                }
+            ],
+            "previewText": "Lora - элегантный шрифт с засечками"
         }
     ]
 }
