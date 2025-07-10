@@ -4,7 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KeyzGO — Безопасный интернет без границ</title>
+    <meta name="description" content="Обходите блокировки, скрывайте IP-адрес и защищайте личные данные в один клик. Анонимность на скорости света ⚡">
+    <meta name="keywords" content="VPN, OpenVPN, анонимный интернет, обход блокировок, скрыть IP, безопасный интернет">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="KeyzGO" />
+    <link rel="manifest" href="/site.webmanifest" />
     <style>
         :root {
             --primary: #6c5ce7;
@@ -14,11 +22,16 @@
             --accent: #00cec9;
         }
         
+        ::selection {
+            color: var(--accent);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', system-ui, sans-serif;
+            /*user-select: none;*/
         }
         
         body {
@@ -48,7 +61,7 @@
         
         header.scrolled {
             padding: 10px 0;
-            background: rgba(15, 15, 26, 0.95);
+            background: rgba(15, 15, 26, 0.75);
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
         
@@ -57,9 +70,14 @@
             justify-content: space-between;
             align-items: center;
         }
+
+        a {
+            outline: none;
+        }
         
         .logo {
             width: 192px;
+            height: 40px;
             transition: transform 0.3s;
         }
         
@@ -514,7 +532,7 @@
         }
         
         .faq-item {
-            margin-bottom: 15px;
+            /*margin-bottom: 15px;*/
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             opacity: 0;
             transform: translateY(30px);
@@ -538,11 +556,29 @@
         .faq-question::after {
             content: "+";
             font-size: 24px;
-            transition: transform 0.3s;
+            transition: transform 0.3s ease, color 0.3s ease;
+            color: var(--primary);
         }
         
         .faq-question.active::after {
             content: "-";
+            transform: rotate(180deg) translateY(-6px) translateX(3px);
+            color: var(--accent);
+        }
+        
+        .faq-question:hover::after {
+            color: var(--accent);
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+            padding: 0 20px;
+        }
+        
+        .faq-question.active + .faq-answer {
+            padding: 0 20px 20px;
         }
         
         .faq-answer {
@@ -553,6 +589,11 @@
         }
         
         .faq-answer p {
+            padding-bottom: 20px;
+        }
+
+        .faq-answer ul {
+            padding-left: 40px;
             padding-bottom: 20px;
         }
         
@@ -753,6 +794,13 @@
         }
         
         /* Responsive */
+        @media (max-width: 1144px) {
+            .features-grid {
+                text-align: center;
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 992px) {
             .hero h1 {
                 font-size: 42px;
@@ -760,6 +808,11 @@
             
             .hero p {
                 font-size: 18px;
+            }
+
+            .pricing-grid > :last-child:nth-child(odd) {
+                grid-column: 1 / -1; /* Занимает все колонки */
+                width: 100%; /* На всю ширину (можно и без этого, т.к. grid-column уже растягивает) */
             }
         }
         
@@ -796,6 +849,10 @@
                 text-align: center;
             }
             
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
             .pricing-grid {
                 grid-template-columns: 1fr;
             }
@@ -896,18 +953,18 @@
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-globe"></i></div>
-                    <h3>100+ серверов</h3>
-                    <p>Доступ к Instagram, YouTube и соцсетям из любой точки мира.</p>
+                    <h3>Полный доступ</h3>
+                    <p>Доступ к Instagram, YouTube и соцсетям.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-bolt"></i></div>
                     <h3>UltraSpeed</h3>
-                    <p>Скорость без тормозов — онлайн-игры без лагов.</p>
+                    <p>Высокоскоростная передача данных без тормозов.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
                     <h3>Все устройства</h3>
-                    <p>Одна подписка для 5 устройств: ПК, смартфоны, роутеры. Все платформы поддерживаются.</p>
+                    <p>Поддержка платформ: Windows, macOS, Android, iOS, Smart TV</p>
                 </div>
             </div>
         </div>
@@ -922,38 +979,36 @@
             </div>
             <div class="pricing-grid">
                 <div class="pricing-card">
-                    <div class="price">$0.75<span>/месяц</span></div>
+                    <h3>Базовый</h3>
+                    <div class="price">200₽<span>/3 месяца</span></div>
                     <div class="pricing-features">
                         <ul>
-                            <li>1 устройство</li>
                             <li>Неограниченный трафик</li>
-                            <li>50+ серверов</li>
                             <li>Поддержка 24/7</li>
                         </ul>
                     </div>
                     <a href="#" class="btn btn-outline">Купить</a>
                 </div>
                 <div class="pricing-card popular">
+                    <h3>Выгодный год</h3>
                     <div class="popular-label">Выгодно</div>
-                    <div class="price">$6.35<span>/год</span></div>
-                    <div class="savings">Экономия 42%</div>
+                    <div class="price">600₽<span>/год</span></div>
+                    <div class="savings">Экономия 25%</div>
                     <div class="pricing-features">
                         <ul>
-                            <li>5 устройств</li>
                             <li>Неограниченный трафик</li>
-                            <li>100+ серверов</li>
                             <li>Приоритетная поддержка</li>
                             <li>Защита от DDoS</li>
                         </ul>
                     </div>
-                    <a href="#" class="btn btn-primary">Купить</a>
+                    <a href="https://www.digiseller.market/asp2/pay_wm.asp?id_d=5273669&lang=ru-RU" class="btn btn-primary">Купить</a>
                 </div>
                 <div class="pricing-card">
-                    <div class="price">$2.00<span>/3 месяца</span></div>
-                    <div class="savings">Экономия 26%</div>
+                    <h3>Полгода+</h3>
+                    <div class="price">350₽<span>/6 месяцев</span></div>
+                    <div class="savings">Экономия 12.5%</div>
                     <div class="pricing-features">
                         <ul>
-                            <li>10 устройств</li>
                             <li>Неограниченный трафик</li>
                             <li>Все серверы</li>
                             <li>Персональный менеджер</li>
@@ -982,12 +1037,12 @@
                 <div class="step">
                     <div class="step-number">2</div>
                     <h3>Скачайте приложение</h3>
-                    <p>Установите OpenVPN на все ваши устройства: Windows, macOS, iOS, Android или Linux.</p>
+                    <p>Установите OpenVPN на устройство, где будет использоваться VPN. Выберите нужное устройство и настройте подключение.</p>
                 </div>
                 <div class="step">
                     <div class="step-number">3</div>
-                    <h3>Включите защиту</h3>
-                    <p>Выберите сервер в любой стране и наслаждайтесь свободным и безопасным интернетом.</p>
+                    <h3>Включите VPN</h3>
+                    <p>Наслаждайтесь свободным и безопасным интернетом.</p>
                 </div>
             </div>
         </div>
@@ -1053,15 +1108,67 @@
             </div>
             <div class="faq-container">
                 <div class="faq-item">
-                    <div class="faq-question">Это законно?</div>
+                    <div class="faq-question">Что такое OpenVPN ключ?</div>
                     <div class="faq-answer">
-                        <p>KeyzGO — это инструмент для защиты конфиденциальности, а не для незаконной деятельности. Мы не храним логи вашей активности.</p>
+                        <p>OpenVPN ключ — это файл конфигурации (обычно с расширением .ovpn), который содержит настройки для безопасного подключения к VPN-серверу. Он включает данные аутентификации, шифрование и параметры соединения.</p>
                     </div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-question">Будет ли тормозить интернет?</div>
+                    <div class="faq-question">Как активировать OpenVPN ключ?</div>
                     <div class="faq-answer">
-                        <p>Нет! Наши серверы оптимизированы для минимальной потери скорости. Вы сможете смотреть 4K-видео, играть в онлайн-игры и скачивать большие файлы без заметного снижения скорости.</p>
+                        <ul>
+                            <li>Скачайте и установите официальный клиент OpenVPN для вашей ОС (Windows, macOS, Linux, Android, iOS).</li>
+                            <li>Загрузите файл конфигурации (.ovpn) в клиент.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">На скольких устройствах можно использовать один ключ?</div>
+                    <div class="faq-answer">
+                        <p>Один ключ — одно устройство: Подключение возможно только на одном устройстве одновременно.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Можно ли перенести ключ на другое устройство?</div>
+                    <div class="faq-answer">
+                        <p>Да, если ключ привязан к одному устройству, потребуется деактивация на старом.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Почему ключ не работает?</div>
+                    <div class="faq-answer">
+                        <p>Возможные причины:</p>
+                        <ul>
+                            <li>Просрочен (срок действия истек).</li>
+                            <li>Уже используется на другом устройстве.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Что делать при утере ключа?</div>
+                    <div class="faq-answer">
+                        <p>Возможные причины:</p>
+                        <ul>
+                            <li>Восстановить через email (если привязан к аккаунту).</li>
+                            <li>Обратиться в поддержку.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">OpenVPN ключ = лицензия?</div>
+                    <div class="faq-answer">
+                        <p>Не всегда. Ключ (config.ovpn) — это настройки подключения, а лицензия регулирует срок и условия использования (платежи, кол-во устройств).</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">Безопасно ли хранить ключи на смартфоне?</div>
+                    <div class="faq-answer">
+                        <p>Да, если:</p>
+                        <ul>
+                            <li>Файл защищен паролем.</li>
+                            <li>Устройство не заражено вирусами.</li>
+                            <li>Используется официальный клиент (не сторонние приложения).</li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -1123,9 +1230,20 @@
         document.querySelectorAll('.faq-question').forEach(question => {
             question.addEventListener('click', () => {
                 const answer = question.nextElementSibling;
+                const isActive = question.classList.contains('active');
+                
+                // Закрываем все открытые вопросы
+                document.querySelectorAll('.faq-question').forEach(q => {
+                    if (q !== question && q.classList.contains('active')) {
+                        q.classList.remove('active');
+                        q.nextElementSibling.style.maxHeight = 0;
+                    }
+                });
+                
+                // Переключаем текущий вопрос
                 question.classList.toggle('active');
                 
-                if (question.classList.contains('active')) {
+                if (!isActive) {
                     answer.style.maxHeight = answer.scrollHeight + 'px';
                 } else {
                     answer.style.maxHeight = 0;
