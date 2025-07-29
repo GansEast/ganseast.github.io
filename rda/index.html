@@ -1,209 +1,214 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>RDA: Республика Саха</title>
-  <!-- Подключаем API с несколькими fallback-источниками -->
-  <script>
-    function loadYandexMaps() {
-      return new Promise((resolve, reject) => {
-        // Основной источник
-        const primaryScript = document.createElement('script');
-        primaryScript.src = 'https://api-maps.yandex.ru/3.0/?apikey=2e0dfe50-db2b-4cc8-aa37-19513d79b915&lang=ru_RU';
-        primaryScript.onload = resolve;
-        primaryScript.onerror = () => {
-          // Первый fallback
-          const fallback1 = document.createElement('script');
-          fallback1.src = 'https://api-maps.yandex.ru/2.1/?apikey=2e0dfe50-db2b-4cc8-aa37-19513d79b915&lang=ru_RU';
-          fallback1.onload = resolve;
-          fallback1.onerror = () => {
-            // Второй fallback - используем Leaflet
-            loadLeaflet().then(resolve).catch(reject);
-          };
-          document.head.appendChild(fallback1);
-        };
-        document.head.appendChild(primaryScript);
-      });
-    }
-
-    function loadLeaflet() {
-      return new Promise((resolve, reject) => {
-        // Подключаем Leaflet как альтернативу
-        const leafletCss = document.createElement('link');
-        leafletCss.rel = 'stylesheet';
-        leafletCss.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-        
-        const leafletScript = document.createElement('script');
-        leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-        leafletScript.onload = resolve;
-        leafletScript.onerror = reject;
-        
-        document.head.appendChild(leafletCss);
-        document.head.appendChild(leafletScript);
-      });
-    }
-  </script>
-  <style>
-    html, body, #map {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    #status {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      border-radius: 5px;
-      font-family: Arial;
-      max-width: 80%;
-    }
-  </style>
+    <meta charset="utf-8">
+    <title>Отображение полигонов на Яндекс Карте</title>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=2e0dfe50-db2b-4cc8-aa37-19513d79b915&lang=ru_RU" type="text/javascript"></script>
+    <style>
+        #map {
+            width: 100%;
+            height: 800px;
+        }
+        #status {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-family: Arial;
+        }
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            font-family: Arial;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #000;
+        }
+    </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="status">Инициализация карты...</div>
-
-  <script>
-    // Конфигурация
-    const CONFIG = {
-      initialCenter: [63.5, 129.8],
-      initialZoom: 4,
-      wfsUrl: "https://map.r1cf.ru/geoserver/cite/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=RDA_2025X&outputFormat=application/json&CQL_FILTER=rda%20LIKE%20'YA%25'"
-    };
-
-    // Главная функция инициализации
-    async function init() {
-      try {
-        updateStatus("Загрузка картографического API...");
+    <div id="map"></div>
+    <div id="status">Инициализация карты...</div>
+    <div class="legend">
+        <h3>Легенда (az_rating)</h3>
+        <div class="legend-item"><div class="legend-color" style="background: #FF0000;"></div> <span>< 0.20</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #0000FF;"></div> <span>0.20 - 0.40</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #FFFF00;"></div> <span>0.40 - 0.60</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #90EE90;"></div> <span>0.60 - 0.80</span></div>
+        <div class="legend-item"><div class="legend-color" style="background: #008000;"></div> <span>> 0.80</span></div>
+    </div>
+    
+    <script>
+        ymaps.ready(init);
         
-        // Пытаемся загрузить Яндекс.Карты или Leaflet
-        await loadYandexMaps();
-        
-        // Проверяем, какой API загрузился
-        if (window.ymaps) {
-          initYandexMap();
-        } else if (window.L) {
-          initLeafletMap();
-        } else {
-          throw new Error("Не удалось загрузить ни один картографический API");
+        function init() {
+            const map = new ymaps.Map("map", {
+                center: [62.0, 130.0],
+                zoom: 5
+            });
+            
+            document.getElementById('status').textContent = "Загрузка данных...";
+            
+            loadGeoJSON('RDA_2025X.json')
+                .then(geoJsonData => {
+                    document.getElementById('status').textContent = "Обработка данных...";
+                    const features = processGeoJSON(geoJsonData);
+                    displayFeatures(map, features);
+                    document.getElementById('status').textContent = `Загружено ${features.length} объектов`;
+                    setTimeout(() => document.getElementById('status').style.display = 'none', 5000);
+                })
+                .catch(error => {
+                    console.error("Ошибка:", error);
+                    document.getElementById('status').textContent = "Ошибка: " + error.message;
+                    document.getElementById('status').style.backgroundColor = "#ffdddd";
+                });
         }
         
-      } catch (error) {
-        updateStatus("Ошибка: " + error.message);
-        console.error("Ошибка инициализации:", error);
-      }
-    }
-
-    // Инициализация Яндекс.Карт
-    function initYandexMap() {
-      updateStatus("Инициализация Яндекс.Карт...");
-      
-      ymaps.ready(() => {
-        const map = new ymaps.Map("map", {
-          center: CONFIG.initialCenter,
-          zoom: CONFIG.initialZoom,
-          controls: ['zoomControl']
-        });
-
-        loadAndDisplayData(map, (map, geojson) => {
-          const objectManager = new ymaps.ObjectManager({
-            clusterize: true,
-            gridSize: 32,
-            clusterDisableClickZoom: true
-          });
-          
-          objectManager.objects.options.set('preset', 'islands#redDotIcon');
-          objectManager.clusters.options.set('preset', 'islands#redClusterIcons');
-          
-          objectManager.add(filterPointsOnly(geojson));
-          map.geoObjects.add(objectManager);
-        });
-      });
-    }
-
-    // Инициализация Leaflet
-    function initLeafletMap() {
-      updateStatus("Инициализация Leaflet...");
-      
-      const map = L.map('map').setView(CONFIG.initialCenter, CONFIG.initialZoom);
-      
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(map);
-      
-      loadAndDisplayData(map, (map, geojson) => {
-        L.geoJSON(filterPointsOnly(geojson), {
-          pointToLayer: (feature, latlng) => L.marker(latlng),
-          style: { color: 'red' }
-        }).addTo(map);
-      });
-    }
-
-    // Загрузка и отображение данных (универсальная функция)
-    async function loadAndDisplayData(map, displayCallback) {
-      try {
-        updateStatus("Загрузка данных...");
-        const response = await fetch(CONFIG.wfsUrl);
-        const geojson = await response.json();
-        
-        updateStatus(`Загружено объектов: ${geojson.features.length}`);
-        
-        // Отображение данных (только точек)
-        displayCallback(map, geojson);
-        
-      } catch (error) {
-        console.error("Ошибка загрузки данных:", error);
-        updateStatus("Ошибка загрузки данных. Используем тестовые данные");
-        displayTestData(map, displayCallback);
-      }
-    }
-
-    // Фильтрация только точек
-    function filterPointsOnly(geojson) {
-      if (!geojson || !geojson.features) return { type: "FeatureCollection", features: [] };
-      
-      return {
-        type: "FeatureCollection",
-        features: geojson.features.filter(
-          feature => feature.geometry && feature.geometry.type === "Point"
-        )
-      };
-    }
-
-    // Показать тестовые данные
-    function displayTestData(map, displayCallback) {
-      const testData = {
-        type: "FeatureCollection",
-        features: [
-          createTestFeature("Якутск", [129.73, 62.03], "YA_TEST_001"),
-          createTestFeature("Мирный", [113.96, 62.53], "YA_TEST_002")
-        ]
-      };
-      
-      displayCallback(map, testData);
-    }
-
-    function createTestFeature(name, coords, rda) {
-      return {
-        type: "Feature",
-        properties: { name, rda },
-        geometry: { 
-          type: "Point", 
-          coordinates: coords 
+        async function loadGeoJSON(url) {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`Ошибка HTTP! Статус: ${response.status}`);
+            }
+            return await response.json();
         }
-      };
-    }
-
-    function updateStatus(message) {
-      document.getElementById("status").textContent = message;
-    }
-
-    // Запуск приложения
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
+        
+        function processGeoJSON(geoJsonData) {
+            if (!geoJsonData || !geoJsonData.features) {
+                throw new Error("Неверный формат GeoJSON");
+            }
+            
+            return geoJsonData.features.map(feature => {
+                const geometry = normalizeGeometry(feature.geometry);
+                if (!geometry) {
+                    console.warn("Объект пропущен - неверная геометрия:", feature);
+                    return null;
+                }
+                
+                return {
+                    geometry: geometry,
+                    properties: feature.properties || { name: "Без названия", az_rating: 0 }
+                };
+            }).filter(feature => feature !== null);
+        }
+        
+        function normalizeGeometry(geometry) {
+            if (!geometry || !geometry.coordinates) return null;
+            
+            const swapCoordinates = (coords) => {
+                return coords.map(ring => 
+                    ring.map(([lat, lon]) => [lon, lat])
+                );
+            };
+            
+            if (geometry.type === "MultiPolygon") {
+                if (!geometry.coordinates[0] || !geometry.coordinates[0][0]) return null;
+                return {
+                    type: "Polygon",
+                    coordinates: swapCoordinates(geometry.coordinates[0])
+                };
+            }
+            
+            if (geometry.type === "Polygon") {
+                if (!geometry.coordinates[0]) return null;
+                return {
+                    type: "Polygon",
+                    coordinates: swapCoordinates(geometry.coordinates)
+                };
+            }
+            
+            return null;
+        }
+        
+        function getColorByRating(rating) {
+            if (rating === undefined || rating === null) return '#CCCCCC'; // Серый для отсутствующих значений
+            
+            const numRating = parseFloat(rating);
+            if (isNaN(numRating)) return '#CCCCCC';
+            
+            if (numRating < 0.20) return '#FF0000'; // Красный
+            if (numRating < 0.40) return '#0000FF'; // Синий
+            if (numRating < 0.60) return '#FFFF00'; // Желтый
+            if (numRating < 0.80) return '#90EE90'; // Светло-зеленый
+            return '#008000'; // Зеленый
+        }
+        
+        function displayFeatures(map, features) {
+            if (!features || features.length === 0) {
+                console.error("Нет данных для отображения");
+                return;
+            }
+            
+            const objectCollection = new ymaps.GeoObjectCollection();
+            
+            features.forEach(feature => {
+                try {
+                    const rating = feature.properties.az_rating;
+                    const color = getColorByRating(rating);
+                    
+                    const polygon = new ymaps.Polygon(
+                        feature.geometry.coordinates,
+                        {
+                            hintContent: `${feature.properties.name} (az_rating: ${rating || 'нет данных'})`,
+                            balloonContent: createBalloonContent(feature.properties),
+                        },
+                        {
+                            fillColor: color,
+                            strokeColor: '#000000',
+                            opacity: 0.8,
+                            strokeWidth: 1,
+                            fillOpacity: 0.7
+                        }
+                    );
+                    
+                    objectCollection.add(polygon);
+                } catch (e) {
+                    console.error("Ошибка создания полигона:", feature, e);
+                }
+            });
+            
+            map.geoObjects.add(objectCollection);
+            
+            if (objectCollection.getLength() > 0) {
+                map.setBounds(objectCollection.getBounds(), {
+                    checkZoomRange: true,
+                    zoomMargin: 50
+                });
+            }
+        }
+        
+        function createBalloonContent(properties) {
+            let content = `<div style="padding: 5px; font-family: Arial; font-size: 14px;">`;
+            content += `<b>${properties.name || 'Без названия'}</b>`;
+            
+            if (properties.az_rating !== undefined && properties.az_rating !== null) {
+                content += `<br><span>Рейтинг: ${properties.az_rating}</span>`;
+            }
+            if (properties.rda) {
+                content += `<br><span>Район: ${properties.rda}</span>`;
+            }
+            if (properties.osm_id) {
+                content += `<br><span>OSM ID: ${properties.osm_id}</span>`;
+            }
+            
+            content += `</div>`;
+            return content;
+        }
+    </script>
 </body>
 </html>
