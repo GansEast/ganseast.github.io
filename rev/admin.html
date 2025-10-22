@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админка - Оценка мероприятий</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f5f7fb;
+            color: #333;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Стили для формы входа */
+        .login-form {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #1a2a6c;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            width: 100%;
+            font-size: 1rem;
+        }
+        
+        .btn-primary {
+            background: #1a2a6c;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0d1a4d;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        /* Стили для админ-панели */
+        .admin-panel {
+            display: none;
+        }
+        
+        .admin-panel.active {
+            display: block;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #1a2a6c;
+        }
+        
+        .admin-title {
+            font-size: 2rem;
+            color: #1a2a6c;
+        }
+        
+        .admin-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logout-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: #5a6268;
+        }
+        
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1a2a6c;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .admin-actions {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn-sm {
+            padding: 8px 15px;
+            width: auto;
+        }
+        
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .events-table th, .events-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .events-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #1a2a6c;
+        }
+        
+        .events-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .event-form {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-check {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .form-check-input {
+            margin-right: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #1a2a6c;
+            text-decoration: none;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Форма входа -->
+        <div class="login-form" id="login-form">
+            <h2>Вход в админ-панель</h2>
+            <div class="form-group">
+                <label for="admin-email">Email</label>
+                <input type="email" id="admin-email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="admin-password">Пароль</label>
+                <input type="password" id="admin-password" class="form-control" required>
+            </div>
+            <button class="btn btn-primary" id="login-btn">Войти</button>
+            <div class="error-message" id="login-error">Неверный email или пароль</div>
+        </div>
+        
+        <!-- Админ-панель -->
+        <div class="admin-panel" id="admin-panel">
+            <div class="admin-header">
+                <h1 class="admin-title">Панель администратора</h1>
+                <div class="admin-user">
+                    <span id="user-email"></span>
+                    <button class="logout-btn" id="logout-btn">Выйти</button>
+                </div>
+            </div>
+            
+            <div class="admin-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Всего мероприятий</div>
+                    <div class="stat-value" id="total-events">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Активных мероприятий</div>
+                    <div class="stat-value" id="active-events">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Всего оценок</div>
+                    <div class="stat-value" id="total-ratings">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Средняя оценка</div>
+                    <div class="stat-value" id="avg-rating">0.0</div>
+                </div>
+            </div>
+            
+            <div class="admin-actions">
+                <button class="btn btn-primary btn-sm" id="add-event-btn">Добавить мероприятие</button>
+            </div>
+            
+            <div class="event-form hidden" id="event-form">
+                <h3>Добавить/Редактировать мероприятие</h3>
+                <form id="event-form-data">
+                    <input type="hidden" id="event-id">
+                    <div class="form-group">
+                        <label for="event-image">URL изображения</label>
+                        <input type="text" id="event-image" class="form-control" required>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="event-active" class="form-check-input" checked>
+                        <label for="event-active">Показывать на главной странице</label>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn btn-danger" id="cancel-event-btn">Отмена</button>
+                    </div>
+                </form>
+            </div>
+            
+            <h3>Список мероприятий</h3>
+            <table class="events-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Активно</th>
+                        <th>Оценок</th>
+                        <th>Ср. оценка</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="events-table-body">
+                    <!-- Данные будут загружены из Firebase -->
+                </tbody>
+            </table>
+            
+            <a href="index.html" class="back-link">← Вернуться на главную страницу</a>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration - replace with your own config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8t1PgSdfQIJv31-13qqc-0_5zRLmelNA",
+            authDomain: "ddnrev.firebaseapp.com",
+            projectId: "ddnrev",
+            storageBucket: "ddnrev.firebasestorage.app",
+            messagingSenderId: "779077027465",
+            appId: "1:779077027465:web:b61f89152d721ab2176858"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        // DOM элементы
+        const loginForm = document.getElementById('login-form');
+        const adminPanel = document.getElementById('admin-panel');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const adminEmail = document.getElementById('admin-email');
+        const adminPassword = document.getElementById('admin-password');
+        const loginError = document.getElementById('login-error');
+        const userEmail = document.getElementById('user-email');
+        const addEventBtn = document.getElementById('add-event-btn');
+        const eventForm = document.getElementById('event-form');
+        const eventFormData = document.getElementById('event-form-data');
+        const cancelEventBtn = document.getElementById('cancel-event-btn');
+        const eventsTableBody = document.getElementById('events-table-body');
+        
+        // Переменные состояния
+        let events = [];
+        let ratings = [];
+        let currentUser = null;
+        
+        // Проверка авторизации
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUser = user;
+                userEmail.textContent = user.email;
+                loginForm.style.display = 'none';
+                adminPanel.classList.add('active');
+                loadEventsForAdmin();
+                loadRatings();
+            } else {
+                currentUser = null;
+                loginForm.style.display = 'block';
+                adminPanel.classList.remove('active');
+            }
+        });
+        
+        // Вход в систему
+        loginBtn.addEventListener('click', () => {
+            const email = adminEmail.value;
+            const password = adminPassword.value;
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    loginError.style.display = 'none';
+                })
+                .catch((error) => {
+                    loginError.style.display = 'block';
+                    console.error("Ошибка входа: ", error);
+                });
+        });
+        
+        // Выход из системы
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+        
+        function loadEventsForAdmin() {
+            // Загружаем все мероприятия
+            db.collection('events').get()
+                .then((eventsSnapshot) => {
+                    events = [];
+                    eventsSnapshot.forEach((doc) => {
+                        events.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+                    
+                    // Загружаем все оценки для расчета статистики
+                    return db.collection('ratings').get();
+                })
+                .then((ratingsSnapshot) => {
+                    const ratingsByEvent = {};
+                    
+                    // Группируем оценки по мероприятиям
+                    ratingsSnapshot.forEach((doc) => {
+                        const ratingData = doc.data();
+                        const eventId = ratingData.eventId;
+                        
+                        if (!ratingsByEvent[eventId]) {
+                            ratingsByEvent[eventId] = [];
+                        }
+                        ratingsByEvent[eventId].push(ratingData.rating);
+                    });
+                    
+                    // Обновляем статистику в объектах мероприятий
+                    events.forEach(event => {
+                        const eventRatings = ratingsByEvent[event.id] || [];
+                        event.ratingsCount = eventRatings.length;
+                        
+                        if (eventRatings.length > 0) {
+                            const sum = eventRatings.reduce((a, b) => a + b, 0);
+                            event.calculatedAvgRating = parseFloat((sum / eventRatings.length).toFixed(1));
+                        } else {
+                            event.calculatedAvgRating = 0;
+                        }
+                    });
+                    
+                    renderEventsTable();
+                    updateAdminStats();
+                })
+                .catch((error) => {
+                    console.error("Ошибка загрузки данных: ", error);
+                });
+        }
+
+        function renderEventsTable() {
+            eventsTableBody.innerHTML = '';
+            
+            events.forEach(event => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${event.id}</td>
+                    <td>${event.active ? 'Да' : 'Нет'}</td>
+                    <td>${event.ratingsCount || 0}</td>
+                    <td>${event.calculatedAvgRating || 0}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="editEvent('${event.id}')">Редактировать</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteEvent('${event.id}')">Удалить</button>
+                    </td>
+                `;
+                
+                eventsTableBody.appendChild(row);
+            });
+        }
+
+        function updateAdminStats() {
+            document.getElementById('total-events').textContent = events.length;
+            document.getElementById('active-events').textContent = events.filter(e => e.active).length;
+            
+            const totalRatings = events.reduce((sum, event) => sum + (event.ratingsCount || 0), 0);
+            document.getElementById('total-ratings').textContent = totalRatings;
+            
+            if (totalRatings > 0) {
+                let totalScore = 0;
+                events.forEach(event => {
+                    const eventRatings = event.ratingsCount || 0;
+                    const eventAvg = event.calculatedAvgRating || 0;
+                    totalScore += eventAvg * eventRatings;
+                });
+                const avgRating = (totalScore / totalRatings).toFixed(1);
+                document.getElementById('avg-rating').textContent = avgRating;
+            } else {
+                document.getElementById('avg-rating').textContent = '0.0';
+            }
+        }
+        
+        // Загрузка оценок
+        function loadRatings() {
+            db.collection('ratings')
+                .get()
+                .then((querySnapshot) => {
+                    ratings = [];
+                    querySnapshot.forEach((doc) => {
+                        ratings.push(doc.data());
+                    });
+                    updateAdminStats();
+                })
+                .catch((error) => {
+                    console.error("Ошибка загрузки оценок: ", error);
+                });
+        }
+        
+        // Добавление мероприятия
+        addEventBtn.addEventListener('click', () => {
+            eventForm.classList.remove('hidden');
+            eventFormData.reset();
+            document.getElementById('event-id').value = '';
+        });
+        
+        // Отмена добавления/редактирования
+        cancelEventBtn.addEventListener('click', () => {
+            eventForm.classList.add('hidden');
+        });
+        
+        // Сохранение мероприятия
+        eventFormData.addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveEvent();
+            eventForm.classList.add('hidden');
+        });
+        
+        // Сохранение мероприятия в Firebase
+        function saveEvent() {
+            const eventId = document.getElementById('event-id').value;
+            // const name = document.getElementById('event-name').value;
+            // const date = document.getElementById('event-date').value;
+            const image = document.getElementById('event-image').value;
+            const active = document.getElementById('event-active').checked;
+            
+            const eventData = {
+                image,
+                active,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            
+            if (eventId) {
+                // Редактирование существующего мероприятия
+                db.collection('events').doc(eventId).update(eventData)
+                    .then(() => {
+                        alert('Мероприятие обновлено!');
+                        loadEventsForAdmin();
+                        eventForm.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка обновления мероприятия: ", error);
+                        alert('Ошибка обновления мероприятия');
+                    });
+            } else {
+                // Добавление нового мероприятия
+                db.collection('events').add(eventData)
+                    .then(() => {
+                        alert('Мероприятие добавлено!');
+                        loadEventsForAdmin();
+                        eventForm.classList.add('hidden');
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка добавления мероприятия: ", error);
+                        alert('Ошибка добавления мероприятия');
+                    });
+            }
+        }
+        
+        // Редактирование мероприятия
+        window.editEvent = function(eventId) {
+            const event = events.find(e => e.id === eventId);
+            if (event) {
+                document.getElementById('event-id').value = event.id;
+                // document.getElementById('event-name').value = event.name;
+                // document.getElementById('event-date').value = event.date;
+                document.getElementById('event-image').value = event.image;
+                document.getElementById('event-active').checked = event.active;
+                
+                eventForm.classList.remove('hidden');
+            }
+        };
+        
+        // Удаление мероприятия
+        window.deleteEvent = function(eventId) {
+            if (confirm('Вы уверены, что хотите удалить это мероприятие? Все оценки также будут удалены.')) {
+                // Показываем индикатор загрузки
+                const deleteBtn = event.target;
+                const originalText = deleteBtn.textContent;
+                deleteBtn.textContent = 'Удаление...';
+                deleteBtn.disabled = true;
+                
+                // Сначала находим все оценки этого мероприятия
+                db.collection('ratings')
+                    .where('eventId', '==', eventId)
+                    .get()
+                    .then((querySnapshot) => {
+                        const deletePromises = [];
+                        querySnapshot.forEach((doc) => {
+                            deletePromises.push(doc.ref.delete());
+                        });
+                        
+                        if (deletePromises.length > 0) {
+                            return Promise.all(deletePromises);
+                        }
+                        return Promise.resolve();
+                    })
+                    .then(() => {
+                        // Затем удаляем само мероприятие
+                        return db.collection('events').doc(eventId).delete();
+                    })
+                    .then(() => {
+                        alert(`Мероприятие и все оценки удалены!`);
+                        loadEventsForAdmin();
+                    })
+                    .catch((error) => {
+                        console.error("Ошибка удаления: ", error);
+                        alert('Ошибка удаления мероприятия: ' + error.message);
+                    })
+                    .finally(() => {
+                        // Восстанавливаем кнопку
+                        deleteBtn.textContent = originalText;
+                        deleteBtn.disabled = false;
+                    });
+            }
+        };
+    </script>
+</body>
+</html>
