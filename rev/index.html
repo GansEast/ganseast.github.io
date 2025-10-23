@@ -69,6 +69,7 @@
             justify-content: center;
             min-height: 0;
             height: 65vh;
+            width: 100%;
         }
         
         .slider-container {
@@ -76,11 +77,11 @@
             height: 65vh;
             max-width: 80vw;
             position: relative;
-            border-radius: 15px;
             overflow: hidden;
         }
-        
+
         .slide {
+            border-radius: 15px;
             position: absolute;
             top: 0;
             left: 0;
@@ -91,19 +92,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-        }
+        }   
         
         .slide.active {
             opacity: 1;
         }
         
         .slide-image {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Сохраняет пропорции, заполняя контейнер */
             border-radius: 10px;
+            display: block;
         }
         
         /* Навигация */
@@ -182,7 +182,7 @@
         }
         
         .star {
-            font-size: 4vh;
+            font-size: 6vh;
             color: #ddd;
             cursor: pointer;
             transition: all 0.2s;
@@ -197,7 +197,40 @@
             color: gold;
             text-shadow: 0 0 10px rgba(255,215,0,0.5);
         }
+
+        .submit-rating {
+            /*margin-top: 1vh;*/
+        }
         
+        .submit-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 1.2vh 3vh;
+            border-radius: 25px;
+            font-size: 1.8vh;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            border: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .submit-btn.active {
+            background: rgba(76, 175, 80, 0.6);
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .submit-btn:hover {
+            background: rgba(76, 175, 80, 0.8);
+            transform: translateY(-2px);
+        }
+        
+        .submit-btn:active {
+            transform: translateY(0);
+        }
         /* Кнопка админки */
         .admin-section {
             text-align: center;
@@ -437,7 +470,7 @@
         
         <!-- Рейтинг -->
         <div class="rating-section">
-            <div class="rating-title">Оцените мероприятие</div>
+            <!-- <div class="rating-title">Оцените мероприятие</div> -->
             <div class="rating-stars">
                 <span class="star" data-value="1">★</span>
                 <span class="star" data-value="2">★</span>
@@ -445,10 +478,13 @@
                 <span class="star" data-value="4">★</span>
                 <span class="star" data-value="5">★</span>
             </div>
+            <div class="submit-rating">
+                <button class="submit-btn" id="submit-rating-btn" disabled>Оценить</button>
+            </div>
         </div>
         
     </div>
-
+    
     <script>
         // Конфигурация Firebase
         const firebaseConfig = {
@@ -468,6 +504,7 @@
         const sliderContainer = document.getElementById('slider-container');
         const noEvents = document.getElementById('no-events');
         const stars = document.querySelectorAll('.star');
+        const submitBtn = document.getElementById('submit-rating-btn');
         
         // Переменные состояния
         let currentSlideIndex = 0;
@@ -567,37 +604,53 @@
             slides[index].classList.add('active');
             currentSlideIndex = index;
             
-            // Сбросить звезды
-            resetStars();
+            // Сбросить рейтинг
+            resetRating();
         }
         
         // Сброс звезд
-        function resetStars() {
+        function resetRating() {
             stars.forEach(star => {
                 star.classList.remove('active');
             });
+            selectedRating = 0;
+            submitBtn.disabled = true;
+            submitBtn.classList.remove('active');
+            submitBtn.textContent = 'Оценить';
         }
         
         // Инициализация звезд
-        function initStars() {
+         function initStars() {
             stars.forEach(star => {
                 star.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    const eventId = slides[currentSlideIndex].id;
+                    const value = parseInt(this.getAttribute('data-value'));
+                    selectedRating = value;
                     
                     // Подсветка выбранных звезд
                     stars.forEach(s => {
-                        if (s.getAttribute('data-value') <= value) {
+                        if (parseInt(s.getAttribute('data-value')) <= value) {
                             s.classList.add('active');
                         } else {
                             s.classList.remove('active');
                         }
                     });
                     
-                    // Сохранение оценки
-                    saveRating(eventId, parseInt(value));
-                    
+                    // Активировать кнопку
+                    submitBtn.disabled = false;
+                    submitBtn.classList.add('active');
+                    submitBtn.textContent = `Оценить: ${value} ★`;
                 });
+            });
+            
+            // Обработчик кнопки "Оценить"
+            submitBtn.addEventListener('click', function() {
+                if (selectedRating > 0 && slides.length > 0) {
+                    const eventId = slides[currentSlideIndex].id;
+                    
+                    // Сохранение оценки
+                    saveRating(eventId, selectedRating);
+                    
+                }
             });
         }
         

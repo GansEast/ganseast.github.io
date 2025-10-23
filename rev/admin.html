@@ -208,6 +208,11 @@
             color: #1a2a6c;
         }
         
+        .events-table img {
+            height: 40px;
+            width: auto;
+        }
+
         .events-table tr:hover {
             background: #f8f9fa;
         }
@@ -326,7 +331,7 @@
             <table class="events-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Афиша</th>
                         <th>Активно</th>
                         <th>Оценок</th>
                         <th>Ср. оценка</th>
@@ -471,7 +476,7 @@
                 const row = document.createElement('tr');
                 
                 row.innerHTML = `
-                    <td>${event.id}</td>
+                    <td><img src="${event.image}" alt="Мероприятие"></td>
                     <td>${event.active ? 'Да' : 'Нет'}</td>
                     <td>${event.ratingsCount || 0}</td>
                     <td>${event.calculatedAvgRating || 0}</td>
