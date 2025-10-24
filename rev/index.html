@@ -3,7 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оценка мероприятий</title>
+    <title>Оценка мероприятий | @gavril_anatolievich</title>
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Оценка мероприятий by @gavril_anatolievich" />
+    
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
     <style>
@@ -12,6 +26,7 @@
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
         }
         
         body {
@@ -30,7 +45,7 @@
             flex-direction: column;
             height: 100vh;
             max-height: 100vh;
-            padding: 2rem;
+            padding: 2vh;
         }
         
         /* Логотип */
@@ -52,7 +67,10 @@
             font-size: 3vh;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            margin-bottom: 0.5vh;
+        }
+
+        .logo h4 {
+            font-size: 1.6vh;
         }
         
         .logo p {
@@ -71,7 +89,7 @@
             height: 65vh;
             width: 100%;
         }
-        
+
         .slider-container {
             width: 65vh;
             height: 65vh;
@@ -81,7 +99,6 @@
         }
 
         .slide {
-            border-radius: 15px;
             position: absolute;
             top: 0;
             left: 0;
@@ -102,7 +119,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain; /* Сохраняет пропорции, заполняя контейнер */
-            border-radius: 10px;
             display: block;
         }
         
@@ -134,6 +150,7 @@
             backdrop-filter: blur(10px);
             transition: all 0.3s;
             border: 1px solid rgba(255,255,255,0.2);
+            line-height: 1;
         }
         
         .nav-btn:hover {
@@ -162,7 +179,6 @@
             text-align: center;
             padding: 1vh 0;
             flex-shrink: 0;
-            height: 15vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -215,6 +231,7 @@
             border: 1px solid rgba(255,255,255,0.2);
             opacity: 0.5;
             pointer-events: none;
+            line-height: 1;
         }
         
         .submit-btn.active {
@@ -225,12 +242,8 @@
         
         .submit-btn:hover {
             background: rgba(76, 175, 80, 0.8);
-            transform: translateY(-2px);
         }
         
-        .submit-btn:active {
-            transform: translateY(0);
-        }
         /* Кнопка админки */
         .admin-section {
             text-align: center;
@@ -255,6 +268,7 @@
             text-decoration: none;
             display: inline-block;
             border: 1px solid rgba(255,255,255,0.2);
+            line-height: 1;
         }
         
         .admin-btn:hover {
@@ -274,7 +288,6 @@
             position: absolute;
             top: 0;
             left: 0;
-            /*background: rgba(0,0,0,0.8);*/
             border-radius: 15px;
         }
         
@@ -296,9 +309,6 @@
         
         /* Адаптивность для мобильных */
         @media (max-width: 768px) {
-            .container {
-                padding: 1.5rem;
-            }
             
             .slider-container {
                 width: 60vh;
@@ -326,10 +336,6 @@
                 height: 68vh;
             }
             
-            .rating-section {
-                height: 12vh;
-            }
-            
             .admin-section {
                 height: 6vh;
             }
@@ -355,14 +361,6 @@
                 height: 70vh;
             }
             
-            .rating-section {
-                height: 10vh;
-            }
-            
-            .star {
-                font-size: 3.5vh;
-            }
-            
             .rating-title {
                 font-size: 1.8vh;
             }
@@ -381,10 +379,7 @@
         
         /* Ландшафтная ориентация */
         @media (orientation: landscape) and (max-height: 500px) {
-            .container {
-                padding: 1rem;
-            }
-            
+
             .logo img {
                 width: 4vh;
             }
@@ -404,10 +399,6 @@
             .slider-container {
                 width: 50vh;
                 height: 50vh;
-            }
-            
-            .rating-section {
-                height: 8vh;
             }
             
             .admin-section {
@@ -434,9 +425,6 @@
                 height: 55vh;
             }
             
-            .rating-section {
-                height: 7vh;
-            }
             
             .admin-section {
                 height: 4vh;
@@ -449,8 +437,9 @@
         <!-- Логотип -->
         <div class="header">
             <div class="logo">
-                <img src="./img/logo.png" alt="Логотип">
+                <img src="./img/logo.svg" alt="Логотип">
                 <h1>ОЦЕНКА МЕРОПРИЯТИЙ</h1>
+                <h4>Дома дружбы народов им. А.Е. Кулаковского</h4>
                 <p>Ваше мнение важно для нас</p>
             </div>
         </div>
@@ -510,6 +499,7 @@
         let currentSlideIndex = 0;
         let events = [];
         let slides = [];
+        let selectedRating = 0;
         
         // Загрузка мероприятий
         function loadEvents() {
@@ -553,7 +543,7 @@
                 slide.id = event.id;
                 
                 slide.innerHTML = `
-                    <img src="${event.image}" alt="Мероприятие" class="slide-image">
+                    <img src="${event.image}" alt="${event.name}" class="slide-image">
                     <div class="counter">${index + 1} / ${events.length}</div>
                 `;
                 
@@ -608,7 +598,7 @@
             resetRating();
         }
         
-        // Сброс звезд
+        // Сброс рейтинга
         function resetRating() {
             stars.forEach(star => {
                 star.classList.remove('active');
@@ -619,8 +609,27 @@
             submitBtn.textContent = 'Оценить';
         }
         
+        // Показать сообщение "Спасибо"
+        function showThankYouMessage() {
+            // Сохраняем оригинальный текст кнопки
+            const originalText = submitBtn.textContent;
+            
+            // Меняем текст кнопки на "Спасибо!"
+            submitBtn.textContent = 'Спасибо!';
+            submitBtn.style.background = 'rgba(76, 175, 80, 0.8)';
+            
+            // Через 2 секунды возвращаем оригинальный текст и сбрасываем
+            setTimeout(() => {
+                resetRating();
+                submitBtn.style.background = ''; // Возвращаем стандартный фон
+                
+                // Переходим к следующему слайду
+                // showSlide(currentSlideIndex + 1);
+            }, 1500);
+        }
+        
         // Инициализация звезд
-         function initStars() {
+        function initStars() {
             stars.forEach(star => {
                 star.addEventListener('click', function() {
                     const value = parseInt(this.getAttribute('data-value'));
@@ -650,6 +659,8 @@
                     // Сохранение оценки
                     saveRating(eventId, selectedRating);
                     
+                    // Показываем сообщение "Спасибо"
+                    showThankYouMessage();
                 }
             });
         }
