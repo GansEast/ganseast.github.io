@@ -163,7 +163,7 @@
         /* Счетчик */
         .counter {
             position: absolute;
-            bottom: 5px;
+            top: -45px;
             background: rgba(255,255,255,0.2);
             color: white;
             font-weight: 700;
@@ -472,7 +472,7 @@
         
         <!-- Рейтинг -->
         <div class="rating-section">
-            <!-- <div class="rating-title">Оцените мероприятие</div> -->
+            <div class="rating-title" id="rating-title">Оцените мероприятие</div>
             <div class="rating-stars">
                 <span class="star" data-value="1">★</span>
                 <span class="star" data-value="2">★</span>
@@ -507,6 +507,7 @@
         const noEvents = document.getElementById('no-events');
         const stars = document.querySelectorAll('.star');
         const submitBtn = document.getElementById('submit-rating-btn');
+        const ratingTitle = document.getElementById('rating-title');
         
         // Переменные состояния
         let currentSlideIndex = 0;
@@ -628,12 +629,13 @@
             const originalText = submitBtn.textContent;
             
             // Меняем текст кнопки на "Спасибо!"
-            submitBtn.textContent = 'Спасибо!';
+            ratingTitle.textContent = 'Спасибо за оценку!';
             submitBtn.style.background = 'rgba(76, 175, 80, 0.8)';
             
             // Через 2 секунды возвращаем оригинальный текст и сбрасываем
             setTimeout(() => {
                 resetRating();
+                ratingTitle.textContent = 'Оцените мероприятие';
                 submitBtn.style.background = ''; // Возвращаем стандартный фон
                 
                 // Переходим к следующему слайду
