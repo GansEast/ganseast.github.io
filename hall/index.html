@@ -30,6 +30,7 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
+            user-select: none;
         }
         .container {
             display: flex;
@@ -43,7 +44,7 @@
             background-color: #f5f5f5;
         }
         .controls {
-            width: 300px;
+            width: 400px;
             padding: 20px;
             background-color: #f9f9f9;
             overflow-y: auto;
@@ -92,6 +93,10 @@
             border: none;
             border-radius: 9px;
         }
+        #eventDate {
+            font-family: Arial, sans-serif;
+            color: #777;
+        }
         .btn {
             color: white;
             border: none;
@@ -123,14 +128,15 @@
         .status-controls button {
             flex: 1;
         }
-        #totalPrice {
-            margin-bottom: 0;
-        }
         .selected-info {
             background-color: #fff;
             padding: 10px;
             margin-bottom: 20px;
             border-radius: 9px;
+        }
+        .selected-info p {
+            font-size: 12px;
+            margin: 0;
         }
         .seat-status {
             display: flex;
@@ -296,22 +302,25 @@
                 <h1>Схема зала</h1>
                 <p>Дома дружбы народов им. А.Е. Кулаковского</p>
             </div>
-            
             <div class="control-group">
-                <h3>Экспорт</h3>
+                <label for="eventName">Название мероприятия:</label>
+                <input type="text" id="eventName" placeholder="Введите название мероприятия" required>
+            </div>
+
+            <div class="control-group">
+                <label for="eventDate">Дата мероприятия:</label>
+                <input type="date" id="eventDate" required>
+            </div>
+            <div class="control-group">
+                <h3>Операции</h3>
                 <div class="export-controls">
                     <button class="btn btn-primary" id="exportBtn">Скриншот</button>
                     <button class="btn btn-secondary" id="saveTemplateBtn">Сохранить шаблон</button>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <h3>Импорт</h3>
-                <div class="template-controls">
                     <button class="btn btn-primary" id="loadTemplateBtn">Загрузить шаблон</button>
                     <input type="file" id="templateFile" accept=".json" style="display: none;">
                 </div>
             </div>
+            
             <div class="control-group">
                 <label for="priceInput">Цена билета:</label>
                 <input type="number" id="priceInput" min="0" value="500">
@@ -330,10 +339,6 @@
                 </div>
             </div>
             
-            <div class="control-group">
-                <button class="btn btn-danger" id="resetAllBtn">Сбросить все</button>
-            </div>
-            
             <div class="selected-info" id="selectedInfo">
                 <h3>Выделенные места:</h3>
                 <p id="selectedCount">0 мест</p>
@@ -347,6 +352,9 @@
                 </div>
             </div>
             
+           <!--  <div class="control-group">
+                <button class="btn btn-danger" id="resetAllBtn">Сбросить все</button>
+            </div> -->
         </div>
     </div>
     <!-- Сообщение для мобильных устройств -->
@@ -365,7 +373,7 @@
             const ctx = canvas.getContext('2d');
             const priceInput = document.getElementById('priceInput');
             const setPriceBtn = document.getElementById('setPriceBtn');
-            const resetAllBtn = document.getElementById('resetAllBtn');
+            // const resetAllBtn = document.getElementById('resetAllBtn');
             const selectedCount = document.getElementById('selectedCount');
             const totalPrice = document.getElementById('totalPrice');
             const zoomInBtn = document.getElementById('zoomInBtn');
@@ -1228,6 +1236,17 @@
                         seat.cx, 
                         seat.cy + 3
                     );
+
+                    if (seat.status !== 'occupied') {
+                        ctx.fillStyle = '#fff';
+                        ctx.font = 'bold 8px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(
+                            `${seat.col}`, 
+                            seat.cx, 
+                            seat.cy + 3
+                        );
+                    }
                 });
                 
                 // Рисуем область выделения, если есть
@@ -1329,25 +1348,49 @@
 
             // Экспорт схемы зала как изображения с легендой
             function exportHallImage() {
+                // Получаем название и дату мероприятия
+                const eventNameInput = document.getElementById('eventName').value;
+                const eventDateInput = document.getElementById('eventDate').value;
+                
+                // Проверяем обязательные поля
+                if (!eventNameInput || !eventDateInput) {
+                    alert('Пожалуйста, заполните название и дату мероприятия');
+                    return;
+                }
+                
+                const eventName = eventNameInput;
+                const date = new Date(eventDateInput);
+                const eventDate = date.toLocaleDateString('ru-RU');
+                
                 // Создаем временный canvas для экспорта
                 const exportCanvas = document.createElement('canvas');
                 const exportCtx = exportCanvas.getContext('2d');
                 
                 // Устанавливаем размеры для экспорта (ширина + место для легенды)
                 exportCanvas.width = 1000;
-                exportCanvas.height = 700;
+                exportCanvas.height = 850; // Увеличили высоту для названия и даты
                 
                 // Отрисовываем фон
                 exportCtx.fillStyle = '#fff';
                 exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
                 
+                // Рисуем название мероприятия
+                exportCtx.fillStyle = '#333';
+                exportCtx.font = 'bold 24px Arial';
+                exportCtx.textAlign = 'center';
+                exportCtx.fillText(eventName, 500, 780);
+                
+                // Рисуем дату мероприятия
+                exportCtx.font = '18px Arial';
+                exportCtx.fillText(eventDate, 500, 750);
+                
                 // Рисуем сцену
                 exportCtx.fillStyle = '#333';
-                exportCtx.fillRect(150, 620, 500, 40);
+                exportCtx.fillRect(150, 670, 500, 40); // Сдвинули сцену ниже
                 exportCtx.fillStyle = '#fff';
                 exportCtx.font = 'bold 16px Arial';
                 exportCtx.textAlign = 'center';
-                exportCtx.fillText('СЦЕНА', 400, 645);
+                exportCtx.fillText('СЦЕНА', 400, 695); // Сдвинули текст сцены
                 
                 // Рисуем номера рядов слева
                 const mainRows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
@@ -1357,7 +1400,7 @@
                         exportCtx.fillStyle = '#333';
                         exportCtx.font = 'bold 12px Arial';
                         exportCtx.textAlign = 'right';
-                        exportCtx.fillText(row, 155, seatInRow.cy + 4);
+                        exportCtx.fillText(row, 155, seatInRow.cy + 54); // Сдвинули номера рядов
                     }
                 });
                 
@@ -1368,7 +1411,7 @@
                         exportCtx.fillStyle = '#333';
                         exportCtx.font = 'bold 12px Arial';
                         exportCtx.textAlign = 'left';
-                        exportCtx.fillText(row, 645, seatInRow.cy + 4);
+                        exportCtx.fillText(row, 645, seatInRow.cy + 54); // Сдвинули номера рядов
                     }
                 });
                 
@@ -1382,26 +1425,29 @@
                     
                     exportCtx.fillStyle = color;
                     exportCtx.beginPath();
-                    exportCtx.arc(seat.cx, seat.cy, seat.r, 0, Math.PI * 2);
+                    exportCtx.arc(seat.cx, seat.cy + 50, seat.r, 0, Math.PI * 2); // Сдвинули места
                     exportCtx.fill();
                     
                     exportCtx.strokeStyle = 'transparent';
                     exportCtx.lineWidth = 1;
                     exportCtx.stroke();
                     
-                    exportCtx.fillStyle = '#fff';
-                    exportCtx.font = 'bold 8px Arial';
-                    exportCtx.textAlign = 'center';
-                    exportCtx.fillText(
-                        `${seat.col}`, 
-                        seat.cx, 
-                        seat.cy + 3
-                    );
+                    // НЕ показываем номера мест для занятых мест
+                    if (seat.status !== 'occupied') {
+                        exportCtx.fillStyle = '#fff';
+                        exportCtx.font = 'bold 8px Arial';
+                        exportCtx.textAlign = 'center';
+                        exportCtx.fillText(
+                            `${seat.col}`, 
+                            seat.cx, 
+                            seat.cy + 53 // Сдвинули текст мест
+                        );
+                    }
                 });
                 
                 // Рисуем легенду цен справа
                 const uniquePrices = [...new Set(seats.map(seat => seat.price).filter(p => p !== null))].sort((a, b) => a - b);
-                let legendY = 50;
+                let legendY = 80;
                 
                 exportCtx.fillStyle = '#333';
                 exportCtx.font = 'bold 14px Arial';
@@ -1435,16 +1481,30 @@
                 exportCtx.font = '12px Arial';
                 exportCtx.fillText('Занято', 780, legendY + 5);
                 
+                // Создаем имя файла с названием мероприятия
+                const fileName = `Скриншот_${eventName.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}.png`;
+                
                 // Создаем ссылку для скачивания
                 const link = document.createElement('a');
-                link.download = 'схема_зала.png';
+                link.download = fileName;
                 link.href = exportCanvas.toDataURL('image/png');
                 link.click();
             }
 
             // Сохранение шаблона цен
             function savePriceTemplate() {
+                // Получаем название мероприятия
+                const eventNameInput = document.getElementById('eventName').value;
+                
+                // Проверяем обязательные поля
+                if (!eventNameInput) {
+                    alert('Пожалуйста, заполните название мероприятия');
+                    return;
+                }
+                
                 const template = {
+                    eventName: eventNameInput,
+                    eventDate: document.getElementById('eventDate').value,
                     seats: seats.map(seat => ({
                         id: seat.id,
                         price: seat.price,
@@ -1456,8 +1516,11 @@
                 const dataStr = JSON.stringify(template);
                 const dataBlob = new Blob([dataStr], {type: 'application/json'});
                 
+                // Создаем имя файла с названием мероприятия
+                const fileName = `Шаблон_${eventNameInput.replace(/[^a-zA-Zа-яА-Я0-9]/g, '_')}.json`;
+                
                 const link = document.createElement('a');
-                link.download = 'Шаблон_зала.json';
+                link.download = fileName;
                 link.href = URL.createObjectURL(dataBlob);
                 link.click();
             }
@@ -1469,6 +1532,14 @@
                 reader.onload = function(e) {
                     try {
                         const template = JSON.parse(e.target.result);
+                        
+                        // Заполняем поля названия и даты
+                        if (template.eventName) {
+                            document.getElementById('eventName').value = template.eventName;
+                        }
+                        if (template.eventDate) {
+                            document.getElementById('eventDate').value = template.eventDate;
+                        }
                         
                         // Применяем цены и статусы из шаблона
                         template.seats.forEach(templateSeat => {
@@ -1571,14 +1642,14 @@
                 drawHall();
             });
 
-            resetAllBtn.addEventListener('click', function() {
-                initSeats();
-                directorRowCheckbox.checked = false;
-                selectedSeats = [];
-                updateSelectionInfo();
-                centerContent();
-                drawHall();
-            });
+            // resetAllBtn.addEventListener('click', function() {
+            //     initSeats();
+            //     directorRowCheckbox.checked = false;
+            //     selectedSeats = [];
+            //     updateSelectionInfo();
+            //     centerContent();
+            //     drawHall();
+            // });
 
             // Обработчики статусов мест
             setOccupiedBtn.addEventListener('click', () => setSeatsStatus('occupied'));
