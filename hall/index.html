@@ -2,15 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Схема зала | @gavril.anatolievich</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
 
     <meta name="theme-color" content="#ffffff">
     <meta name="msapplication-TileColor" content="#ffffff">
     <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="Генератор технического райдера by GansEast" />
+    <meta name="apple-mobile-web-app-title" content="Схема зала by gavril.anatolievich" />
     
     <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
@@ -149,8 +149,6 @@
             left: 50%;
             transform: translateX(-50%);
             z-index: 10;
-            background: rgba(255, 255, 255, 1);
-            padding: 10px;
         }
         .zoom-controls button {
             width: 40px;
@@ -200,6 +198,79 @@
         }
         .template-controls button {
             flex: 1;
+        }
+        /* Стили для мобильного сообщения */
+        .mobile-message {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .mobile-message-content {
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-message h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-message p {
+            font-size: 1.2em;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .mobile-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        /* Скрываем контейнер на мобильных */
+        @media (max-width: 1024px), (hover: none) and (pointer: coarse) {
+            .container {
+                display: none;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+
+        /* Дополнительные медиа-запросы для лучшего определения устройств */
+        @media (hover: none) and (pointer: coarse) {
+            .container {
+                display: none;
+            }
+            .mobile-message {
+                display: flex;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                display: none;
+            }
+            .mobile-message {
+                display: flex;
+            }
         }
     </style>
 </head>
@@ -278,7 +349,16 @@
             
         </div>
     </div>
-
+    <!-- Сообщение для мобильных устройств -->
+    <div class="mobile-message">
+        <div class="mobile-message-content">
+            <div class="mobile-icon">📱</div>
+            <h2>Доступно только на компьютере</h2>
+            <p>Данное приложение предназначено для работы на десктопных устройствах.</p>
+            <p>Пожалуйста, откройте эту страницу на компьютере или ноутбуке.</p>
+            <p><small>Функционал требует точного управления мышью и не адаптирован для сенсорных экранов.</small></p>
+        </div>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const canvas = document.getElementById('hallCanvas');
@@ -1119,11 +1199,13 @@
                 seats.forEach(seat => {
                     // Определяем цвет в зависимости от цены и статуса
                     let color = getPriceColor(seat.price);
+                    let txt_color = '#fff';
                     
                     if (seat.selected) {
                         color = '#a5d6a7'; // Зеленый для выделенных
                     } else if (seat.status === 'occupied') {
                         color = '#ff6b6b'; // Красный для занятых
+                        txt_color = '#ff6b6b';
                     }
                     
                     ctx.fillStyle = color;
@@ -1137,7 +1219,8 @@
                     ctx.stroke();
                     
                     // Номер места (ряд-место)
-                    ctx.fillStyle = '#fff';
+                    // ctx.fillStyle = '#fff';
+                    ctx.fillStyle = txt_color;
                     ctx.font = 'bold 8px Arial';
                     ctx.textAlign = 'center';
                     ctx.fillText(
@@ -1370,11 +1453,11 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                const dataStr = JSON.stringify(template, null, 2);
+                const dataStr = JSON.stringify(template);
                 const dataBlob = new Blob([dataStr], {type: 'application/json'});
                 
                 const link = document.createElement('a');
-                link.download = 'шаблон_зала.json';
+                link.download = 'Шаблон_зала.json';
                 link.href = URL.createObjectURL(dataBlob);
                 link.click();
             }
