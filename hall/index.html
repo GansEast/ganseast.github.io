@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Схема зала | @gavril.anatolievich</title>
+    <link rel="manifest" href="manifest.json">
+
+    <meta name="theme-color" content="#ffffff">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#ffffff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Генератор технического райдера by GansEast" />
+    
+    <link rel="icon" type="image/png" href="favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="manifest" href="site.webmanifest" />
+
+    <style>
+        * {
+            -webkit-box-sizing: border-box;
+            box-sizing: border-box;
+        }
+        html,
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        .container {
+            display: flex;
+            height: 100vh;
+            background-color: white;
+        }
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+        .controls {
+            width: 300px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .control-title {
+            text-align: center;
+            font-size: 0.875rem;
+            margin: 0 0 1rem;
+        }
+        .control-title img {
+            margin: 0 auto;
+            width: 64px;
+        }
+        .control-title h1 {
+            font-size: 1.5em;
+            margin: 0;
+        }
+        .control-title p {
+            margin: 0;
+        }
+        h3, label {
+            font-size: 1rem;
+            margin: 0 0 0.5rem;
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 9px;
+        }
+        .btn {
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: linear-gradient(to bottom, #00b973, #008d8b);
+        }
+        .btn-primary:hover {
+            background: linear-gradient(to bottom, #00a368, #007a7a);
+        }
+        .btn-danger {
+            background: linear-gradient(to bottom, #dc3545, #c82333);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(to bottom, #c82333, #a71e2a);
+        }
+        .btn-secondary {
+            background: linear-gradient(to bottom, #007bff, #0056b3);
+        }
+        .btn-secondary:hover {
+            background: linear-gradient(to bottom, #0069d9, #004085);
+        }
+        .status-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .status-controls button {
+            flex: 1;
+        }
+        #totalPrice {
+            margin-bottom: 0;
+        }
+        .selected-info {
+            background-color: #fff;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 9px;
+        }
+        .seat-status {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .color-box {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+        }
+        .zoom-controls {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(255, 255, 255, 1);
+            padding: 10px;
+        }
+        .zoom-controls button {
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .price-legend {
+            margin-top: 10px;
+        }
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+        }
+        .price-item:hover {
+            background-color: #e9e9e9;
+        }
+        .price-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 10px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
+        }
+        .export-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .export-controls button {
+            flex: 1;
+        }
+        .template-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .template-controls button {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="canvas-container">
+            <div class="zoom-controls">
+                <button class="btn btn-primary" id="zoomInBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#FFFFFF" d="M304 192v32c0 6.6-5.4 12-12 12h-56v56c0 6.6-5.4 12-12 12h-32c-6.6 0-12-5.4-12-12v-56h-56c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h56v-56c0-6.6 5.4-12 12-12h32c6.6 0 12 5.4 12 12v56h56c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"/></svg>
+                </button>
+                <button class="btn btn-primary" id="zoomOutBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#FFFFFF" d="M304 192v32c0 6.6-5.4 12-12 12H124c-6.6 0-12-5.4-12-12v-32c0-6.6 5.4-12 12-12h168c6.6 0 12 5.4 12 12zm201 284.7L476.7 505c-9.4 9.4-24.6 9.4-33.9 0L343 405.3c-4.5-4.5-7-10.6-7-17V372c-35.3 27.6-79.7 44-128 44C93.1 416 0 322.9 0 208S93.1 0 208 0s208 93.1 208 208c0 48.3-16.4 92.7-44 128h16.3c6.4 0 12.5 2.5 17 7l99.7 99.7c9.3 9.4 9.3 24.6 0 34zM344 208c0-75.2-60.8-136-136-136S72 132.8 72 208s60.8 136 136 136 136-60.8 136-136z"/></svg>
+                </button>
+                <button class="btn btn-primary" id="resetZoomBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="#FFFFFF" d="M370.72 133.28C339.458 104.008 298.888 87.962 255.848 88c-77.458.068-144.328 53.178-162.791 126.85-1.344 5.363-6.122 9.15-11.651 9.15H24.103c-7.498 0-13.194-6.807-11.807-14.176C33.933 94.924 134.813 8 256 8c66.448 0 126.791 26.136 171.315 68.685L463.03 40.97C478.149 25.851 504 36.559 504 57.941V192c0 13.255-10.745 24-24 24H345.941c-21.382 0-32.09-25.851-16.971-40.971l41.75-41.749zM32 296h134.059c21.382 0 32.09 25.851 16.971 40.971l-41.75 41.75c31.262 29.273 71.835 45.319 114.876 45.28 77.418-.07 144.315-53.144 162.787-126.849 1.344-5.363 6.122-9.15 11.651-9.15h57.304c7.498 0 13.194 6.807 11.807 14.176C478.067 417.076 377.187 504 256 504c-66.448 0-126.791-26.136-171.315-68.685L48.97 471.03C33.851 486.149 8 475.441 8 454.059V320c0-13.255 10.745-24 24-24z"/></svg>
+                </button>
+            </div>
+            <canvas id="hallCanvas"></canvas>
+        </div>
+        <div class="controls">
+            <div class="control-title">
+                <img src="logo.webp" alt="">
+                <h1>Схема зала</h1>
+                <p>Дома дружбы народов им. А.Е. Кулаковского</p>
+            </div>
+            
+            <div class="control-group">
+                <h3>Экспорт</h3>
+                <div class="export-controls">
+                    <button class="btn btn-primary" id="exportBtn">Скриншот</button>
+                    <button class="btn btn-secondary" id="saveTemplateBtn">Сохранить шаблон</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Импорт</h3>
+                <div class="template-controls">
+                    <button class="btn btn-primary" id="loadTemplateBtn">Загрузить шаблон</button>
+                    <input type="file" id="templateFile" accept=".json" style="display: none;">
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="priceInput">Цена билета:</label>
+                <input type="number" id="priceInput" min="0" value="500">
+                <button class="btn btn-primary" id="setPriceBtn">Установить цену</button>
+            </div>
+            
+            <div class="control-group">
+                <h3>Статус мест:</h3>
+                <div class="status-controls">
+                    <button class="btn btn-danger" id="setOccupiedBtn">Занято</button>
+                    <button class="btn btn-secondary" id="setFreeBtn">Свободно</button>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="directorRowCheckbox">
+                    <label for="directorRowCheckbox">Директорский ряд</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <button class="btn btn-danger" id="resetAllBtn">Сбросить все</button>
+            </div>
+            
+            <div class="selected-info" id="selectedInfo">
+                <h3>Выделенные места:</h3>
+                <p id="selectedCount">0 мест</p>
+                <p id="totalPrice">Общая стоимость: 0 руб.</p>
+            </div>
+            
+            <div class="control-group">
+                <h3>Легенда цен:</h3>
+                <div id="priceLegend" class="price-legend">
+                    <!-- Динамически генерируется -->
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('hallCanvas');
+            const ctx = canvas.getContext('2d');
+            const priceInput = document.getElementById('priceInput');
+            const setPriceBtn = document.getElementById('setPriceBtn');
+            const resetAllBtn = document.getElementById('resetAllBtn');
+            const selectedCount = document.getElementById('selectedCount');
+            const totalPrice = document.getElementById('totalPrice');
+            const zoomInBtn = document.getElementById('zoomInBtn');
+            const zoomOutBtn = document.getElementById('zoomOutBtn');
+            const resetZoomBtn = document.getElementById('resetZoomBtn');
+            const priceLegend = document.getElementById('priceLegend');
+            const directorRowCheckbox = document.getElementById('directorRowCheckbox');
+            const exportBtn = document.getElementById('exportBtn');
+            const saveTemplateBtn = document.getElementById('saveTemplateBtn');
+            const loadTemplateBtn = document.getElementById('loadTemplateBtn');
+            const templateFile = document.getElementById('templateFile');
+            const setOccupiedBtn = document.getElementById('setOccupiedBtn');
+            const setFreeBtn = document.getElementById('setFreeBtn');
+
+            // Палитра цветов в порядке от самой маленькой цены к самой большой
+            const colorPalette = [
+                '#02acf6',   // 1 - голубой
+                '#47d055',   // 2 - зеленый
+                '#ffd336',   // 3 - желтый
+                '#74dcf3',   // 4 - светло-голубой
+                '#fb9803',   // 5 - оранжевый
+                '#dd1007'    // 6 - красный
+            ];
+
+            // Переменные для масштабирования и панорамирования
+            let scale = 1.0;
+            let offsetX = 0;
+            let offsetY = 0;
+            let isDragging = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            // Данные мест из SVG (остаются без изменений)
+            const seatsData = [
+                // Основные ряды (1-22)
+                {cx: 170, cy: 577, r: 9, row: 1, col: 1},
+                {cx: 190, cy: 577, r: 9, row: 1, col: 2},
+                {cx: 210, cy: 577, r: 9, row: 1, col: 3},
+                {cx: 230, cy: 577, r: 9, row: 1, col: 4},
+                {cx: 250, cy: 577, r: 9, row: 1, col: 5},
+                {cx: 270, cy: 577, r: 9, row: 1, col: 6},
+                {cx: 290, cy: 577, r: 9, row: 1, col: 7},
+                {cx: 310, cy: 577, r: 9, row: 1, col: 8},
+                {cx: 330, cy: 577, r: 9, row: 1, col: 9},
+                {cx: 350, cy: 577, r: 9, row: 1, col: 10},
+                {cx: 370, cy: 577, r: 9, row: 1, col: 11},
+                {cx: 430, cy: 577, r: 9, row: 1, col: 12},
+                {cx: 450, cy: 577, r: 9, row: 1, col: 13},
+                {cx: 470, cy: 577, r: 9, row: 1, col: 14},
+                {cx: 490, cy: 577, r: 9, row: 1, col: 15},
+                {cx: 510, cy: 577, r: 9, row: 1, col: 16},
+                {cx: 530, cy: 577, r: 9, row: 1, col: 17},
+                {cx: 550, cy: 577, r: 9, row: 1, col: 18},
+                {cx: 570, cy: 577, r: 9, row: 1, col: 19},
+                {cx: 590, cy: 577, r: 9, row: 1, col: 20},
+                {cx: 610, cy: 577, r: 9, row: 1, col: 21},
+                {cx: 630, cy: 577, r: 9, row: 1, col: 22},
+
+                // Ряд 2
+                {cx: 170, cy: 555, r: 9, row: 2, col: 1},
+                {cx: 190, cy: 555, r: 9, row: 2, col: 2},
+                {cx: 210, cy: 555, r: 9, row: 2, col: 3},
+                {cx: 230, cy: 555, r: 9, row: 2, col: 4},
+                {cx: 250, cy: 555, r: 9, row: 2, col: 5},
+                {cx: 270, cy: 555, r: 9, row: 2, col: 6},
+                {cx: 290, cy: 555, r: 9, row: 2, col: 7},
+                {cx: 310, cy: 555, r: 9, row: 2, col: 8},
+                {cx: 330, cy: 555, r: 9, row: 2, col: 9},
+                {cx: 350, cy: 555, r: 9, row: 2, col: 10},
+                {cx: 370, cy: 555, r: 9, row: 2, col: 11},
+                {cx: 430, cy: 555, r: 9, row: 2, col: 12},
+                {cx: 450, cy: 555, r: 9, row: 2, col: 13},
+                {cx: 470, cy: 555, r: 9, row: 2, col: 14},
+                {cx: 490, cy: 555, r: 9, row: 2, col: 15},
+                {cx: 510, cy: 555, r: 9, row: 2, col: 16},
+                {cx: 530, cy: 555, r: 9, row: 2, col: 17},
+                {cx: 550, cy: 555, r: 9, row: 2, col: 18},
+                {cx: 570, cy: 555, r: 9, row: 2, col: 19},
+                {cx: 590, cy: 555, r: 9, row: 2, col: 20},
+                {cx: 610, cy: 555, r: 9, row: 2, col: 21},
+                {cx: 630, cy: 555, r: 9, row: 2, col: 22},
+
+                // Ряд 3
+                {cx: 170, cy: 533, r: 9, row: 3, col: 1},
+                {cx: 190, cy: 533, r: 9, row: 3, col: 2},
+                {cx: 210, cy: 533, r: 9, row: 3, col: 3},
+                {cx: 230, cy: 533, r: 9, row: 3, col: 4},
+                {cx: 250, cy: 533, r: 9, row: 3, col: 5},
+                {cx: 270, cy: 533, r: 9, row: 3, col: 6},
+                {cx: 290, cy: 533, r: 9, row: 3, col: 7},
+                {cx: 310, cy: 533, r: 9, row: 3, col: 8},
+                {cx: 330, cy: 533, r: 9, row: 3, col: 9},
+                {cx: 350, cy: 533, r: 9, row: 3, col: 10},
+                {cx: 370, cy: 533, r: 9, row: 3, col: 11},
+                {cx: 430, cy: 533, r: 9, row: 3, col: 12},
+                {cx: 450, cy: 533, r: 9, row: 3, col: 13},
+                {cx: 470, cy: 533, r: 9, row: 3, col: 14},
+                {cx: 490, cy: 533, r: 9, row: 3, col: 15},
+                {cx: 510, cy: 533, r: 9, row: 3, col: 16},
+                {cx: 530, cy: 533, r: 9, row: 3, col: 17},
+                {cx: 550, cy: 533, r: 9, row: 3, col: 18},
+                {cx: 570, cy: 533, r: 9, row: 3, col: 19},
+                {cx: 590, cy: 533, r: 9, row: 3, col: 20},
+                {cx: 610, cy: 533, r: 9, row: 3, col: 21},
+                {cx: 630, cy: 533, r: 9, row: 3, col: 22},
+
+                // Ряд 4
+                {cx: 170, cy: 511, r: 9, row: 4, col: 1},
+                {cx: 190, cy: 511, r: 9, row: 4, col: 2},
+                {cx: 210, cy: 511, r: 9, row: 4, col: 3},
+                {cx: 230, cy: 511, r: 9, row: 4, col: 4},
+                {cx: 250, cy: 511, r: 9, row: 4, col: 5},
+                {cx: 270, cy: 511, r: 9, row: 4, col: 6},
+                {cx: 290, cy: 511, r: 9, row: 4, col: 7},
+                {cx: 310, cy: 511, r: 9, row: 4, col: 8},
+                {cx: 330, cy: 511, r: 9, row: 4, col: 9},
+                {cx: 350, cy: 511, r: 9, row: 4, col: 10},
+                {cx: 370, cy: 511, r: 9, row: 4, col: 11},
+                {cx: 430, cy: 511, r: 9, row: 4, col: 12},
+                {cx: 450, cy: 511, r: 9, row: 4, col: 13},
+                {cx: 470, cy: 511, r: 9, row: 4, col: 14},
+                {cx: 490, cy: 511, r: 9, row: 4, col: 15},
+                {cx: 510, cy: 511, r: 9, row: 4, col: 16},
+                {cx: 530, cy: 511, r: 9, row: 4, col: 17},
+                {cx: 550, cy: 511, r: 9, row: 4, col: 18},
+                {cx: 570, cy: 511, r: 9, row: 4, col: 19},
+                {cx: 590, cy: 511, r: 9, row: 4, col: 20},
+                {cx: 610, cy: 511, r: 9, row: 4, col: 21},
+                {cx: 630, cy: 511, r: 9, row: 4, col: 22},
+
+                // Ряд 5
+                {cx: 170, cy: 489, r: 9, row: 5, col: 1},
+                {cx: 190, cy: 489, r: 9, row: 5, col: 2},
+                {cx: 210, cy: 489, r: 9, row: 5, col: 3},
+                {cx: 230, cy: 489, r: 9, row: 5, col: 4},
+                {cx: 250, cy: 489, r: 9, row: 5, col: 5},
+                {cx: 270, cy: 489, r: 9, row: 5, col: 6},
+                {cx: 290, cy: 489, r: 9, row: 5, col: 7},
+                {cx: 310, cy: 489, r: 9, row: 5, col: 8},
+                {cx: 330, cy: 489, r: 9, row: 5, col: 9},
+                {cx: 350, cy: 489, r: 9, row: 5, col: 10},
+                {cx: 370, cy: 489, r: 9, row: 5, col: 11},
+                {cx: 430, cy: 489, r: 9, row: 5, col: 12},
+                {cx: 450, cy: 489, r: 9, row: 5, col: 13},
+                {cx: 470, cy: 489, r: 9, row: 5, col: 14},
+                {cx: 490, cy: 489, r: 9, row: 5, col: 15},
+                {cx: 510, cy: 489, r: 9, row: 5, col: 16},
+                {cx: 530, cy: 489, r: 9, row: 5, col: 17},
+                {cx: 550, cy: 489, r: 9, row: 5, col: 18},
+                {cx: 570, cy: 489, r: 9, row: 5, col: 19},
+                {cx: 590, cy: 489, r: 9, row: 5, col: 20},
+                {cx: 610, cy: 489, r: 9, row: 5, col: 21},
+                {cx: 630, cy: 489, r: 9, row: 5, col: 22},
+
+                // Ряд 6
+                {cx: 170, cy: 467, r: 9, row: 6, col: 1},
+                {cx: 190, cy: 467, r: 9, row: 6, col: 2},
+                {cx: 210, cy: 467, r: 9, row: 6, col: 3},
+                {cx: 230, cy: 467, r: 9, row: 6, col: 4},
+                {cx: 250, cy: 467, r: 9, row: 6, col: 5},
+                {cx: 270, cy: 467, r: 9, row: 6, col: 6},
+                {cx: 290, cy: 467, r: 9, row: 6, col: 7},
+                {cx: 310, cy: 467, r: 9, row: 6, col: 8},
+                {cx: 330, cy: 467, r: 9, row: 6, col: 9},
+                {cx: 350, cy: 467, r: 9, row: 6, col: 10},
+                {cx: 370, cy: 467, r: 9, row: 6, col: 11},
+                {cx: 430, cy: 467, r: 9, row: 6, col: 12},
+                {cx: 450, cy: 467, r: 9, row: 6, col: 13},
+                {cx: 470, cy: 467, r: 9, row: 6, col: 14},
+                {cx: 490, cy: 467, r: 9, row: 6, col: 15},
+                {cx: 510, cy: 467, r: 9, row: 6, col: 16},
+                {cx: 530, cy: 467, r: 9, row: 6, col: 17},
+                {cx: 550, cy: 467, r: 9, row: 6, col: 18},
+                {cx: 570, cy: 467, r: 9, row: 6, col: 19},
+                {cx: 590, cy: 467, r: 9, row: 6, col: 20},
+                {cx: 610, cy: 467, r: 9, row: 6, col: 21},
+                {cx: 630, cy: 467, r: 9, row: 6, col: 22},
+
+                // Ряд 7
+                {cx: 170, cy: 445, r: 9, row: 7, col: 1},
+                {cx: 190, cy: 445, r: 9, row: 7, col: 2},
+                {cx: 210, cy: 445, r: 9, row: 7, col: 3},
+                {cx: 230, cy: 445, r: 9, row: 7, col: 4},
+                {cx: 250, cy: 445, r: 9, row: 7, col: 5},
+                {cx: 270, cy: 445, r: 9, row: 7, col: 6},
+                {cx: 290, cy: 445, r: 9, row: 7, col: 7},
+                {cx: 310, cy: 445, r: 9, row: 7, col: 8},
+                {cx: 330, cy: 445, r: 9, row: 7, col: 9},
+                {cx: 350, cy: 445, r: 9, row: 7, col: 10},
+                {cx: 370, cy: 445, r: 9, row: 7, col: 11},
+                {cx: 430, cy: 445, r: 9, row: 7, col: 12},
+                {cx: 450, cy: 445, r: 9, row: 7, col: 13},
+                {cx: 470, cy: 445, r: 9, row: 7, col: 14},
+                {cx: 490, cy: 445, r: 9, row: 7, col: 15},
+                {cx: 510, cy: 445, r: 9, row: 7, col: 16},
+                {cx: 530, cy: 445, r: 9, row: 7, col: 17},
+                {cx: 550, cy: 445, r: 9, row: 7, col: 18},
+                {cx: 570, cy: 445, r: 9, row: 7, col: 19},
+                {cx: 590, cy: 445, r: 9, row: 7, col: 20},
+                {cx: 610, cy: 445, r: 9, row: 7, col: 21},
+                {cx: 630, cy: 445, r: 9, row: 7, col: 22},
+
+                // Ряд 8
+                {cx: 170, cy: 423, r: 9, row: 8, col: 1},
+                {cx: 190, cy: 423, r: 9, row: 8, col: 2},
+                {cx: 210, cy: 423, r: 9, row: 8, col: 3},
+                {cx: 230, cy: 423, r: 9, row: 8, col: 4},
+                {cx: 250, cy: 423, r: 9, row: 8, col: 5},
+                {cx: 270, cy: 423, r: 9, row: 8, col: 6},
+                {cx: 290, cy: 423, r: 9, row: 8, col: 7},
+                {cx: 310, cy: 423, r: 9, row: 8, col: 8},
+                {cx: 330, cy: 423, r: 9, row: 8, col: 9},
+                {cx: 350, cy: 423, r: 9, row: 8, col: 10},
+                {cx: 370, cy: 423, r: 9, row: 8, col: 11},
+                {cx: 430, cy: 423, r: 9, row: 8, col: 12},
+                {cx: 450, cy: 423, r: 9, row: 8, col: 13},
+                {cx: 470, cy: 423, r: 9, row: 8, col: 14},
+                {cx: 490, cy: 423, r: 9, row: 8, col: 15},
+                {cx: 510, cy: 423, r: 9, row: 8, col: 16},
+                {cx: 530, cy: 423, r: 9, row: 8, col: 17},
+                {cx: 550, cy: 423, r: 9, row: 8, col: 18},
+                {cx: 570, cy: 423, r: 9, row: 8, col: 19},
+                {cx: 590, cy: 423, r: 9, row: 8, col: 20},
+                {cx: 610, cy: 423, r: 9, row: 8, col: 21},
+                {cx: 630, cy: 423, r: 9, row: 8, col: 22},
+
+                // Ряд 9
+                {cx: 170, cy: 401, r: 9, row: 9, col: 1},
+                {cx: 190, cy: 401, r: 9, row: 9, col: 2},
+                {cx: 210, cy: 401, r: 9, row: 9, col: 3},
+                {cx: 230, cy: 401, r: 9, row: 9, col: 4},
+                {cx: 250, cy: 401, r: 9, row: 9, col: 5},
+                {cx: 270, cy: 401, r: 9, row: 9, col: 6},
+                {cx: 290, cy: 401, r: 9, row: 9, col: 7},
+                {cx: 310, cy: 401, r: 9, row: 9, col: 8},
+                {cx: 330, cy: 401, r: 9, row: 9, col: 9},
+                {cx: 350, cy: 401, r: 9, row: 9, col: 10},
+                {cx: 370, cy: 401, r: 9, row: 9, col: 11},
+                {cx: 430, cy: 401, r: 9, row: 9, col: 12},
+                {cx: 450, cy: 401, r: 9, row: 9, col: 13},
+                {cx: 470, cy: 401, r: 9, row: 9, col: 14},
+                {cx: 490, cy: 401, r: 9, row: 9, col: 15},
+                {cx: 510, cy: 401, r: 9, row: 9, col: 16},
+                {cx: 530, cy: 401, r: 9, row: 9, col: 17},
+                {cx: 550, cy: 401, r: 9, row: 9, col: 18},
+                {cx: 570, cy: 401, r: 9, row: 9, col: 19},
+                {cx: 590, cy: 401, r: 9, row: 9, col: 20},
+                {cx: 610, cy: 401, r: 9, row: 9, col: 21},
+                {cx: 630, cy: 401, r: 9, row: 9, col: 22},
+
+                // Ряд 10
+                {cx: 170, cy: 379, r: 9, row: 10, col: 1},
+                {cx: 190, cy: 379, r: 9, row: 10, col: 2},
+                {cx: 210, cy: 379, r: 9, row: 10, col: 3},
+                {cx: 230, cy: 379, r: 9, row: 10, col: 4},
+                {cx: 250, cy: 379, r: 9, row: 10, col: 5},
+                {cx: 270, cy: 379, r: 9, row: 10, col: 6},
+                {cx: 290, cy: 379, r: 9, row: 10, col: 7},
+                {cx: 310, cy: 379, r: 9, row: 10, col: 8},
+                {cx: 330, cy: 379, r: 9, row: 10, col: 9},
+                {cx: 350, cy: 379, r: 9, row: 10, col: 10},
+                {cx: 370, cy: 379, r: 9, row: 10, col: 11},
+                {cx: 430, cy: 379, r: 9, row: 10, col: 12},
+                {cx: 450, cy: 379, r: 9, row: 10, col: 13},
+                {cx: 470, cy: 379, r: 9, row: 10, col: 14},
+                {cx: 490, cy: 379, r: 9, row: 10, col: 15},
+                {cx: 510, cy: 379, r: 9, row: 10, col: 16},
+                {cx: 530, cy: 379, r: 9, row: 10, col: 17},
+                {cx: 550, cy: 379, r: 9, row: 10, col: 18},
+                {cx: 570, cy: 379, r: 9, row: 10, col: 19},
+                {cx: 590, cy: 379, r: 9, row: 10, col: 20},
+                {cx: 610, cy: 379, r: 9, row: 10, col: 21},
+                {cx: 630, cy: 379, r: 9, row: 10, col: 22},
+
+                // Ряд 11
+                {cx: 170, cy: 319, r: 9, row: 11, col: 1},
+                {cx: 190, cy: 319, r: 9, row: 11, col: 2},
+                {cx: 210, cy: 319, r: 9, row: 11, col: 3},
+                {cx: 230, cy: 319, r: 9, row: 11, col: 4},
+                {cx: 250, cy: 319, r: 9, row: 11, col: 5},
+                {cx: 270, cy: 319, r: 9, row: 11, col: 6},
+                {cx: 290, cy: 319, r: 9, row: 11, col: 7},
+                {cx: 310, cy: 319, r: 9, row: 11, col: 8},
+                {cx: 330, cy: 319, r: 9, row: 11, col: 9},
+                {cx: 350, cy: 319, r: 9, row: 11, col: 10},
+                {cx: 370, cy: 319, r: 9, row: 11, col: 11},
+                {cx: 430, cy: 319, r: 9, row: 11, col: 12},
+                {cx: 450, cy: 319, r: 9, row: 11, col: 13},
+                {cx: 470, cy: 319, r: 9, row: 11, col: 14},
+                {cx: 490, cy: 319, r: 9, row: 11, col: 15},
+                {cx: 510, cy: 319, r: 9, row: 11, col: 16},
+                {cx: 530, cy: 319, r: 9, row: 11, col: 17},
+                {cx: 550, cy: 319, r: 9, row: 11, col: 18},
+                {cx: 570, cy: 319, r: 9, row: 11, col: 19},
+                {cx: 590, cy: 319, r: 9, row: 11, col: 20},
+                {cx: 610, cy: 319, r: 9, row: 11, col: 21},
+                {cx: 630, cy: 319, r: 9, row: 11, col: 22},
+
+                // Ряд 12
+                {cx: 170, cy: 297, r: 9, row: 12, col: 1},
+                {cx: 190, cy: 297, r: 9, row: 12, col: 2},
+                {cx: 210, cy: 297, r: 9, row: 12, col: 3},
+                {cx: 230, cy: 297, r: 9, row: 12, col: 4},
+                {cx: 250, cy: 297, r: 9, row: 12, col: 5},
+                {cx: 270, cy: 297, r: 9, row: 12, col: 6},
+                {cx: 290, cy: 297, r: 9, row: 12, col: 7},
+                {cx: 310, cy: 297, r: 9, row: 12, col: 8},
+                {cx: 330, cy: 297, r: 9, row: 12, col: 9},
+                {cx: 350, cy: 297, r: 9, row: 12, col: 10},
+                {cx: 370, cy: 297, r: 9, row: 12, col: 11},
+                {cx: 430, cy: 297, r: 9, row: 12, col: 12},
+                {cx: 450, cy: 297, r: 9, row: 12, col: 13},
+                {cx: 470, cy: 297, r: 9, row: 12, col: 14},
+                {cx: 490, cy: 297, r: 9, row: 12, col: 15},
+                {cx: 510, cy: 297, r: 9, row: 12, col: 16},
+                {cx: 530, cy: 297, r: 9, row: 12, col: 17},
+                {cx: 550, cy: 297, r: 9, row: 12, col: 18},
+                {cx: 570, cy: 297, r: 9, row: 12, col: 19},
+                {cx: 590, cy: 297, r: 9, row: 12, col: 20},
+                {cx: 610, cy: 297, r: 9, row: 12, col: 21},
+                {cx: 630, cy: 297, r: 9, row: 12, col: 22},
+
+                // Ряд 13
+                {cx: 170, cy: 275, r: 9, row: 13, col: 1},
+                {cx: 190, cy: 275, r: 9, row: 13, col: 2},
+                {cx: 210, cy: 275, r: 9, row: 13, col: 3},
+                {cx: 230, cy: 275, r: 9, row: 13, col: 4},
+                {cx: 250, cy: 275, r: 9, row: 13, col: 5},
+                {cx: 270, cy: 275, r: 9, row: 13, col: 6},
+                {cx: 290, cy: 275, r: 9, row: 13, col: 7},
+                {cx: 310, cy: 275, r: 9, row: 13, col: 8},
+                {cx: 330, cy: 275, r: 9, row: 13, col: 9},
+                {cx: 350, cy: 275, r: 9, row: 13, col: 10},
+                {cx: 370, cy: 275, r: 9, row: 13, col: 11},
+                {cx: 430, cy: 275, r: 9, row: 13, col: 12},
+                {cx: 450, cy: 275, r: 9, row: 13, col: 13},
+                {cx: 470, cy: 275, r: 9, row: 13, col: 14},
+                {cx: 490, cy: 275, r: 9, row: 13, col: 15},
+                {cx: 510, cy: 275, r: 9, row: 13, col: 16},
+                {cx: 530, cy: 275, r: 9, row: 13, col: 17},
+                {cx: 550, cy: 275, r: 9, row: 13, col: 18},
+                {cx: 570, cy: 275, r: 9, row: 13, col: 19},
+                {cx: 590, cy: 275, r: 9, row: 13, col: 20},
+                {cx: 610, cy: 275, r: 9, row: 13, col: 21},
+                {cx: 630, cy: 275, r: 9, row: 13, col: 22},
+
+                // Ряд 14
+                {cx: 170, cy: 235, r: 9, row: 14, col: 1},
+                {cx: 190, cy: 235, r: 9, row: 14, col: 2},
+                {cx: 210, cy: 235, r: 9, row: 14, col: 3},
+                {cx: 230, cy: 235, r: 9, row: 14, col: 4},
+                {cx: 250, cy: 235, r: 9, row: 14, col: 5},
+                {cx: 270, cy: 235, r: 9, row: 14, col: 6},
+                {cx: 290, cy: 235, r: 9, row: 14, col: 7},
+                {cx: 310, cy: 235, r: 9, row: 14, col: 8},
+                {cx: 330, cy: 235, r: 9, row: 14, col: 9},
+                {cx: 350, cy: 235, r: 9, row: 14, col: 10},
+                {cx: 370, cy: 235, r: 9, row: 14, col: 11},
+                {cx: 430, cy: 235, r: 9, row: 14, col: 12},
+                {cx: 450, cy: 235, r: 9, row: 14, col: 13},
+                {cx: 470, cy: 235, r: 9, row: 14, col: 14},
+                {cx: 490, cy: 235, r: 9, row: 14, col: 15},
+                {cx: 510, cy: 235, r: 9, row: 14, col: 16},
+                {cx: 530, cy: 235, r: 9, row: 14, col: 17},
+                {cx: 550, cy: 235, r: 9, row: 14, col: 18},
+                {cx: 570, cy: 235, r: 9, row: 14, col: 19},
+                {cx: 590, cy: 235, r: 9, row: 14, col: 20},
+                {cx: 610, cy: 235, r: 9, row: 14, col: 21},
+                {cx: 630, cy: 235, r: 9, row: 14, col: 22},
+
+                // Ряд 15
+                {cx: 170, cy: 213, r: 9, row: 15, col: 1},
+                {cx: 190, cy: 213, r: 9, row: 15, col: 2},
+                {cx: 210, cy: 213, r: 9, row: 15, col: 3},
+                {cx: 230, cy: 213, r: 9, row: 15, col: 4},
+                {cx: 250, cy: 213, r: 9, row: 15, col: 5},
+                {cx: 270, cy: 213, r: 9, row: 15, col: 6},
+                {cx: 290, cy: 213, r: 9, row: 15, col: 7},
+                {cx: 310, cy: 213, r: 9, row: 15, col: 8},
+                {cx: 330, cy: 213, r: 9, row: 15, col: 9},
+                {cx: 350, cy: 213, r: 9, row: 15, col: 10},
+                {cx: 370, cy: 213, r: 9, row: 15, col: 11},
+                {cx: 430, cy: 213, r: 9, row: 15, col: 12},
+                {cx: 450, cy: 213, r: 9, row: 15, col: 13},
+                {cx: 470, cy: 213, r: 9, row: 15, col: 14},
+                {cx: 490, cy: 213, r: 9, row: 15, col: 15},
+                {cx: 510, cy: 213, r: 9, row: 15, col: 16},
+                {cx: 530, cy: 213, r: 9, row: 15, col: 17},
+                {cx: 550, cy: 213, r: 9, row: 15, col: 18},
+                {cx: 570, cy: 213, r: 9, row: 15, col: 19},
+                {cx: 590, cy: 213, r: 9, row: 15, col: 20},
+                {cx: 610, cy: 213, r: 9, row: 15, col: 21},
+                {cx: 630, cy: 213, r: 9, row: 15, col: 22},
+
+                // Ряд 16
+                {cx: 170, cy: 191, r: 9, row: 16, col: 1},
+                {cx: 190, cy: 191, r: 9, row: 16, col: 2},
+                {cx: 210, cy: 191, r: 9, row: 16, col: 3},
+                {cx: 230, cy: 191, r: 9, row: 16, col: 4},
+                {cx: 250, cy: 191, r: 9, row: 16, col: 5},
+                {cx: 270, cy: 191, r: 9, row: 16, col: 6},
+                {cx: 290, cy: 191, r: 9, row: 16, col: 7},
+                {cx: 310, cy: 191, r: 9, row: 16, col: 8},
+                {cx: 330, cy: 191, r: 9, row: 16, col: 9},
+                {cx: 350, cy: 191, r: 9, row: 16, col: 10},
+                {cx: 370, cy: 191, r: 9, row: 16, col: 11},
+                {cx: 430, cy: 191, r: 9, row: 16, col: 12},
+                {cx: 450, cy: 191, r: 9, row: 16, col: 13},
+                {cx: 470, cy: 191, r: 9, row: 16, col: 14},
+                {cx: 490, cy: 191, r: 9, row: 16, col: 15},
+                {cx: 510, cy: 191, r: 9, row: 16, col: 16},
+                {cx: 530, cy: 191, r: 9, row: 16, col: 17},
+                {cx: 550, cy: 191, r: 9, row: 16, col: 18},
+                {cx: 570, cy: 191, r: 9, row: 16, col: 19},
+                {cx: 590, cy: 191, r: 9, row: 16, col: 20},
+                {cx: 610, cy: 191, r: 9, row: 16, col: 21},
+                {cx: 630, cy: 191, r: 9, row: 16, col: 22},
+
+                // Ряд 17
+                {cx: 170, cy: 151, r: 9, row: 17, col: 1},
+                {cx: 190, cy: 151, r: 9, row: 17, col: 2},
+                {cx: 210, cy: 151, r: 9, row: 17, col: 3},
+                {cx: 230, cy: 151, r: 9, row: 17, col: 4},
+                {cx: 250, cy: 151, r: 9, row: 17, col: 5},
+                {cx: 270, cy: 151, r: 9, row: 17, col: 6},
+                {cx: 290, cy: 151, r: 9, row: 17, col: 7},
+                {cx: 310, cy: 151, r: 9, row: 17, col: 8},
+                {cx: 330, cy: 151, r: 9, row: 17, col: 9},
+                {cx: 350, cy: 151, r: 9, row: 17, col: 10},
+                {cx: 370, cy: 151, r: 9, row: 17, col: 11},
+                {cx: 430, cy: 151, r: 9, row: 17, col: 12},
+                {cx: 450, cy: 151, r: 9, row: 17, col: 13},
+                {cx: 470, cy: 151, r: 9, row: 17, col: 14},
+                {cx: 490, cy: 151, r: 9, row: 17, col: 15},
+                {cx: 510, cy: 151, r: 9, row: 17, col: 16},
+                {cx: 530, cy: 151, r: 9, row: 17, col: 17},
+                {cx: 550, cy: 151, r: 9, row: 17, col: 18},
+                {cx: 570, cy: 151, r: 9, row: 17, col: 19},
+                {cx: 590, cy: 151, r: 9, row: 17, col: 20},
+                {cx: 610, cy: 151, r: 9, row: 17, col: 21},
+                {cx: 630, cy: 151, r: 9, row: 17, col: 22},
+
+                // Ряд 18
+                {cx: 170, cy: 129, r: 9, row: 18, col: 1},
+                {cx: 190, cy: 129, r: 9, row: 18, col: 2},
+                {cx: 210, cy: 129, r: 9, row: 18, col: 3},
+                {cx: 230, cy: 129, r: 9, row: 18, col: 4},
+                {cx: 250, cy: 129, r: 9, row: 18, col: 5},
+                {cx: 270, cy: 129, r: 9, row: 18, col: 6},
+                {cx: 290, cy: 129, r: 9, row: 18, col: 7},
+                {cx: 310, cy: 129, r: 9, row: 18, col: 8},
+                {cx: 330, cy: 129, r: 9, row: 18, col: 9},
+                {cx: 350, cy: 129, r: 9, row: 18, col: 10},
+                {cx: 370, cy: 129, r: 9, row: 18, col: 11},
+                {cx: 430, cy: 129, r: 9, row: 18, col: 12},
+                {cx: 450, cy: 129, r: 9, row: 18, col: 13},
+                {cx: 470, cy: 129, r: 9, row: 18, col: 14},
+                {cx: 490, cy: 129, r: 9, row: 18, col: 15},
+                {cx: 510, cy: 129, r: 9, row: 18, col: 16},
+                {cx: 530, cy: 129, r: 9, row: 18, col: 17},
+                {cx: 550, cy: 129, r: 9, row: 18, col: 18},
+                {cx: 570, cy: 129, r: 9, row: 18, col: 19},
+                {cx: 590, cy: 129, r: 9, row: 18, col: 20},
+                {cx: 610, cy: 129, r: 9, row: 18, col: 21},
+                {cx: 630, cy: 129, r: 9, row: 18, col: 22},
+
+                // Ряд 19
+                {cx: 170, cy: 107, r: 9, row: 19, col: 1},
+                {cx: 190, cy: 107, r: 9, row: 19, col: 2},
+                {cx: 210, cy: 107, r: 9, row: 19, col: 3},
+                {cx: 230, cy: 107, r: 9, row: 19, col: 4},
+                {cx: 250, cy: 107, r: 9, row: 19, col: 5},
+                {cx: 270, cy: 107, r: 9, row: 19, col: 6},
+                {cx: 290, cy: 107, r: 9, row: 19, col: 7},
+                {cx: 310, cy: 107, r: 9, row: 19, col: 8},
+                {cx: 330, cy: 107, r: 9, row: 19, col: 9},
+                {cx: 350, cy: 107, r: 9, row: 19, col: 10},
+                {cx: 370, cy: 107, r: 9, row: 19, col: 11},
+                {cx: 430, cy: 107, r: 9, row: 19, col: 12},
+                {cx: 450, cy: 107, r: 9, row: 19, col: 13},
+                {cx: 470, cy: 107, r: 9, row: 19, col: 14},
+                {cx: 490, cy: 107, r: 9, row: 19, col: 15},
+                {cx: 510, cy: 107, r: 9, row: 19, col: 16},
+                {cx: 530, cy: 107, r: 9, row: 19, col: 17},
+                {cx: 550, cy: 107, r: 9, row: 19, col: 18},
+                {cx: 570, cy: 107, r: 9, row: 19, col: 19},
+                {cx: 590, cy: 107, r: 9, row: 19, col: 20},
+                {cx: 610, cy: 107, r: 9, row: 19, col: 21},
+                {cx: 630, cy: 107, r: 9, row: 19, col: 22},
+
+                // Ряд 20
+                {cx: 170, cy: 67, r: 9, row: 20, col: 1},
+                {cx: 190, cy: 67, r: 9, row: 20, col: 2},
+                {cx: 210, cy: 67, r: 9, row: 20, col: 3},
+                {cx: 230, cy: 67, r: 9, row: 20, col: 4},
+                {cx: 250, cy: 67, r: 9, row: 20, col: 5},
+                {cx: 270, cy: 67, r: 9, row: 20, col: 6},
+                {cx: 290, cy: 67, r: 9, row: 20, col: 7},
+                {cx: 310, cy: 67, r: 9, row: 20, col: 8},
+                {cx: 330, cy: 67, r: 9, row: 20, col: 9},
+                {cx: 350, cy: 67, r: 9, row: 20, col: 10},
+                {cx: 370, cy: 67, r: 9, row: 20, col: 11},
+                {cx: 430, cy: 67, r: 9, row: 20, col: 12},
+                {cx: 450, cy: 67, r: 9, row: 20, col: 13},
+                {cx: 470, cy: 67, r: 9, row: 20, col: 14},
+                {cx: 490, cy: 67, r: 9, row: 20, col: 15},
+                {cx: 510, cy: 67, r: 9, row: 20, col: 16},
+                {cx: 530, cy: 67, r: 9, row: 20, col: 17},
+                {cx: 550, cy: 67, r: 9, row: 20, col: 18},
+                {cx: 570, cy: 67, r: 9, row: 20, col: 19},
+                {cx: 590, cy: 67, r: 9, row: 20, col: 20},
+                {cx: 610, cy: 67, r: 9, row: 20, col: 21},
+                {cx: 630, cy: 67, r: 9, row: 20, col: 22},
+
+                // Ряд 21
+                {cx: 170, cy: 45, r: 9, row: 21, col: 1},
+                {cx: 190, cy: 45, r: 9, row: 21, col: 2},
+                {cx: 210, cy: 45, r: 9, row: 21, col: 3},
+                {cx: 230, cy: 45, r: 9, row: 21, col: 4},
+                {cx: 250, cy: 45, r: 9, row: 21, col: 5},
+                {cx: 270, cy: 45, r: 9, row: 21, col: 6},
+                {cx: 290, cy: 45, r: 9, row: 21, col: 7},
+                {cx: 310, cy: 45, r: 9, row: 21, col: 8},
+                {cx: 330, cy: 45, r: 9, row: 21, col: 9},
+                {cx: 350, cy: 45, r: 9, row: 21, col: 10},
+                {cx: 370, cy: 45, r: 9, row: 21, col: 11},
+                {cx: 430, cy: 45, r: 9, row: 21, col: 12},
+                {cx: 450, cy: 45, r: 9, row: 21, col: 13},
+                {cx: 470, cy: 45, r: 9, row: 21, col: 14},
+                {cx: 490, cy: 45, r: 9, row: 21, col: 15},
+                {cx: 510, cy: 45, r: 9, row: 21, col: 16},
+                {cx: 530, cy: 45, r: 9, row: 21, col: 17},
+                {cx: 550, cy: 45, r: 9, row: 21, col: 18},
+                {cx: 570, cy: 45, r: 9, row: 21, col: 19},
+                {cx: 590, cy: 45, r: 9, row: 21, col: 20},
+                {cx: 610, cy: 45, r: 9, row: 21, col: 21},
+                {cx: 630, cy: 45, r: 9, row: 21, col: 22},
+
+                // Ряд 22
+                {cx: 170, cy: 23, r: 9, row: 22, col: 1},
+                {cx: 190, cy: 23, r: 9, row: 22, col: 2},
+                {cx: 210, cy: 23, r: 9, row: 22, col: 3},
+                {cx: 230, cy: 23, r: 9, row: 22, col: 4},
+                {cx: 250, cy: 23, r: 9, row: 22, col: 5},
+                {cx: 270, cy: 23, r: 9, row: 22, col: 6},
+                {cx: 290, cy: 23, r: 9, row: 22, col: 7},
+                {cx: 310, cy: 23, r: 9, row: 22, col: 8},
+                {cx: 330, cy: 23, r: 9, row: 22, col: 9},
+                {cx: 350, cy: 23, r: 9, row: 22, col: 10},
+                {cx: 370, cy: 23, r: 9, row: 22, col: 11},
+                {cx: 390, cy: 23, r: 9, row: 22, col: 12},
+                {cx: 410, cy: 23, r: 9, row: 22, col: 13},
+                {cx: 430, cy: 23, r: 9, row: 22, col: 14},
+                {cx: 450, cy: 23, r: 9, row: 22, col: 15},
+                {cx: 470, cy: 23, r: 9, row: 22, col: 16},
+                {cx: 490, cy: 23, r: 9, row: 22, col: 17},
+                {cx: 510, cy: 23, r: 9, row: 22, col: 18},
+                {cx: 530, cy: 23, r: 9, row: 22, col: 19},
+                {cx: 550, cy: 23, r: 9, row: 22, col: 20},
+                {cx: 570, cy: 23, r: 9, row: 22, col: 21},
+                {cx: 590, cy: 23, r: 9, row: 22, col: 22},
+                {cx: 610, cy: 23, r: 9, row: 22, col: 23},
+                {cx: 630, cy: 23, r: 9, row: 22, col: 24},
+
+                // Левый боковой сектор
+                {cx: 130, cy: 67, r: 9, row: 'L1', col: 'О'},
+                {cx: 130, cy: 45, r: 9, row: 'L2', col: 'О'},
+                {cx: 130, cy: 107, r: 9, row: 'L3', col: 'О'},
+                {cx: 130, cy: 129, r: 9, row: 'L4', col: 'О'},
+                {cx: 130, cy: 151, r: 9, row: 'L5', col: 'О'},
+                {cx: 130, cy: 191, r: 9, row: 'L6', col: 'О'},
+                {cx: 130, cy: 213, r: 9, row: 'L7', col: 'О'},
+                {cx: 130, cy: 235, r: 9, row: 'L8', col: 'О'},
+                {cx: 130, cy: 275, r: 9, row: 'L9', col: 'О'},
+                {cx: 130, cy: 297, r: 9, row: 'L10', col: 'О'},
+                {cx: 130, cy: 319, r: 9, row: 'L11', col: 'О'},
+                {cx: 130, cy: 379, r: 9, row: 'L12', col: 'О'},
+                {cx: 130, cy: 401, r: 9, row: 'L13', col: 'О'},
+                {cx: 130, cy: 423, r: 9, row: 'L14', col: 'О'},
+                {cx: 130, cy: 445, r: 9, row: 'L15', col: 'О'},
+                {cx: 130, cy: 467, r: 9, row: 'L16', col: 'О'},
+                {cx: 130, cy: 489, r: 9, row: 'L17', col: 'О'},
+                {cx: 130, cy: 511, r: 9, row: 'L18', col: 'О'},
+                {cx: 130, cy: 533, r: 9, row: 'L19', col: 'О'},
+                {cx: 130, cy: 555, r: 9, row: 'L20', col: 'О'},
+
+                // Правый боковой сектор
+                {cx: 670, cy: 67, r: 9, row: 'R1', col: "О"},
+                {cx: 670, cy: 45, r: 9, row: 'R2', col: "О"},
+                {cx: 670, cy: 107, r: 9, row: 'R3', col: "О"},
+                {cx: 670, cy: 129, r: 9, row: 'R4', col: "О"},
+                {cx: 670, cy: 151, r: 9, row: 'R5', col: "О"},
+                {cx: 670, cy: 191, r: 9, row: 'R6', col: "О"},
+                {cx: 670, cy: 213, r: 9, row: 'R7', col: "О"},
+                {cx: 670, cy: 235, r: 9, row: 'R8', col: "О"},
+                {cx: 670, cy: 275, r: 9, row: 'R9', col: "О"},
+                {cx: 670, cy: 297, r: 9, row: 'R10', col: "О"},
+                {cx: 670, cy: 319, r: 9, row: 'R11', col: "О"},
+                {cx: 670, cy: 379, r: 9, row: 'R12', col: "О"},
+                {cx: 670, cy: 401, r: 9, row: 'R13', col: "О"},
+                {cx: 670, cy: 423, r: 9, row: 'R14', col: "О"},
+                {cx: 670, cy: 445, r: 9, row: 'R15', col: "О"},
+                {cx: 670, cy: 467, r: 9, row: 'R16', col: "О"},
+                {cx: 670, cy: 489, r: 9, row: 'R17', col: "О"},
+                {cx: 670, cy: 511, r: 9, row: 'R18', col: "О"},
+                {cx: 670, cy: 533, r: 9, row: 'R19', col: "О"},
+                {cx: 670, cy: 555, r: 9, row: 'R20', col: "О"},
+
+                // Левые боковые места (вертикальные)
+                {cx: 90, cy: 287, r: 9, row: 'LV1', col: "Б1"},
+                {cx: 90, cy: 267, r: 9, row: 'LV2', col: "Б2"},
+                {cx: 90, cy: 247, r: 9, row: 'LV3', col: "Б3"},
+                {cx: 90, cy: 227, r: 9, row: 'LV4', col: "Б4"},
+                {cx: 90, cy: 207, r: 9, row: 'LV5', col: "Б5"},
+                {cx: 90, cy: 187, r: 9, row: 'LV6', col: "Б6"},
+                {cx: 90, cy: 167, r: 9, row: 'LV7', col: "Б7"},
+                {cx: 90, cy: 147, r: 9, row: 'LV8', col: "Б8"},
+                {cx: 90, cy: 127, r: 9, row: 'LV9', col: "Б9"},
+                {cx: 90, cy: 107, r: 9, row: 'LV10', col: "Б10"},
+                {cx: 90, cy: 87, r: 9, row: 'LV11', col: "Б11"},
+                {cx: 90, cy: 67, r: 9, row: 'LV12', col: "Б12"},
+
+                // Правые боковые места (вертикальные)
+                {cx: 710, cy: 287, r: 9, row: 'RV1', col: "Б1"},
+                {cx: 710, cy: 267, r: 9, row: 'RV2', col: "Б2"},
+                {cx: 710, cy: 247, r: 9, row: 'RV3', col: "Б3"},
+                {cx: 710, cy: 227, r: 9, row: 'RV4', col: "Б4"},
+                {cx: 710, cy: 207, r: 9, row: 'RV5', col: "Б5"},
+                {cx: 710, cy: 187, r: 9, row: 'RV6', col: "Б6"},
+                {cx: 710, cy: 167, r: 9, row: 'RV7', col: "Б7"},
+                {cx: 710, cy: 147, r: 9, row: 'RV8', col: "Б8"},
+                {cx: 710, cy: 127, r: 9, row: 'RV9', col: "Б9"},
+                {cx: 710, cy: 107, r: 9, row: 'RV10', col: "Б10"},
+                {cx: 710, cy: 87, r: 9, row: 'RV11', col: "Б11"},
+                {cx: 710, cy: 67, r: 9, row: 'RV12', col: "Б12"}
+            ];
+            let seats = [];
+            let selectedSeats = [];
+            let isSelecting = false;
+            let selectionStart = { x: 0, y: 0 };
+            let selectionEnd = { x: 0, y: 0 };
+            let contentBounds = { minX: 0, minY: 0, maxX: 800, maxY: 600 };
+            // Проверка, можно ли установить цену на место (только свободные места)
+            function isSeatPriceable(seat) {
+                return seat.status === 'free';
+            }
+
+            // Проверка, можно ли выделить место (только свободные места)
+            function isSeatSelectable(seat) {
+                return seat.status === 'free';
+            }
+
+            // Обновление размера canvas
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+                centerContent();
+                drawHall();
+            }
+
+            // Центрирование содержимого
+            function centerContent() {
+                const container = canvas.parentElement;
+                const contentWidth = contentBounds.maxX - contentBounds.minX;
+                const contentHeight = contentBounds.maxY - contentBounds.minY;
+                
+                // Вычисляем масштаб для вмещения всего содержимого
+                const scaleX = container.clientWidth / (contentWidth + 100);
+                const scaleY = container.clientHeight / (contentHeight + 100);
+                scale = Math.min(scaleX, scaleY, 1);
+                
+                // Центрируем содержимое
+                offsetX = (container.clientWidth - contentWidth * scale) / 2;
+                offsetY = (container.clientHeight - contentHeight * scale) / 2;
+            }
+
+            // Преобразование координат мыши в координаты canvas с учетом масштаба и смещения
+            function getMousePos(e) {
+                const rect = canvas.getBoundingClientRect();
+                return {
+                    x: (e.clientX - rect.left - offsetX) / scale,
+                    y: (e.clientY - rect.top - offsetY) / scale
+                };
+            }
+
+            // Получение цвета для цены на основе порядка цен
+            function getPriceColor(price) {
+                if (price === null || price === undefined) return '#e0e0e0';
+                
+                // Получаем все уникальные цены и сортируем их
+                const uniquePrices = [...new Set(seats.map(seat => seat.price).filter(p => p !== null))].sort((a, b) => a - b);
+                
+                // Находим индекс текущей цены в отсортированном списке
+                const priceIndex = uniquePrices.indexOf(price);
+                
+                // Если цена найдена, возвращаем соответствующий цвет из палитры
+                if (priceIndex !== -1 && priceIndex < colorPalette.length) {
+                    return colorPalette[priceIndex];
+                }
+                
+                // Если цветов не хватает, используем серый
+                return '#e0e0e0';
+            }
+
+            // Обновление легенды цен
+            function updatePriceLegend() {
+                // Получаем все уникальные цены и сортируем их
+                const uniquePrices = [...new Set(seats.map(seat => seat.price).filter(p => p !== null))].sort((a, b) => a - b);
+                
+                priceLegend.innerHTML = '';
+                uniquePrices.forEach((price, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'price-item';
+                    const color = index < colorPalette.length ? colorPalette[index] : '#e0e0e0';
+                    item.innerHTML = `
+                        <div style="display: flex; align-items: center;">
+                            <div class="price-color" style="background-color: ${color}"></div>
+                            <span>${price} руб.</span>
+                        </div>
+                        <span>${seats.filter(seat => seat.price === price).length} мест</span>
+                    `;
+                    
+                    // Добавляем обработчик клика для быстрого выделения
+                    item.addEventListener('click', () => {
+                        selectSeatsByPrice(price);
+                    });
+                    
+                    priceLegend.appendChild(item);
+                });
+            }
+
+            // Выделение всех мест с определенной ценой (только свободные)
+            function selectSeatsByPrice(price) {
+                // Снимаем выделение со всех мест
+                seats.forEach(seat => {
+                    seat.selected = false;
+                });
+                
+                // Выделяем только свободные места с указанной ценой
+                selectedSeats = seats.filter(seat => seat.price === price && isSeatPriceable(seat));
+                selectedSeats.forEach(seat => {
+                    seat.selected = true;
+                });
+                
+                updateSelectionInfo();
+                drawHall();
+            }
+
+            // Инициализация мест
+            function initSeats() {
+                seats = seatsData.map((seatData, index) => ({
+                    id: index,
+                    cx: seatData.cx,
+                    cy: seatData.cy,
+                    r: seatData.r,
+                    row: seatData.row,
+                    col: seatData.col,
+                    status: 'free',
+                    price: null, // по умолчанию нет цены
+                    selected: false
+                }));
+
+                updatePriceLegend();
+            }
+
+            // Обновление статуса 11 ряда (директорского)
+            function updateDirectorRowStatus() {
+                const isOccupied = directorRowCheckbox.checked;
+                
+                seats.forEach(seat => {
+                    if (seat.row === 11) {
+                        seat.status = isOccupied ? 'occupied' : 'free';
+                        // Снимаем выделение с занятых мест
+                        if (isOccupied) {
+                            seat.selected = false;
+                        }
+                    }
+                });
+                
+                // Обновляем список выделенных мест
+                selectedSeats = selectedSeats.filter(seat => isSeatSelectable(seat));
+                
+                updateSelectionInfo();
+                drawHall();
+            }
+
+            // Отрисовка зала
+            function drawHall() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Сохраняем текущее состояние контекста
+                ctx.save();
+                
+                // Применяем трансформации (масштаб и смещение)
+                ctx.translate(offsetX, offsetY);
+                ctx.scale(scale, scale);
+                
+                // Рисуем сцену
+                ctx.fillStyle = '#333';
+                ctx.fillRect(150, 620, 500, 40);
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('СЦЕНА', 400, 645);
+                
+                // Рисуем номера рядов слева
+                const mainRows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+                mainRows.forEach(row => {
+                    const seatInRow = seats.find(seat => seat.row === row && typeof seat.col === 'number');
+                    if (seatInRow) {
+                        ctx.fillStyle = '#666';
+                        ctx.font = 'bold 8px Arial';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(row, 155, seatInRow.cy + 3);
+                    }
+                });
+                
+                // Рисуем номера рядов справа
+                mainRows.forEach(row => {
+                    const seatInRow = seats.find(seat => seat.row === row && typeof seat.col === 'number');
+                    if (seatInRow) {
+                        ctx.fillStyle = '#666';
+                        ctx.font = 'bold 8px Arial';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(row, 645, seatInRow.cy + 3);
+                    }
+                });
+                
+                // Рисуем места
+                seats.forEach(seat => {
+                    // Определяем цвет в зависимости от цены и статуса
+                    let color = getPriceColor(seat.price);
+                    
+                    if (seat.selected) {
+                        color = '#a5d6a7'; // Зеленый для выделенных
+                    } else if (seat.status === 'occupied') {
+                        color = '#ff6b6b'; // Красный для занятых
+                    }
+                    
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(seat.cx, seat.cy, seat.r, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    // Обводка
+                    ctx.strokeStyle = 'transparent';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                    
+                    // Номер места (ряд-место)
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 8px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(
+                        `${seat.col}`, 
+                        seat.cx, 
+                        seat.cy + 3
+                    );
+                });
+                
+                // Рисуем область выделения, если есть
+                if (isSelecting) {
+                    ctx.strokeStyle = '#a5d6a7';
+                    ctx.lineWidth = 2 / scale;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(
+                        Math.min(selectionStart.x, selectionEnd.x),
+                        Math.min(selectionStart.y, selectionEnd.y),
+                        Math.abs(selectionEnd.x - selectionStart.x),
+                        Math.abs(selectionEnd.y - selectionStart.y)
+                    );
+                    ctx.setLineDash([]);
+                }
+                
+                // Восстанавливаем состояние контекста
+                ctx.restore();
+            }
+
+            // Получение места по координатам мыши
+            function getSeatAtPosition(x, y) {
+                for (let i = 0; i < seats.length; i++) {
+                    const seat = seats[i];
+                    const distance = Math.sqrt((x - seat.cx) ** 2 + (y - seat.cy) ** 2);
+                    if (distance <= seat.r) {
+                        return seat;
+                    }
+                }
+                return null;
+            }
+
+            // Проверка пересечения прямоугольника с местом
+            function rectIntersectsSeat(rect, seat) {
+                const seatRect = {
+                    x: seat.cx - seat.r,
+                    y: seat.cy - seat.r,
+                    width: seat.r * 2,
+                    height: seat.r * 2
+                };
+                
+                return !(rect.x > seatRect.x + seatRect.width ||
+                        rect.x + rect.width < seatRect.x ||
+                        rect.y > seatRect.y + seatRect.height ||
+                        rect.y + rect.height < seatRect.y);
+            }
+
+            // Выделение мест в прямоугольной области (все места можно выделять)
+            function selectSeatsInArea(startX, startY, endX, endY) {
+                const selectionRect = {
+                    x: Math.min(startX, endX),
+                    y: Math.min(startY, endY),
+                    width: Math.abs(endX - startX),
+                    height: Math.abs(endY - startY)
+                };
+                
+                // Снимаем выделение со всех мест
+                seats.forEach(seat => {
+                    seat.selected = false;
+                });
+                
+                // Выделяем все места, которые пересекаются с областью выделения
+                selectedSeats = [];
+                seats.forEach(seat => {
+                    if (rectIntersectsSeat(selectionRect, seat)) {
+                        seat.selected = true;
+                        selectedSeats.push(seat);
+                    }
+                });
+                
+                updateSelectionInfo();
+                drawHall();
+            }
+
+            // Обновление информации о выделенных местах (только свободные)
+            function updateSelectionInfo() {
+                // Считаем только свободные выделенные места
+                const freeSelectedSeats = selectedSeats.filter(seat => isSeatPriceable(seat));
+                selectedCount.textContent = `${freeSelectedSeats.length} мест`;
+                
+                const total = freeSelectedSeats.reduce((sum, seat) => sum + (seat.price || 0), 0);
+                totalPrice.textContent = `Общая стоимость: ${total} руб.`;
+            }
+
+            // Установка статуса мест (занято/свободно)
+            function setSeatsStatus(status) {
+                selectedSeats.forEach(seat => {
+                    seat.status = status;
+                    // Если устанавливаем статус "занято", снимаем цену
+                    if (status === 'occupied') {
+                        seat.price = null;
+                    }
+                });
+                
+                updateSelectionInfo();
+                updatePriceLegend();
+                drawHall();
+            }
+
+            // Экспорт схемы зала как изображения с легендой
+            function exportHallImage() {
+                // Создаем временный canvas для экспорта
+                const exportCanvas = document.createElement('canvas');
+                const exportCtx = exportCanvas.getContext('2d');
+                
+                // Устанавливаем размеры для экспорта (ширина + место для легенды)
+                exportCanvas.width = 1000;
+                exportCanvas.height = 700;
+                
+                // Отрисовываем фон
+                exportCtx.fillStyle = '#fff';
+                exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                
+                // Рисуем сцену
+                exportCtx.fillStyle = '#333';
+                exportCtx.fillRect(150, 620, 500, 40);
+                exportCtx.fillStyle = '#fff';
+                exportCtx.font = 'bold 16px Arial';
+                exportCtx.textAlign = 'center';
+                exportCtx.fillText('СЦЕНА', 400, 645);
+                
+                // Рисуем номера рядов слева
+                const mainRows = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+                mainRows.forEach(row => {
+                    const seatInRow = seats.find(seat => seat.row === row && typeof seat.col === 'number');
+                    if (seatInRow) {
+                        exportCtx.fillStyle = '#333';
+                        exportCtx.font = 'bold 12px Arial';
+                        exportCtx.textAlign = 'right';
+                        exportCtx.fillText(row, 155, seatInRow.cy + 4);
+                    }
+                });
+                
+                // Рисуем номера рядов справа
+                mainRows.forEach(row => {
+                    const seatInRow = seats.find(seat => seat.row === row && typeof seat.col === 'number');
+                    if (seatInRow) {
+                        exportCtx.fillStyle = '#333';
+                        exportCtx.font = 'bold 12px Arial';
+                        exportCtx.textAlign = 'left';
+                        exportCtx.fillText(row, 645, seatInRow.cy + 4);
+                    }
+                });
+                
+                // Рисуем места
+                seats.forEach(seat => {
+                    let color = getPriceColor(seat.price);
+                    
+                    if (seat.status === 'occupied') {
+                        color = '#ff6b6b';
+                    }
+                    
+                    exportCtx.fillStyle = color;
+                    exportCtx.beginPath();
+                    exportCtx.arc(seat.cx, seat.cy, seat.r, 0, Math.PI * 2);
+                    exportCtx.fill();
+                    
+                    exportCtx.strokeStyle = 'transparent';
+                    exportCtx.lineWidth = 1;
+                    exportCtx.stroke();
+                    
+                    exportCtx.fillStyle = '#fff';
+                    exportCtx.font = 'bold 8px Arial';
+                    exportCtx.textAlign = 'center';
+                    exportCtx.fillText(
+                        `${seat.col}`, 
+                        seat.cx, 
+                        seat.cy + 3
+                    );
+                });
+                
+                // Рисуем легенду цен справа
+                const uniquePrices = [...new Set(seats.map(seat => seat.price).filter(p => p !== null))].sort((a, b) => a - b);
+                let legendY = 50;
+                
+                exportCtx.fillStyle = '#333';
+                exportCtx.font = 'bold 14px Arial';
+                exportCtx.textAlign = 'left';
+                exportCtx.fillText('Легенда цен:', 750, legendY);
+                legendY += 30;
+                
+                uniquePrices.forEach((price, index) => {
+                    const color = index < colorPalette.length ? colorPalette[index] : '#e0e0e0';
+                    
+                    exportCtx.fillStyle = color;
+                    exportCtx.fillRect(750, legendY - 10, 20, 20);
+                    
+                    exportCtx.fillStyle = '#333';
+                    exportCtx.font = '12px Arial';
+                    exportCtx.fillText(`${price} руб.`, 780, legendY + 5);
+                    
+                    legendY += 30;
+                });
+                
+                // Добавляем легенду статусов
+                legendY += 20;
+                exportCtx.fillStyle = '#333';
+                exportCtx.font = 'bold 14px Arial';
+                exportCtx.fillText('Статусы:', 750, legendY);
+                legendY += 30;
+                
+                exportCtx.fillStyle = '#ff6b6b';
+                exportCtx.fillRect(750, legendY - 10, 20, 20);
+                exportCtx.fillStyle = '#333';
+                exportCtx.font = '12px Arial';
+                exportCtx.fillText('Занято', 780, legendY + 5);
+                
+                // Создаем ссылку для скачивания
+                const link = document.createElement('a');
+                link.download = 'схема_зала.png';
+                link.href = exportCanvas.toDataURL('image/png');
+                link.click();
+            }
+
+            // Сохранение шаблона цен
+            function savePriceTemplate() {
+                const template = {
+                    seats: seats.map(seat => ({
+                        id: seat.id,
+                        price: seat.price,
+                        status: seat.status
+                    })),
+                    timestamp: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(template, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                
+                const link = document.createElement('a');
+                link.download = 'шаблон_зала.json';
+                link.href = URL.createObjectURL(dataBlob);
+                link.click();
+            }
+
+            // Загрузка шаблона цен
+            function loadPriceTemplate(file) {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    try {
+                        const template = JSON.parse(e.target.result);
+                        
+                        // Применяем цены и статусы из шаблона
+                        template.seats.forEach(templateSeat => {
+                            const seat = seats.find(s => s.id === templateSeat.id);
+                            if (seat) {
+                                seat.price = templateSeat.price;
+                                seat.status = templateSeat.status || 'free';
+                            }
+                        });
+                        
+                        // Обновляем чекбокс директорского ряда
+                        const directorRowSeats = seats.filter(seat => seat.row === 11);
+                        const allOccupied = directorRowSeats.every(seat => seat.status === 'occupied');
+                        directorRowCheckbox.checked = allOccupied;
+                        
+                        updatePriceLegend();
+                        drawHall();
+                        alert('Шаблон зала успешно загружен!');
+                    } catch (error) {
+                        alert('Ошибка при загрузке шаблона: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            }
+
+            // Обработчики событий мыши
+            canvas.addEventListener('mousedown', function(e) {
+                const pos = getMousePos(e);
+                
+                if (e.button === 0) {
+                    isSelecting = true;
+                    selectionStart.x = pos.x;
+                    selectionStart.y = pos.y;
+                    selectionEnd.x = pos.x;
+                    selectionEnd.y = pos.y;
+                } else if (e.button === 2) {
+                    isDragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    canvas.style.cursor = 'grabbing';
+                }
+            });
+
+            canvas.addEventListener('mousemove', function(e) {
+                if (isSelecting) {
+                    const pos = getMousePos(e);
+                    selectionEnd.x = pos.x;
+                    selectionEnd.y = pos.y;
+                    drawHall();
+                } else if (isDragging) {
+                    const deltaX = e.clientX - lastX;
+                    const deltaY = e.clientY - lastY;
+                    
+                    offsetX += deltaX;
+                    offsetY += deltaY;
+                    
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    
+                    drawHall();
+                }
+            });
+
+            canvas.addEventListener('mouseup', function(e) {
+                if (isSelecting) {
+                    const pos = getMousePos(e);
+                    selectionEnd.x = pos.x;
+                    selectionEnd.y = pos.y;
+                    
+                    selectSeatsInArea(selectionStart.x, selectionStart.y, selectionEnd.x, selectionEnd.y);
+                    
+                    isSelecting = false;
+                    drawHall();
+                } else if (isDragging) {
+                    isDragging = false;
+                    canvas.style.cursor = 'pointer';
+                }
+            });
+
+            canvas.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+
+            // Обработчик установки цены
+            setPriceBtn.addEventListener('click', function() {
+                const price = parseInt(priceInput.value);
+                if (isNaN(price) || price < 0) return;
+                
+                // Устанавливаем цену только для свободных выделенных мест
+                selectedSeats.forEach(seat => {
+                    if (isSeatPriceable(seat)) {
+                        seat.price = price;
+                    }
+                });
+                
+                updateSelectionInfo();
+                updatePriceLegend();
+                drawHall();
+            });
+
+            resetAllBtn.addEventListener('click', function() {
+                initSeats();
+                directorRowCheckbox.checked = false;
+                selectedSeats = [];
+                updateSelectionInfo();
+                centerContent();
+                drawHall();
+            });
+
+            // Обработчики статусов мест
+            setOccupiedBtn.addEventListener('click', () => setSeatsStatus('occupied'));
+            setFreeBtn.addEventListener('click', () => setSeatsStatus('free'));
+
+            // Обработчики масштабирования
+            zoomInBtn.addEventListener('click', function() {
+                scale *= 1.2;
+                drawHall();
+            });
+
+            zoomOutBtn.addEventListener('click', function() {
+                scale /= 1.2;
+                if (scale < 0.1) scale = 0.1;
+                drawHall();
+            });
+
+            resetZoomBtn.addEventListener('click', function() {
+                centerContent();
+                drawHall();
+            });
+
+            // Обработчик чекбокса директорского ряда
+            directorRowCheckbox.addEventListener('change', updateDirectorRowStatus);
+
+            // Обработчики экспорта
+            exportBtn.addEventListener('click', exportHallImage);
+            saveTemplateBtn.addEventListener('click', savePriceTemplate);
+            loadTemplateBtn.addEventListener('click', () => templateFile.click());
+            templateFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    loadPriceTemplate(e.target.files[0]);
+                    e.target.value = ''; // Сбрасываем значение input
+                }
+            });
+
+            // Обработчик колеса мыши для масштабирования
+            canvas.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = scale * zoomFactor;
+                
+                if (newScale >= 0.1 && newScale <= 5) {
+                    offsetX = mouseX - (mouseX - offsetX) * zoomFactor;
+                    offsetY = mouseY - (mouseY - offsetY) * zoomFactor;
+                    
+                    scale = newScale;
+                    drawHall();
+                }
+            });
+
+            // Инициализация
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            initSeats();
+            drawHall();
+        });
+    </script>
+</body>
+</html>
