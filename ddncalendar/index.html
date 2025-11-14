@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Календарь мероприятий ДДН</title>
+    
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ru.js'></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Дом Дружбы народов им. А.Е.Кулаковского</h1>
+            <h2>Календарь мероприятий - Ноябрь 2025</h2>
+            <nav>
+                <a href="index.html" class="active">Календарь</a>
+                <a href="admin.html">Админ-панель</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="calendar-controls">
+            <button id="prevBtn" class="btn btn-secondary">← Назад</button>
+            <h2 id="calendarTitle" class="current-month">Ноябрь 2025</h2>
+            <button id="nextBtn" class="btn btn-secondary">Вперед →</button>
+            
+            <div class="view-controls">
+                <button id="monthView" class="view-btn active" data-view="dayGridMonth">Месяц</button>
+                <button id="weekView" class="view-btn" data-view="timeGridWeek">Неделя</button>
+                <button id="dayView" class="view-btn" data-view="timeGridDay">День</button>
+            </div>
+        </div>
+
+        <div id="calendar"></div>
+    </main>
+
+    <!-- Модальное окно для просмотра деталей события -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle">Детали мероприятия</h3>
+            <div id="modalContent">
+                <div class="event-details">
+                    <div class="detail-item">
+                        <label>Время:</label>
+                        <span id="detailTime"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Дата:</label>
+                        <span id="detailDate"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Место проведения:</label>
+                        <span id="detailLocation"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Ответственный:</label>
+                        <span id="detailResponsible"></span>
+                    </div>
+                    <div class="detail-item">
+                        <label>Категория:</label>
+                        <span id="detailCategory"></span>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Описание:</label>
+                        <p id="detailDescription"></p>
+                    </div>
+                    <div class="detail-item full-width">
+                        <label>Примечания:</label>
+                        <p id="detailNotes"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="fullcalendar-index.js"></script>
+</body>
+</html>

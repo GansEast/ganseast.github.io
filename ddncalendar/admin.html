@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - ДДН</title>
+    
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ru.js'></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="./img/logo.svg" alt="Логотип">
+                <h2>Календарь</h2>
+                <p>Дома дружбы народов<br>им. А.Е. Кулаковского</p>
+            </div>
+            
+<!--             <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Календарь</span>
+                </a>
+                <a href="admin.html" class="nav-item active">
+                    <i class="fas fa-cog"></i>
+                    <span>Управление</span>
+                </a>
+            </nav> -->
+            <div class="sidebar-section">
+                <!-- <h3>Действия</h3> -->
+                <!-- <button id="createEvent" class="btn btn-primary btn-block">
+                    <i class="fas fa-plus"></i>
+                    Создать мероприятие
+                </button> -->
+                <button id="exportBtn" class="btn btn-success btn-block">
+                    <i class="fas fa-file-export"></i>
+                    Экспорт
+                </button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Фильтры</h3>
+                
+                <div class="filter-group">
+                    <label for="filterResponsible">Ответственные</label>
+                    <select id="filterResponsible" multiple>
+                        <option value="Егорова Е.Е.">Егорова Е.Е.</option>
+                        <option value="Николаева Ж.С.">Николаева Ж.С.</option>
+                        <option value="Романов О.П.">Романов О.П.</option>
+                        <option value="Тойтонов Э.А.">Тойтонов Э.А.</option>
+                        <option value="Зырянов В.С.">Зырянов В.С.</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="filterLocation">Залы</label>
+                    <select id="filterLocation" multiple>
+                        <option value="Большой зал">Большой зал</option>
+                        <option value="Мраморный зал">Мраморный зал</option>
+                        <option value="Гостиная">Гостиная</option>
+                        <option value="Конференц-зал">Конференц-зал</option>
+                        <option value="Галерея национальных культур">Галерея национальных культур</option>
+                    </select>
+                </div>
+                
+                <div class="filter-actions">
+                    <button id="applyFilters" class="btn btn-primary btn-small">Применить</button>
+                    <button id="resetFilters" class="btn btn-secondary btn-small">Сбросить</button>
+                </div>
+            </div>
+            
+        </aside>
+
+        <!-- Основное содержимое -->
+        <main class="main-content">
+            <div class="content-header">
+                <div class="nav-controls">
+                    <button id="prevBtn" class="btn btn-secondary btn-icon">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <h2 id="calendarTitle" class="current-month"></h2>
+                    <button id="nextBtn" class="btn btn-secondary btn-icon">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                
+                <div class="view-controls">
+                    <button id="monthView" class="view-btn active" data-view="dayGridMonth">М</button>
+                    <button id="weekView" class="view-btn" data-view="timeGridWeek">Н</button>
+                    <button id="dayView" class="view-btn" data-view="timeGridDay">Д</button>
+                    <button id="listView" class="view-btn" data-view="listMonth">С</button>
+                </div>
+            </div>
+            
+            <div id="calendar"></div>
+        </main>
+    </div>
+
+    <!-- Модальное окно для создания/редактирования события -->
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalTitle">Новое мероприятие</h3>
+            <form id="eventForm" novalidate>
+                <input type="hidden" id="eventId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventTitle">Название мероприятия *</label>
+                        <input type="text" id="eventTitle" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventDate">Дата *</label>
+                        <input type="date" id="eventDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Дата окончания</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="startTime">Время начала</label>
+                        <input type="time" id="startTime">
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">Время окончания</label>
+                        <input type="time" id="endTime" disabled>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="eventLocation">Место проведения</label>
+                        <select id="eventLocation" multiple>
+                            <option value="Большой зал">Большой зал</option>
+                            <option value="Мраморный зал">Мраморный зал</option>
+                            <option value="Гостиная">Гостиная</option>
+                            <option value="Конференц-зал">Конференц-зал</option>
+                            <option value="Галерея национальных культур">Галерея национальных культур</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventResponsible">Ответственный</label>
+                        <select id="eventResponsible" multiple>
+                            <option value="Егорова Е.Е.">Егорова Е.Е.</option>
+                            <option value="Николаева Ж.С.">Николаева Ж.С.</option>
+                            <option value="Романов О.П.">Романов О.П.</option>
+                            <option value="Тойтонов Э.А.">Тойтонов Э.А.</option>
+                            <option value="Зырянов В.С.">Зырянов В.С.</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="eventNotes">Примечания</label>
+                    <textarea id="eventNotes" rows="2"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn" style="display: none;">Удалить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="fullcalendar-admin.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
