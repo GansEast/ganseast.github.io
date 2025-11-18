@@ -103,37 +103,6 @@ body {
     margin-bottom: 1rem;
 }
 
-.filter-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 0.85rem;
-    color: #bdc3c7;
-}
-
-.filter-group select {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #34495e;
-    background: #34495e;
-    color: white;
-    font-size: 0.85rem;
-    min-height: auto; /* Убираем фиксированную высоту */
-    height: auto; /* Автоматическая высота */
-}
-
-.filter-group select option {
-    padding: 0.5rem;
-    margin: 2px 0;
-    white-space: normal; /* Разрешаем перенос текста */
-    word-wrap: break-word;
-}
-
-.filter-group select option:checked {
-    background: #3498db linear-gradient(0deg, #3498db 0%, #3498db 100%);
-    color: white;
-}
-
 .filter-actions {
     display: flex;
     gap: 0.5rem;
@@ -255,9 +224,9 @@ body {
 }
 
 .view-btn {
-    width: 36px;
-    height: 36px;
-    padding: 0;
+    /*width: 36px;
+    height: 36px;*/
+    padding: 0.5rem 0.8rem;
     border: 1px solid #ddd;
     background: white;
     border-radius: 4px;
@@ -417,6 +386,14 @@ body {
     line-height: 1;
 }
 
+.fc .fc-daygrid-day-top {
+    flex-direction: row;
+}
+
+.fc .fc-scroller {
+    overflow: hidden;
+}
+
 /* Modal styles */
 .modal {
     display: none;
@@ -477,15 +454,14 @@ body {
     flex-direction: column;
 }
 
-.form-group label {
+/*.form-group label {
     margin-bottom: 0.5rem;
     font-weight: 600;
     color: #2c3e50;
     font-size: 0.85rem;
-}
+}*/
 
 .form-group input,
-.form-group select,
 .form-group textarea {
     padding: 0.75rem;
     border: 1px solid #ddd;
@@ -496,7 +472,6 @@ body {
 }
 
 .form-group input:focus,
-.form-group select:focus,
 .form-group textarea:focus {
     outline: none;
     border-color: #3498db;
@@ -515,18 +490,6 @@ body {
     margin-top: 2rem;
     padding-top: 1.5rem;
     border-top: 1px solid #ecf0f1;
-}
-
-/* Стили для множественного выбора */
-select[multiple] {
-    min-height: 100px;
-    padding: 0.5rem;
-}
-
-select[multiple] option {
-    padding: 0.3rem 0.5rem;
-    margin: 2px 0;
-    border-radius: 3px;
 }
 
 /* Стили для отфильтрованных событий */
@@ -554,7 +517,7 @@ select[multiple] option {
 @media (max-width: 768px) {
     .admin-layout {
         flex-direction: column;
-        height: auto;
+        /*height: auto;*/
         overflow-y: auto;
     }
     
@@ -621,9 +584,9 @@ select[multiple] option {
         flex-direction: column;
     }
     
-    .btn {
+    /*.btn {
         width: 100%;
-    }
+    }*/
 }
 
 @media (max-width: 480px) {
@@ -821,3 +784,129 @@ select[multiple] option {
 .fc-list-event-time {
     line-height: 1;
 }
+
+
+/* Компактные стили для чекбокс-групп */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 6px;
+    background: white;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+}
+
+/* Для фильтров в боковой панели */
+.sidebar .checkbox-group {
+    background: #34495e;
+    border-color: #4a6278;
+    padding: 5px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 3px;
+    transition: all 0.1s ease;
+    user-select: none;
+    margin: 0;
+    min-height: 20px;
+    font-size: 0.85rem;
+}
+
+.checkbox-label:hover {
+    background: rgba(52, 152, 219, 0.08);
+}
+
+.sidebar .checkbox-label:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 14px;
+    height: 14px;
+    border: 1.5px solid #bdc3c7;
+    border-radius: 2px;
+    margin-right: 8px;
+    position: relative;
+    transition: all 0.1s ease;
+    flex-shrink: 0;
+}
+
+.sidebar .checkmark {
+    border-color: #95a5a6;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: '';
+    position: absolute;
+    left: 3.5px;
+    top: 0px;
+    width: 4px;
+    height: 7px;
+    border: solid white;
+    border-width: 0 1.5px 1.5px 0;
+    transform: rotate(45deg);
+}
+
+.sidebar .checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+/* Текст чекбокса - компактный */
+.checkbox-label span:not(.checkmark) {
+    font-size: 0.75rem;
+    color: #2c3e50;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar .checkbox-label span:not(.checkmark) {
+    color: #ecf0f1;
+    font-size: 0.7rem;
+}
+
+/* Убираем скролл полностью */
+.checkbox-group::-webkit-scrollbar {
+    display: none;
+}
+
+.checkbox-group {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Уменьшаем отступы в форме */
+.form-group .checkbox-group {
+    margin-top: 2px;
+}
+
+/* Для модального окна - фиксированная высота без скролла */
+/*.modal-content .checkbox-group {
+    min-height: 80px;
+    max-height: 80px;
+}*/
+
+/* Для фильтров в боковой панели - еще компактнее */
+/*.sidebar .checkbox-group {
+    min-height: 70px;
+    max-height: 70px;
+}*/

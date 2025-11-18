@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <title>Админ-панель - ДДН</title>
     
     <!-- FullCalendar CSS -->
@@ -19,6 +19,8 @@
     
     <!-- Иконки -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
 </head>
 <body>
     <div class="admin-layout">
@@ -56,31 +58,96 @@
                 <h3>Фильтры</h3>
                 
                 <div class="filter-group">
-                    <label for="filterResponsible">Ответственные</label>
-                    <select id="filterResponsible" multiple>
-                        <option value="Егорова Е.Е.">Егорова Е.Е.</option>
-                        <option value="Николаева Ж.С.">Николаева Ж.С.</option>
-                        <option value="Романов О.П.">Романов О.П.</option>
-                        <option value="Тойтонов Э.А.">Тойтонов Э.А.</option>
-                        <option value="Зырянов В.С.">Зырянов В.С.</option>
-                    </select>
+                    <label>Ответственные</label>
+                    <div class="checkbox-group" id="filterResponsibleGroup">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Егорова Е.Е.">
+                            <span class="checkmark"></span>
+                            Егорова Е.Е.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Соросова Т.М.">
+                            <span class="checkmark"></span>
+                            Соросова Т.М.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Стрекаловская И.Е.">
+                            <span class="checkmark"></span>
+                            Стрекаловская И.Е.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Николаева Ж.С.">
+                            <span class="checkmark"></span>
+                            Николаева Ж.С.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Романов О.П.">
+                            <span class="checkmark"></span>
+                            Романов О.П.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Тойтонов Э.А.">
+                            <span class="checkmark"></span>
+                            Тойтонов Э.А.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Зырянов В.С.">
+                            <span class="checkmark"></span>
+                            Зырянов В.С.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Сибирякова А.М.">
+                            <span class="checkmark"></span>
+                            Сибирякова А.М.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Аргунова О.В.">
+                            <span class="checkmark"></span>
+                            Аргунова О.В.
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterResponsible" value="Сергеев В.А.">
+                            <span class="checkmark"></span>
+                            Сергеев В.А.
+                        </label>
+                    </div>
                 </div>
-                
+
                 <div class="filter-group">
-                    <label for="filterLocation">Залы</label>
-                    <select id="filterLocation" multiple>
-                        <option value="Большой зал">Большой зал</option>
-                        <option value="Мраморный зал">Мраморный зал</option>
-                        <option value="Гостиная">Гостиная</option>
-                        <option value="Конференц-зал">Конференц-зал</option>
-                        <option value="Галерея национальных культур">Галерея национальных культур</option>
-                    </select>
+                    <label>Залы</label>
+                    <div class="checkbox-group" id="filterLocationGroup">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterLocation" value="Большой зал">
+                            <span class="checkmark"></span>
+                            Большой зал
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterLocation" value="Мраморный зал">
+                            <span class="checkmark"></span>
+                            Мраморный зал
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterLocation" value="Гостиная">
+                            <span class="checkmark"></span>
+                            Гостиная
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterLocation" value="Конференц-зал">
+                            <span class="checkmark"></span>
+                            Конференц-зал
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="filterLocation" value="Галерея национальных культур">
+                            <span class="checkmark"></span>
+                            Галерея национальных культур
+                        </label>
+                    </div>
                 </div>
                 
-                <div class="filter-actions">
+               <!--  <div class="filter-actions">
                     <button id="applyFilters" class="btn btn-primary btn-small">Применить</button>
                     <button id="resetFilters" class="btn btn-secondary btn-small">Сбросить</button>
-                </div>
+                </div> -->
             </div>
             
         </aside>
@@ -99,10 +166,10 @@
                 </div>
                 
                 <div class="view-controls">
-                    <button id="monthView" class="view-btn active" data-view="dayGridMonth">М</button>
-                    <button id="weekView" class="view-btn" data-view="timeGridWeek">Н</button>
-                    <button id="dayView" class="view-btn" data-view="timeGridDay">Д</button>
-                    <button id="listView" class="view-btn" data-view="listMonth">С</button>
+                    <button id="monthView" class="view-btn active" data-view="dayGridMonth">Месяц</button>
+                    <button id="weekView" class="view-btn" data-view="timeGridWeek">Неделя</button>
+                    <button id="dayView" class="view-btn" data-view="timeGridDay">День</button>
+                    <button id="listView" class="view-btn" data-view="listMonth">Список</button>
                 </div>
             </div>
             
@@ -149,30 +216,90 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="eventLocation">Место проведения</label>
-                        <select id="eventLocation" multiple>
-                            <option value="Большой зал">Большой зал</option>
-                            <option value="Мраморный зал">Мраморный зал</option>
-                            <option value="Гостиная">Гостиная</option>
-                            <option value="Конференц-зал">Конференц-зал</option>
-                            <option value="Галерея национальных культур">Галерея национальных культур</option>
-                        </select>
+                        <label>Место проведения</label>
+                        <div class="checkbox-group" id="eventLocationGroup">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventLocation" value="Большой зал">
+                                <span class="checkmark"></span>
+                                Большой зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventLocation" value="Мраморный зал">
+                                <span class="checkmark"></span>
+                                Мраморный зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventLocation" value="Гостиная">
+                                <span class="checkmark"></span>
+                                Гостиная
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventLocation" value="Конференц-зал">
+                                <span class="checkmark"></span>
+                                Конференц-зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventLocation" value="Галерея национальных культур">
+                                <span class="checkmark"></span>
+                                Галерея национальных культур
+                            </label>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="eventResponsible">Ответственный</label>
-                        <select id="eventResponsible" multiple>
-                            <option value="Егорова Е.Е.">Егорова Е.Е.</option>
-                            <option value="Николаева Ж.С.">Николаева Ж.С.</option>
-                            <option value="Романов О.П.">Романов О.П.</option>
-                            <option value="Тойтонов Э.А.">Тойтонов Э.А.</option>
-                            <option value="Зырянов В.С.">Зырянов В.С.</option>
-                        </select>
+                        <label>Ответственный</label>
+                        <div class="checkbox-group" id="eventResponsibleGroup">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Егорова Е.Е.">
+                                <span class="checkmark"></span>
+                                Егорова Е.Е.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Соросова Т.М.">
+                                <span class="checkmark"></span>
+                                Соросова Т.М.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Стрекаловская И.Е.">
+                                <span class="checkmark"></span>
+                                Стрекаловская И.Е.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Николаева Ж.С.">
+                                <span class="checkmark"></span>
+                                Николаева Ж.С.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Романов О.П.">
+                                <span class="checkmark"></span>
+                                Романов О.П.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Тойтонов Э.А.">
+                                <span class="checkmark"></span>
+                                Тойтонов Э.А.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Зырянов В.С.">
+                                <span class="checkmark"></span>
+                                Зырянов В.С.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Сибирякова А.М.">
+                                <span class="checkmark"></span>
+                                Сибирякова А.М.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Аргунова О.В.">
+                                <span class="checkmark"></span>
+                                Аргунова О.В.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="eventResponsible" value="Сергеев В.А.">
+                                <span class="checkmark"></span>
+                                Сергеев В.А.
+                            </label>
+                        </div>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="eventNotes">Примечания</label>
-                    <textarea id="eventNotes" rows="2"></textarea>
                 </div>
 
                 <div class="form-actions">

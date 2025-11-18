@@ -8,6 +8,14 @@ class CalendarAdmin {
             location: ''
         };
         this.allEvents = []; // Храним все события
+        
+        // НАСТРОЙКИ ПО УМОЛЧАНИЮ ДЛЯ НОВЫХ СОБЫТИЙ
+        this.defaultValues = {
+            title: 'Сценическая репетиция + монтаж',
+            location: ['Большой зал'],
+            responsible: ['Романов О.П.', 'Тойтонов Э.А.']
+        };
+        
         this.init();
     }
 
@@ -27,11 +35,13 @@ class CalendarAdmin {
             firstDay: 1,
             initialView: 'dayGridMonth',
             headerToolbar: false,
-            height: 'auto',
+            height: '100%',
             editable: true,
             selectable: true,
             droppable: true,
             eventResizableFromStart: true,
+            fixedWeekCount: false,
+
             
             // Настройки временного диапазона
             slotMinTime: '08:00:00',
@@ -190,10 +200,10 @@ class CalendarAdmin {
             let shouldShow = true;
 
             // Проверяем фильтр по ответственным
-            if (this.activeFilters.responsible && this.activeFilters.responsible !== '') {
+            if (this.activeFilters.responsible && this.activeFilters.responsible.length > 0) {
                 const eventResponsibles = this.normalizeEventData(eventData.responsible);
                 const hasMatchingResponsible = eventResponsibles.some(resp => 
-                    resp === this.activeFilters.responsible
+                    this.activeFilters.responsible.includes(resp)
                 );
                 
                 if (!hasMatchingResponsible) {
@@ -202,10 +212,10 @@ class CalendarAdmin {
             }
 
             // Проверяем фильтр по залам
-            if (shouldShow && this.activeFilters.location && this.activeFilters.location !== '') {
+            if (shouldShow && this.activeFilters.location && this.activeFilters.location.length > 0) {
                 const eventLocations = this.normalizeEventData(eventData.location);
                 const hasMatchingLocation = eventLocations.some(loc => 
-                    loc === this.activeFilters.location
+                    this.activeFilters.location.includes(loc)
                 );
                 
                 if (!hasMatchingLocation) {
@@ -309,22 +319,20 @@ class CalendarAdmin {
     }
 
     setupFilterListeners() {
-        const filterResponsible = document.getElementById('filterResponsible');
-        const filterLocation = document.getElementById('filterLocation');
+        // Слушатели изменений чекбоксов фильтров
+        document.querySelectorAll('input[name="filterResponsible"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.applyFilters();
+            });
+        });
+
+        document.querySelectorAll('input[name="filterLocation"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                this.applyFilters();
+            });
+        });
+
         const resetFilters = document.getElementById('resetFilters');
-
-        if (filterResponsible) {
-            filterResponsible.addEventListener('change', () => {
-                this.applyFilters();
-            });
-        }
-
-        if (filterLocation) {
-            filterLocation.addEventListener('change', () => {
-                this.applyFilters();
-            });
-        }
-
         if (resetFilters) {
             resetFilters.addEventListener('click', () => {
                 this.resetFilters();
@@ -334,12 +342,14 @@ class CalendarAdmin {
 
     // Получение текущих значений фильтров
     getCurrentFilterValues() {
-        const responsibleFilter = document.getElementById('filterResponsible');
-        const locationFilter = document.getElementById('filterLocation');
-
+        const responsibleValues = this.getCheckboxValues('filterResponsible');
+        const locationValues = this.getCheckboxValues('filterLocation');
+        
+        console.log('Filter values - responsible:', responsibleValues, 'location:', locationValues); // Для отладки
+        
         return {
-            responsible: responsibleFilter ? responsibleFilter.value : '',
-            location: locationFilter ? locationFilter.value : ''
+            responsible: responsibleValues,
+            location: locationValues
         };
     }
 
@@ -347,7 +357,9 @@ class CalendarAdmin {
     applyFilters() {
         const filterValues = this.getCurrentFilterValues();
         this.activeFilters = filterValues;
-                
+        
+        console.log('Applied filters:', this.activeFilters); // Для отладки
+        
         // Принудительно обновляем события в календаре
         this.calendar.refetchEvents();
         
@@ -355,10 +367,8 @@ class CalendarAdmin {
         setTimeout(() => {
             this.updateEventsOpacity();
         }, 100);
-        
-        // Обновляем статус
-        const filteredEvents = this.getFilteredEvents();
     }
+
 
     updateEventsOpacity() {
         const events = this.calendar.getEvents();
@@ -378,25 +388,29 @@ class CalendarAdmin {
 
     // Сброс фильтров
     resetFilters() {
-        const responsibleFilter = document.getElementById('filterResponsible');
-        const locationFilter = document.getElementById('filterLocation');
-
-        if (responsibleFilter) responsibleFilter.value = '';
-        if (locationFilter) locationFilter.value = '';
+        // Сбрасываем все чекбоксы фильтров
+        document.querySelectorAll('input[name="filterResponsible"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
+        
+        document.querySelectorAll('input[name="filterLocation"]').forEach(checkbox => {
+            checkbox.checked = false;
+        });
 
         this.activeFilters = {
-            responsible: '',
-            location: ''
+            responsible: [],
+            location: []
         };
 
+        console.log('Filters reset'); // Для отладки
+        
         this.calendar.refetchEvents();
         
-        // Также обновляем opacity
         setTimeout(() => {
             this.updateEventsOpacity();
         }, 100);
-        
     }
+
 
     // Применение фильтров к событиям
     applyFiltersToEvents() {
@@ -669,10 +683,13 @@ class CalendarAdmin {
         form.reset();
         
         // Сбрасываем состояния полей
-        document.getElementById('startTime').disabled = false;
-        document.getElementById('endTime').disabled = true;
+        const startTimeField = document.getElementById('startTime');
+        const endTimeField = document.getElementById('endTime');
+        if (startTimeField) startTimeField.disabled = false;
+        if (endTimeField) endTimeField.disabled = true;
         
-        if (eventData) {
+        if (eventData && eventData.id) {
+            // Редактирование существующего события
             this.currentEvent = eventData;
             const modalTitle = document.getElementById('modalTitle');
             if (modalTitle) {
@@ -684,6 +701,7 @@ class CalendarAdmin {
             
             this.fillFormWithEventData(eventData);
         } else {
+            // Создание нового события
             this.currentEvent = null;
             const modalTitle = document.getElementById('modalTitle');
             if (modalTitle) {
@@ -693,22 +711,54 @@ class CalendarAdmin {
                 deleteBtn.style.display = 'none';
             }
             
-            // Устанавливаем только текущую дату, время оставляем пустым
+            this.fillFormWithEventData({});
+
+            // Устанавливаем текущую дату напрямую
             const now = new Date();
-            this.setFieldValue('eventDate', this.formatDateInput(now));
-            this.setFieldValue('endDate', '');
-            this.setFieldValue('startTime', '');
-            this.setFieldValue('endTime', '');
+            const eventDateField = document.getElementById('eventDate');
+            const endDateField = document.getElementById('endDate');
+            const startTimeField = document.getElementById('startTime');
+            const endTimeField = document.getElementById('endTime');
+            
+            if (eventDateField) eventDateField.value = this.formatDateInput(now);
+            if (endDateField) endDateField.value = '';
+            if (startTimeField) startTimeField.value = '';
+            if (endTimeField) endTimeField.value = '';
+            
+            // УСТАНАВЛИВАЕМ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ ДЛЯ НОВОГО СОБЫТИЯ
+            setTimeout(() => {
+                this.setDefaultValues();
+            }, 50);
         }
         
         modal.style.display = 'block';
     }
 
-    setFieldValue(fieldId, value) {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.value = value;
+    // Заменяем метод setDefaultValues
+    setDefaultValues() {
+        console.log('Setting default values...');
+        
+        // Используем прямой доступ к элементам вместо setFieldValue
+        const titleField = document.getElementById('eventTitle');
+        if (titleField) {
+            titleField.value = 'Сценическая репетиция + монтаж';
         }
+        
+        // Место проведения по умолчанию (Большой зал)
+        const bigHallCheckbox = document.querySelector('input[name="eventLocation"][value="Большой зал"]');
+        if (bigHallCheckbox) {
+            bigHallCheckbox.checked = true;
+            console.log('Big hall checkbox set to checked');
+        }
+        
+        // Ответственные по умолчанию (Романов О.П., Тойтонов Э.А.)
+        const romanovCheckbox = document.querySelector('input[name="eventResponsible"][value="Романов О.П."]');
+        const toitonovCheckbox = document.querySelector('input[name="eventResponsible"][value="Тойтонов Э.А."]');
+        
+        if (romanovCheckbox) romanovCheckbox.checked = true;
+        if (toitonovCheckbox) toitonovCheckbox.checked = true;
+        
+        console.log('Default values set');
     }
 
     fillFormWithEventData(eventData) {
@@ -716,12 +766,45 @@ class CalendarAdmin {
         const start = eventData.start || new Date();
         const end = eventData.end || start;
         
-        this.setFieldValue('eventId', eventData.id || '');
-        this.setFieldValue('eventTitle', eventData.title || '');
-        this.setFieldValue('eventNotes', event.notes || '');
+        // Используем прямой доступ к полям
+        const eventIdField = document.getElementById('eventId');
+        const eventTitleField = document.getElementById('eventTitle');
+        // const eventNotesField = document.getElementById('eventNotes');
+        const eventDateField = document.getElementById('eventDate');
+        const endDateField = document.getElementById('endDate');
+        const startTimeField = document.getElementById('startTime');
+        const endTimeField = document.getElementById('endTime');
+        
+        if (eventIdField) eventIdField.value = eventData.id || '';
+        
+        if (!eventData.id) {
+            // НОВОЕ СОБЫТИЕ - ИСПОЛЬЗУЕМ ЗНАЧЕНИЯ ПО УМОЛЧАНИЮ
+            if (eventTitleField) eventTitleField.value = 'Сценическая репетиция + монтаж';
+            if (eventDateField) eventDateField.value = this.formatDateInput(new Date());
+            if (endDateField) endDateField.value = '';
+            if (startTimeField) startTimeField.value = '';
+            if (endTimeField) endTimeField.value = '';
+            // if (eventNotesField) eventNotesField.value = '';
+            
+            // Чекбоксы по умолчанию
+            this.fillCheckboxGroup('eventLocationGroup', ['Большой зал']);
+            this.fillCheckboxGroup('eventResponsibleGroup', ['Романов О.П.', 'Тойтонов Э.А.']);
+            
+        } else {
+            // СУЩЕСТВУЮЩЕЕ СОБЫТИЕ - ИСПОЛЬЗУЕМ СОХРАНЕННЫЕ ЗНАЧЕНИЯ
+            if (eventTitleField) eventTitleField.value = eventData.title || '';
+            // if (eventNotesField) eventNotesField.value = event.notes || '';
+            if (eventDateField) eventDateField.value = this.formatDateInput(start);
+            
+            // ... остальная логика для существующих событий
+            this.fillCheckboxGroup('eventLocationGroup', event.location);
+            this.fillCheckboxGroup('eventResponsibleGroup', event.responsible);
+        }
+        
+        // if (eventNotesField) eventNotesField.value = event.notes || '';
         
         // Всегда устанавливаем дату начала
-        this.setFieldValue('eventDate', this.formatDateInput(start));
+        if (eventDateField) eventDateField.value = this.formatDateInput(start);
         
         // Определяем, многодневное ли событие
         const startDay = new Date(start);
@@ -736,49 +819,59 @@ class CalendarAdmin {
             // Для многодневных событий: end - 1 день для отображения в форме
             const displayEndDate = new Date(end);
             displayEndDate.setDate(displayEndDate.getDate() - 1);
-            this.setFieldValue('endDate', this.formatDateInput(displayEndDate));
-            document.getElementById('startTime').disabled = true;
-            document.getElementById('endTime').disabled = true;
-            this.setFieldValue('startTime', '');
-            this.setFieldValue('endTime', '');
+            if (endDateField) endDateField.value = this.formatDateInput(displayEndDate);
+            if (startTimeField) startTimeField.disabled = true;
+            if (endTimeField) endTimeField.disabled = true;
+            if (startTimeField) startTimeField.value = '';
+            if (endTimeField) endTimeField.value = '';
         } else {
             // Для однодневных событий
-            this.setFieldValue('endDate', '');
-            document.getElementById('startTime').disabled = false;
+            if (endDateField) endDateField.value = '';
+            if (startTimeField) startTimeField.disabled = false;
             
             // Заполняем время если есть
-            if (event.startTime) {
-                this.setFieldValue('startTime', event.startTime);
-                document.getElementById('endTime').disabled = false;
+            if (event.startTime && startTimeField) {
+                startTimeField.value = event.startTime;
+                if (endTimeField) endTimeField.disabled = false;
             }
             
-            if (event.endTime) {
-                this.setFieldValue('endTime', event.endTime);
+            if (event.endTime && endTimeField) {
+                endTimeField.value = event.endTime;
             }
         }
         
-        this.fillMultipleSelect('eventLocation', event.location);
-        this.fillMultipleSelect('eventResponsible', event.responsible);
+        // Заполняем чекбоксы - для новых событий используем значения по умолчанию
+        if (!eventData.id) {
+            // Новое событие - используем значения по умолчанию
+            this.setDefaultValues();
+        } else {
+            // Существующее событие - используем сохраненные значения
+            this.fillCheckboxGroup('eventLocationGroup', event.location);
+            this.fillCheckboxGroup('eventResponsibleGroup', event.responsible);
+        }
         
         this.handleTimeChange();
     }
 
-    fillMultipleSelect(selectId, value) {
-        const select = document.getElementById(selectId);
-        if (!select || !value) return;
+
+    fillCheckboxGroup(groupId, values) {
+        const group = document.getElementById(groupId);
+        if (!group || !values) return;
         
-        Array.from(select.options).forEach(option => {
-            option.selected = false;
+        // Снимаем все выделения
+        group.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.checked = false;
         });
         
-        if (Array.isArray(value)) {
-            value.forEach(val => {
-                const option = Array.from(select.options).find(opt => opt.value === val);
-                if (option) option.selected = true;
+        // Устанавливаем выбранные значения
+        if (Array.isArray(values)) {
+            values.forEach(value => {
+                const checkbox = group.querySelector(`input[value="${value}"]`);
+                if (checkbox) checkbox.checked = true;
             });
         } else {
-            const option = Array.from(select.options).find(opt => opt.value === value);
-            if (option) option.selected = true;
+            const checkbox = group.querySelector(`input[value="${values}"]`);
+            if (checkbox) checkbox.checked = true;
         }
     }
 
@@ -824,9 +917,9 @@ class CalendarAdmin {
         const eventType = this.determineEventType();
         let eventData = {
             title: this.getFieldValue('eventTitle'),
-            location: this.getMultipleSelectValues('eventLocation'),
-            responsible: this.getMultipleSelectValues('eventResponsible'),
-            notes: this.getFieldValue('eventNotes'),
+            location: this.getCheckboxValues('eventLocation'),
+            responsible: this.getCheckboxValues('eventResponsible'),
+            // notes: this.getFieldValue('eventNotes'),
             color: '#3498db',
             textColor: '#ffffff',
             eventType: eventType
@@ -889,11 +982,13 @@ class CalendarAdmin {
         return field ? field.value : '';
     }
 
-    getMultipleSelectValues(selectId) {
-        const select = document.getElementById(selectId);
-        if (!select) return [];
+    getCheckboxValues(groupName) {
+        const checkboxes = document.querySelectorAll(`input[name="${groupName}"]:checked`);
+        const values = Array.from(checkboxes).map(checkbox => checkbox.value);
         
-        return Array.from(select.selectedOptions).map(option => option.value);
+        console.log(`getCheckboxValues('${groupName}') returned:`, values); // Для отладки
+        
+        return values;
     }
 
     async deleteEvent() {
@@ -923,9 +1018,9 @@ class CalendarAdmin {
                 const eventType = data.eventType || 'allDay';
                 
                 if (eventType === 'singleTime' || eventType === 'timeRange') {
-                    eventColor = '#dddddd';
+                    eventColor = '#64befd';
                 } else {
-                    eventColor = '#3498db';
+                    eventColor = '#0086f9';
                 }
                 
                 this.allEvents.push({
@@ -1049,6 +1144,17 @@ class CalendarAdmin {
         }
         
         return String(property);
+    }
+
+    setFieldValue(fieldId, value) {
+        try {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = value;
+            }
+        } catch (error) {
+            console.error('Error setting field value:', error);
+        }
     }
 }
 
