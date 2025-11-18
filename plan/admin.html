@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ-панель | План мероприятий</title>
+    
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ru.js'></script>
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script src="https://unpkg.com/docx@7.8.2/build/index.js"></script>
+</head>
+<body>
+    <!-- Окно авторизации -->
+    <div id="loginModal" class="modal" style="display: block;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="sidebar-header">
+                <img src="./img/logo.svg" alt="Логотип" style="width: 80px;">
+                <h2>Вход в админ-панель</h2>
+                <p>Дома дружбы народов<br>им. А.Е. Кулаковского</p>
+            </div>
+            
+            <form id="loginForm" style="margin-top: 2rem;">
+                <div class="form-group">
+                    <label for="loginEmail">Логин</label>
+                    <input type="text" id="loginEmail" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Войти</button>
+                </div>
+            </form>
+            
+            <div id="loginError" style="color: #e74c3c; margin-top: 1rem; display: none;">
+                Неверный логин или пароль
+            </div>
+        </div>
+    </div>
+
+    <!-- Основной контент админки (скрыт до авторизации) -->
+    <div id="adminContent" style="display: none;">
+        <div class="admin-layout">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <a id="exportBtn">
+                        <img src="./img/logo.svg" alt="Логотип">
+                    </a>
+                    <h2>План мероприятий</h2>
+                    <p>Дома дружбы народов<br>им. А.Е. Кулаковского</p>
+                </div>
+
+                <div class="sidebar-section">
+                    <button class="btn btn-success btn-block" id="exportBtnPublic">
+                        <i class="fas fa-file-export"></i>
+                        Экспорт в Word
+                    </button>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h3>Фильтры</h3>
+                    
+                    <div class="filter-group">
+                        <label>Ответственные</label>
+                        <div class="checkbox-group" id="filterResponsibleGroup">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Егорова Е.Е.">
+                                <span class="checkmark"></span>
+                                Егорова Е.Е.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Соросова Т.М.">
+                                <span class="checkmark"></span>
+                                Соросова Т.М.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Стрекаловская И.Е.">
+                                <span class="checkmark"></span>
+                                Стрекаловская И.Е.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Николаева Ж.С.">
+                                <span class="checkmark"></span>
+                                Николаева Ж.С.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Романов О.П.">
+                                <span class="checkmark"></span>
+                                Романов О.П.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Тойтонов Э.А.">
+                                <span class="checkmark"></span>
+                                Тойтонов Э.А.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Зырянов В.С.">
+                                <span class="checkmark"></span>
+                                Зырянов В.С.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Сибирякова А.М.">
+                                <span class="checkmark"></span>
+                                Сибирякова А.М.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Аргунова О.В.">
+                                <span class="checkmark"></span>
+                                Аргунова О.В.
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterResponsible" value="Сергеев В.А.">
+                                <span class="checkmark"></span>
+                                Сергеев В.А.
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label>Залы</label>
+                        <div class="checkbox-group" id="filterLocationGroup">
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterLocation" value="Большой зал">
+                                <span class="checkmark"></span>
+                                Большой зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterLocation" value="Мраморный зал">
+                                <span class="checkmark"></span>
+                                Мраморный зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterLocation" value="Гостиная">
+                                <span class="checkmark"></span>
+                                Гостиная
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterLocation" value="Конференц-зал">
+                                <span class="checkmark"></span>
+                                Конференц-зал
+                            </label>
+                            <label class="checkbox-label">
+                                <input type="checkbox" name="filterLocation" value="Галерея национальных культур">
+                                <span class="checkmark"></span>
+                                Галерея национальных культур
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <!-- <div class="filter-actions">
+                        <button id="resetFilters" class="btn btn-secondary btn-small">Сбросить фильтры</button>
+                    </div> -->
+                </div>
+            </aside>
+
+            <main class="main-content">
+                <div class="content-header">
+                    <div class="nav-controls">
+                        <button id="prevBtn" class="btn btn-secondary btn-icon">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <h2 id="calendarTitle" class="current-month"></h2>
+                        <button id="nextBtn" class="btn btn-secondary btn-icon">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="view-controls">
+                        <button id="monthView" class="view-btn active" data-view="dayGridMonth">Месяц</button>
+                        <button id="weekView" class="view-btn" data-view="timeGridWeek">Неделя</button>
+                        <button id="dayView" class="view-btn" data-view="timeGridDay">День</button>
+                        <button id="listView" class="view-btn" data-view="listMonth">Список</button>
+                    </div>
+                </div>
+                
+                <div id="calendar"></div>
+            </main>
+        </div>
+
+        <!-- Модальное окно для создания/редактирования события -->
+        <div id="eventModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3 id="modalTitle">Новое мероприятие</h3>
+                <form id="eventForm" novalidate>
+                    <input type="hidden" id="eventId">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventTitle">Название мероприятия *</label>
+                            <input type="text" id="eventTitle" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="eventDate">Дата *</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Дата окончания</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="startTime">Время начала</label>
+                            <input type="time" id="startTime">
+                        </div>
+                        <div class="form-group">
+                            <label for="endTime">Время окончания</label>
+                            <input type="time" id="endTime" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Место проведения</label>
+                            <div class="checkbox-group" id="eventLocationGroup">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventLocation" value="Большой зал">
+                                    <span class="checkmark"></span>
+                                    Большой зал
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventLocation" value="Мраморный зал">
+                                    <span class="checkmark"></span>
+                                    Мраморный зал
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventLocation" value="Гостиная">
+                                    <span class="checkmark"></span>
+                                    Гостиная
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventLocation" value="Конференц-зал">
+                                    <span class="checkmark"></span>
+                                    Конференц-зал
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventLocation" value="Галерея национальных культур">
+                                    <span class="checkmark"></span>
+                                    Галерея национальных культур
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Ответственный</label>
+                            <div class="checkbox-group" id="eventResponsibleGroup">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Егорова Е.Е.">
+                                    <span class="checkmark"></span>
+                                    Егорова Е.Е.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Соросова Т.М.">
+                                    <span class="checkmark"></span>
+                                    Соросова Т.М.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Стрекаловская И.Е.">
+                                    <span class="checkmark"></span>
+                                    Стрекаловская И.Е.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Николаева Ж.С.">
+                                    <span class="checkmark"></span>
+                                    Николаева Ж.С.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Романов О.П.">
+                                    <span class="checkmark"></span>
+                                    Романов О.П.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Тойтонов Э.А.">
+                                    <span class="checkmark"></span>
+                                    Тойтонов Э.А.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Зырянов В.С.">
+                                    <span class="checkmark"></span>
+                                    Зырянов В.С.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Сибирякова А.М.">
+                                    <span class="checkmark"></span>
+                                    Сибирякова А.М.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Аргунова О.В.">
+                                    <span class="checkmark"></span>
+                                    Аргунова О.В.
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="eventResponsible" value="Сергеев В.А.">
+                                    <span class="checkmark"></span>
+                                    Сергеев В.А.
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn btn-secondary" id="cancelBtn">Отмена</button>
+                        <button type="button" class="btn btn-danger" id="deleteBtn" style="display: none;">Удалить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+    <script src="fullcalendar-admin.js"></script>
+    <script src="export.js"></script>
+</body>
+</html>
