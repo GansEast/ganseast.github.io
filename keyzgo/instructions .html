@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KeyzGO - Премиум VPN решения</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /*:root {
+            --primary: #6c5ce7;
+            --primary-dark: #5649c0;
+            --secondary: #a29bfe;
+            --accent: #00cec9;
+            --accent-dark: #00a8a4;
+            --dark: #1a1a2e;
+            --darker: #0f0f1a;
+            --light: #f5f6fa;
+            --gray: #8c8c8c;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --text-light: rgba(255, 255, 255, 0.8);
+        }*/
+        
+        /*::selection {
+            background-color: var(--accent);
+            color: white;
+        }*/
+
+        /** {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }*/
+        
+        /*body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 100%);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }*/
+        
+        /*.container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }*/
+        
+        /*.btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+            background: linear-gradient(45deg, var(--primary-dark), var(--accent-dark));
+        }*/
+        
+        /* how-to */
+        .how-to {
+            padding: 180px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .how-to::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(108, 92, 231, 0.1) 0%, transparent 70%);
+            z-index: -1;
+        }
+        
+        .how-to h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+        }
+        
+        .how-to p {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--text-light);
+        }
+        
+        /* Platform Navigation */
+        .platform-nav {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 40px 0;
+        }
+        
+        .platform-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+        }
+        
+        .platform-btn.active, 
+        .platform-btn:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.3);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Instructions Section */
+        .instructions {
+            padding: 60px 0;
+        }
+        
+        .platform-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .platform-section.active {
+            display: block;
+        }
+        
+        .platform-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .platform-title h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .platform-title p {
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 18px;
+        }
+        
+        .steps-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .step-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+        }
+        
+        .step-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            border-color: rgba(108, 92, 231, 0.3);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 60px;
+            font-weight: 800;
+            color: rgba(108, 92, 231, 0.1);
+            z-index: 1;
+            line-height: 1;
+        }
+        
+        .step-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-card h3 {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .step-card h3 i {
+            color: var(--accent);
+        }
+        
+        .step-card p {
+            color: var(--text-light);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.5);
+        }
+        
+        code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--accent);
+        }
+        
+        /* Footer */
+        footer {
+            padding: 60px 0 20px;
+            background: rgba(0, 0, 0, 0.2);
+            margin-top: 60px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: var(--light);
+        }
+        
+        .footer-column p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-column ul li a {
+            color: var(--text-light);
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-column ul li a:hover {
+            color: var(--accent);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            color: var(--light);
+            font-size: 20px;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+        
+        .social-links a:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .floating {
+            animation: float 4s ease-in-out infinite;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .how-to {
+                padding: 150px 0 60px;
+            }
+            
+            .how-to h1 {
+                font-size: 36px;
+            }
+            
+            .how-to p {
+                font-size: 16px;
+            }
+            
+            .platform-title h2 {
+                font-size: 28px;
+            }
+            
+            .step-card {
+                padding: 25px;
+            }
+            
+            .step-number {
+                font-size: 50px;
+            }
+            
+            .platform-btn {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .how-to h1 {
+                font-size: 30px;
+            }
+            
+            .platform-btn {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            
+            .platform-title h2 {
+                font-size: 24px;
+            }
+            
+            .steps-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">KeyzGO</a>
+            </div>
+<!--             <ul class="nav-menu">
+                <li><a href="#features">Преимущества</a></li>
+                <li><a href="#vpn">Ключи OpenVPN</a></li>
+                <li><a href="#router">Роутер</a></li>
+                <li><a href="#faq">Частые вопросы</a></li>
+            </ul> -->
+            <div class="nav-contact">
+                <a href="https://t.me/keyzgo" class="btn-contact">
+                    Написать в Telegram 
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- how-to -->
+    <section class="how-to">
+        <div class="container">
+            <h1>Инструкции по подключению</h1>
+            <p>Подробные пошаговые руководства по настройке VPN на всех ваших устройствах для безопасного и анонимного серфинга</p>
+        </div>
+    </section>
+
+    <!-- Platform Navigation -->
+    <div class="container">
+        <div class="platform-nav">
+            <button class="platform-btn active" data-platform="android">
+                <i class="fab fa-android"></i> Android
+            </button>
+            <button class="platform-btn" data-platform="ios">
+                <i class="fab fa-apple"></i> iOS
+            </button>
+            <button class="platform-btn" data-platform="windows">
+                <i class="fab fa-windows"></i> Windows
+            </button>
+            <button class="platform-btn" data-platform="macos">
+                <i class="fab fa-apple"></i> macOS
+            </button>
+            <button class="platform-btn" data-platform="tv">
+                <i class="fas fa-tv"></i> Smart TV
+            </button>
+        </div>
+    </div>
+
+    <!-- Instructions Sections -->
+    <section class="instructions">
+        <div class="container">
+            <!-- Android -->
+            <div class="platform-section active" id="android">
+                <div class="platform-title">
+                    <h2><i class="fab fa-android"></i> Android</h2>
+                    <p>Инструкция по настройке VPN на устройствах Android</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-download"></i> Скачайте приложение</h3>
+                            <p>Установите официальный клиент OpenVPN Connect из Google Play Store:</p>
+                            <a href="https://play.google.com/store/apps/details?id=net.openvpn.openvpn" class="download-btn">
+                                <i class="fab fa-google-play"></i> Google Play
+                            </a>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-file-import"></i> Импортируйте конфигурацию</h3>
+                            <p>Откройте приложение → Нажмите "File" → Выберите .ovpn файл из загрузок или облачного хранилища.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-plug"></i> Подключитесь</h3>
+                            <p>Нажмите "Add" → Введите имя профиля → Нажмите "Connect" для установки соединения.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- iOS -->
+            <div class="platform-section" id="ios">
+                <div class="platform-title">
+                    <h2><i class="fab fa-apple"></i> iPhone/iPad</h2>
+                    <p>Инструкция по настройке VPN на устройствах iOS</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-download"></i> Установите приложение</h3>
+                            <p>Скачайте OpenVPN Connect из App Store:</p>
+                            <a href="https://apps.apple.com/app/openvpn-connect/id590379981" class="download-btn">
+                                <i class="fab fa-app-store"></i> App Store
+                            </a>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-file-export"></i> Передайте файл конфигурации</h3>
+                            <p>Отправьте .ovpn файл себе на email или загрузите в iCloud. Откройте файл через OpenVPN Connect.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-cog"></i> Настройте подключение</h3>
+                            <p>В приложении нажмите "+" → Импортируйте профиль → Разрешите добавление VPN-конфигурации.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-power-off"></i> Активируйте VPN</h3>
+                            <p>Выберите созданный профиль и переведите переключатель в положение "ON".</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Windows -->
+            <div class="platform-section" id="windows">
+                <div class="platform-title">
+                    <h2><i class="fab fa-windows"></i> Windows</h2>
+                    <p>Инструкция по настройке VPN на компьютерах с Windows</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-download"></i> Скачайте клиент OpenVPN</h3>
+                            <p>Установите официальное приложение с сайта OpenVPN:</p>
+                            <a href="https://openvpn.net/community-downloads/" class="download-btn">
+                                <i class="fas fa-download"></i> Скачать
+                            </a>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-folder-open"></i> Разместите конфигурационный файл</h3>
+                            <p>Скопируйте .ovpn файл в папку: <code>C:\Program Files\OpenVPN\config\</code></p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-play"></i> Запустите OpenVPN GUI</h3>
+                            <p>Откройте программу от имени администратора (правой кнопкой → "Запуск от имени администратора").</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-plug"></i> Подключитесь</h3>
+                            <p>Кликните правой кнопкой по иконке в трее → выберите профиль → "Подключиться".</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- macOS -->
+            <div class="platform-section" id="macos">
+                <div class="platform-title">
+                    <h2><i class="fab fa-apple"></i> macOS</h2>
+                    <p>Инструкция по настройке VPN на компьютерах Apple</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-download"></i> Установите Tunnelblick</h3>
+                            <p>Скачайте и установите бесплатный клиент OpenVPN для Mac:</p>
+                            <a href="https://tunnelblick.net/" class="download-btn">
+                                <i class="fas fa-download"></i> Скачать
+                            </a>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-file-import"></i> Добавьте конфигурацию</h3>
+                            <p>Откройте .ovpn файл → Tunnelblick предложит импортировать профиль.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-plug"></i> Подключитесь</h3>
+                            <p>В меню Tunnelblick (иконка в строке меню) выберите "Подключиться".</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Smart TV -->
+            <div class="platform-section" id="tv">
+                <div class="platform-title">
+                    <h2><i class="fas fa-tv"></i> Smart TV</h2>
+                    <p>Инструкция для телевизоров на Android TV</p>
+                </div>
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-download"></i> Установите приложение</h3>
+                            <p>Скачайте APK-файл OpenVPN Connect для Android TV:</p>
+                            <a href="https://apkpure.com/openvpn-connect/net.openvpn.openvpn" class="download-btn">
+                                <i class="fas fa-download"></i> APK файл
+                            </a>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-mobile-alt"></i> Установка APK</h3>
+                            <p>Передайте файл на TV через USB или облако и установите его.</p>
+                        </div>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h3><i class="fas fa-cog"></i> Настройте подключение</h3>
+                            <p>Откройте приложение → Импортируйте .ovpn файл → Подключитесь.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer minimal-footer" id="support">
+        <div class="footer-background">
+            <div class="grid-pattern"></div>
+            <div class="glow-effect"></div>
+        </div>
+        
+        <div class="container">
+            <div class="footer-header">
+                <div class="footer-logo-section">
+                    <div class="logo">KeyzGO</div>
+                    <p class="slogan">Современное решение для защиты вашей конфиденциальности в интернете.</p>
+                </div>
+                <!-- <div class="footer-contact-main">
+                    <a href="https://t.me/keyzgo" class="contact-email">Написать в Telegram</a>
+                    <a href="mailto:support@keyzgo.com" class="contact-email">SUPPORT@KEYZGO.COM</a>
+                </div> -->
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="footer-links-grid">
+                <div class="link-group">
+                    <h5>Продукты</h5>
+                    <a href="#vpn">Ключи OpenVPN</a>
+                    <a href="#router">Роутер</a>
+                </div>
+                
+                <div class="link-group">
+                    <h5>Инструкции</h5>
+                    <a href="#how-it-works">Как это работает?</a>
+                    <a href="#faq">Частые вопросы</a>
+                </div>
+                
+                <div class="link-group">
+                    <h5>Поддержка</h5>
+                    <a href="mailto:support@keyzgo.com" class="contact-email">SUPPORT@KEYZGO.COM</a>
+                    <a href="https://t.me/keyzgo" class="contact-email">Telegram</a>
+                </div>
+                
+                <div class="link-group">
+                    <h5>Оплата</h5>
+                    <div class="payment-methods">
+                        <span>Банковские карты</span>
+                        <span>Криптовалюты</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom-minimal">
+                <div class="copyright">
+                    &copy; 2025 KeyzGO. Все права защищены.
+                </div>
+                <!-- <div class="legal-links">
+                    <a href="#">Конфиденциальность</a>
+                    <a href="#">Условия</a>
+                </div> -->
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Platform switcher
+        const platformBtns = document.querySelectorAll('.platform-btn');
+        const platformSections = document.querySelectorAll('.platform-section');
+        
+        platformBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons and sections
+                platformBtns.forEach(b => b.classList.remove('active'));
+                platformSections.forEach(s => s.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Show corresponding section
+                const platformId = btn.getAttribute('data-platform');
+                document.getElementById(platformId).classList.add('active');
+            });
+        });
+        
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+        
+        // Animate step cards on scroll
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all step cards
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
