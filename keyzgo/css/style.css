@@ -86,6 +86,7 @@ body {
     -webkit-text-fill-color: transparent;
     transition: var(--transition);
     letter-spacing: -0.5px;
+    outline: none;
 }
 
 .nav-menu {
@@ -114,10 +115,9 @@ body {
     bottom: -10px;
     left: 0;
     width: 0;
-    height: 3px;
+    height: 1px;
     background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
     transition: var(--transition-slow);
-    border-radius: 3px;
 }
 
 .nav-menu a:hover::after {
@@ -1454,9 +1454,5 @@ body {
     background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
     border-radius: 5px;
     transition: var(--transition);
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
 }
 
