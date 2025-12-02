@@ -6,6 +6,10 @@
     <title>KeyzGO - Премиум VPN решения</title>
     <link rel="stylesheet" href="css/normalize.css">
     <style>
+        ::selection {
+            background-color: rgba(0, 122, 255, .55);
+            color: var(--bg-primary);
+        }
         :root {
             --bg-primary: #ffffff;
             --bg-secondary: #f5f5f7;
@@ -45,6 +49,10 @@
             overflow-x: hidden;
             font-size: 16px;
             font-weight: 200;
+        }
+
+        a {
+            color: var(--accent-blue);
         }
 
         .container {
@@ -274,7 +282,7 @@
         /* Компактные карточки инструкций */
         .instructions-grid {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 2rem;
         }
 
@@ -287,6 +295,10 @@
             transition: var(--transition);
             position: relative;
             overflow: hidden;
+        }
+
+        .instruction-card * {
+            user-select: text;
         }
 
         .instruction-card:hover {
@@ -757,6 +769,10 @@
         }
 
         @media (max-width: 768px) {
+            .instructions-grid {
+                grid-template-columns: 1fr;
+            }
+
             .cta-section {
                 padding: 4rem 0;
             }
@@ -927,7 +943,6 @@
                     <button class="tab-button" data-tab="macos-tab">macOS</button>
                     <button class="tab-button" data-tab="android-tab">Android</button>
                     <button class="tab-button" data-tab="ios-tab">iOS</button>
-                    <button class="tab-button" data-tab="linux-tab">Linux</button>
                 </div>
                 
                 <div class="tab-content">
@@ -941,14 +956,8 @@
                                 </div>
                                 <div class="step-content">
                                     <p class="step-description">
-                                        Перейдите на официальный сайт OpenVPN и скачайте установщик для Windows.
+                                        Перейдите <a href="https://openvpn.net/client/">на официальный сайт OpenVPN</a> и скачайте установщик для Windows.
                                     </p>
-                                    <div class="code-block">
-                                        https://openvpn.net/client-connect-vpn-for-windows/
-                                    </div>
-                                    <div class="note">
-                                        <p>Рекомендуется скачивать с официального сайта для безопасности.</p>
-                                    </div>
                                 </div>
                             </div>
                             
@@ -961,9 +970,6 @@
                                     <p class="step-description">
                                         Запустите скачанный установщик и следуйте инструкциям мастера установки.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+установки+OpenVPN+Windows" alt="Установка OpenVPN на Windows">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -974,11 +980,8 @@
                                 </div>
                                 <div class="step-content">
                                     <p class="step-description">
-                                        После установки запустите OpenVPN GUI. Кликните правой кнопкой мыши на иконке в системном трее и выберите "Import file".
+                                        После установки запустите OpenVPN GUI. Кликните правой кнопкой мыши на иконке в системном трее и выберите "Upload file".
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+импорта+файла+Windows" alt="Импорт файла в OpenVPN на Windows">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -991,9 +994,6 @@
                                     <p class="step-description">
                                         После импорта файла, кликните правой кнопкой на иконке OpenVPN в трее, выберите ваш профиль и нажмите "Connect".
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+подключения+Windows" alt="Подключение к VPN на Windows">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1009,11 +1009,8 @@
                                 </div>
                                 <div class="step-content">
                                     <p class="step-description">
-                                        Для macOS рекомендуется использовать Tunnelblick - бесплатный OpenVPN клиент.
+                                        Для macOS рекомендуется использовать <a href="https://tunnelblick.net/">Tunnelblick - бесплатный OpenVPN клиент</a>.
                                     </p>
-                                    <div class="code-block">
-                                        https://tunnelblick.net/
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1026,9 +1023,6 @@
                                     <p class="step-description">
                                         Скачайте и установите Tunnelblick, следуя инструкциям на экране.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+установки+Tunnelblick" alt="Установка Tunnelblick на macOS">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1041,9 +1035,6 @@
                                     <p class="step-description">
                                         Дважды кликните на файле конфигурации (.ovpn), который вы получили после покупки. Tunnelblick автоматически предложит его установить.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+импорта+файла+macOS" alt="Импорт файла в Tunnelblick">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1056,9 +1047,6 @@
                                     <p class="step-description">
                                         Нажмите на иконку Tunnelblick в строке меню, выберите ваш конфиг и нажмите "Connect".
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+подключения+macOS" alt="Подключение к VPN на macOS">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1074,11 +1062,8 @@
                                 </div>
                                 <div class="step-content">
                                     <p class="step-description">
-                                        Откройте Google Play Store и установите официальное приложение OpenVPN Connect.
+                                        Откройте Google Play Store и установите <a href="https://play.google.com/store/apps/developer?id=OpenVPN">официальное приложение OpenVPN Connect</a>.
                                     </p>
-                                    <div class="code-block">
-                                        https://play.google.com/store/apps/details?id=net.openvpn.openvpn
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1091,9 +1076,6 @@
                                     <p class="step-description">
                                         Откройте приложение и нажмите на значок "+" для импорта профиля. Выберите "Import from file" и найдите скачанный файл конфигурации.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+импорта+файла+Android" alt="Импорт файла в OpenVPN Connect на Android">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1106,9 +1088,6 @@
                                     <p class="step-description">
                                         После импорта нажмите на переключатель рядом с профилем для подключения. При первом подключении приложение запросит разрешение на создание VPN-подключения.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+подключения+Android" alt="Подключение к VPN на Android">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1124,11 +1103,8 @@
                                 </div>
                                 <div class="step-content">
                                     <p class="step-description">
-                                        Откройте App Store и установите официальное приложение OpenVPN Connect.
+                                        Откройте App Store и установите <a href="https://apps.apple.com/ru/app/openvpn-connect/id590379981">официальное приложение OpenVPN Connect</a>.
                                     </p>
-                                    <div class="code-block">
-                                        https://apps.apple.com/app/openvpn-connect/id590379981
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1141,9 +1117,6 @@
                                     <p class="step-description">
                                         Отправьте файл конфигурации себе по email или сохраните в iCloud. Откройте файл и выберите "Открыть в OpenVPN".
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+импорта+файла+iOS" alt="Импорт файла в OpenVPN Connect на iOS">
-                                    </div>
                                 </div>
                             </div>
                             
@@ -1156,84 +1129,6 @@
                                     <p class="step-description">
                                         В приложении нажмите на переключатель рядом с профилем для подключения. iOS запросит разрешение на добавление VPN-конфигурации.
                                     </p>
-                                    <div class="step-image">
-                                        <img src="https://via.placeholder.com/800x400?text=Скриншот+подключения+iOS" alt="Подключение к VPN на iOS">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Linux инструкция -->
-                    <div id="linux-tab" class="tab-pane">
-                        <div class="instructions-grid">
-                            <div class="instruction-card fade-in">
-                                <div class="step-header">
-                                    <div class="step-number">1</div>
-                                    <h3 class="step-title">Установите OpenVPN</h3>
-                                </div>
-                                <div class="step-content">
-                                    <p class="step-description">
-                                        Установите OpenVPN с помощью пакетного менеджера вашего дистрибутива.
-                                    </p>
-                                    <div class="code-block">
-                                        # Для Ubuntu/Debian<br>
-                                        sudo apt update<br>
-                                        sudo apt install openvpn
-                                    </div>
-                                    <div class="code-block">
-                                        # Для CentOS/RHEL/Fedora<br>
-                                        sudo yum install openvpn<br>
-                                        # или<br>
-                                        sudo dnf install openvpn
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="instruction-card fade-in">
-                                <div class="step-header">
-                                    <div class="step-number">2</div>
-                                    <h3 class="step-title">Скопируйте конфигурационный файл</h3>
-                                </div>
-                                <div class="step-content">
-                                    <p class="step-description">
-                                        Скопируйте файл конфигурации в папку /etc/openvpn/client/
-                                    </p>
-                                    <div class="code-block">
-                                        sudo cp ваш_файл.ovpn /etc/openvpn/client/
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="instruction-card fade-in">
-                                <div class="step-header">
-                                    <div class="step-number">3</div>
-                                    <h3 class="step-title">Запустите OpenVPN</h3>
-                                </div>
-                                <div class="step-content">
-                                    <p class="step-description">
-                                        Запустите OpenVPN с указанием вашего конфигурационного файла.
-                                    </p>
-                                    <div class="code-block">
-                                        sudo openvpn --config /etc/openvpn/client/ваш_файл.ovpn
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="instruction-card fade-in">
-                                <div class="step-header">
-                                    <div class="step-number">4</div>
-                                    <h3 class="step-title">Автозапуск (опционально)</h3>
-                                </div>
-                                <div class="step-content">
-                                    <p class="step-description">
-                                        Для автоматического запуска при загрузке системы, переименуйте файл конфигурации, добавив расширение .conf и перезапустите службу openvpn.
-                                    </p>
-                                    <div class="code-block">
-                                        sudo mv /etc/openvpn/client/ваш_файл.ovpn /etc/openvpn/client/ваш_файл.conf<br>
-                                        sudo systemctl enable openvpn-client@ваш_файл.service<br>
-                                        sudo systemctl start openvpn-client@ваш_файл.service
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1274,10 +1169,6 @@
                     <div class="logo">KeyzGO</div>
                     <p class="slogan">Современное решение для защиты вашей конфиденциальности в интернете.</p>
                 </div>
-<!--                 <div class="footer-contact-main">
-                    <a href="mailto:support@keyzgo.com" class="contact-email">SUPPORT@KEYZGO.COM</a>
-                    <a href="https://t.me/keyzgo" class="contact-email">Telegram</a>
-                </div> -->
             </div>
             
             <div class="footer-divider"></div>
