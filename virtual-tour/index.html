@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Tour</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=Montserrat:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --gold: #c9a96e;
+    --gold-light: #e8d5a3;
+    --dark: #0a0a0a;
+    --glass: rgba(10,10,10,0.75);
+    --glass-border: rgba(201,169,110,0.25);
+    --text: #f0ead6;
+    --text-dim: rgba(240,234,214,0.55);
+    --transition: 600ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  html, body { width:100%; height:100%; overflow:hidden; background:#000; font-family:'Montserrat',sans-serif; color:var(--text); cursor:grab; }
+  body:active { cursor:grabbing; }
+
+  #canvas { display:block; width:100%; height:100%; position:fixed; inset:0; }
+
+  #fade { position:fixed; inset:0; background:#000; opacity:0; pointer-events:none; z-index:100; transition:opacity 500ms ease; }
+  #fade.active { opacity:1; pointer-events:all; }
+
+  #location-label {
+    position:fixed; top:32px; left:50%; transform:translateX(-50%);
+    z-index:50; text-align:center; pointer-events:none;
+    transition:opacity var(--transition), transform var(--transition);
+  }
+  #location-label.hidden { opacity:0; transform:translateX(-50%) translateY(-10px); }
+  #location-name { font-family:'Cormorant Garamond',serif; font-size:clamp(1.4rem,3vw,2.2rem); font-weight:300; letter-spacing:0.2em; text-transform:uppercase; text-shadow:0 2px 20px rgba(0,0,0,0.9); }
+  #location-sub  { font-size:0.6rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); margin-top:4px; opacity:0.85; }
+  .label-line    { width:36px; height:1px; background:var(--gold); margin:7px auto 0; opacity:0.5; }
+
+  #menu-toggle {
+    position:fixed; top:50%; right:0; transform:translateY(-50%);
+    z-index:60; background:var(--glass); border:1px solid var(--glass-border);
+    border-right:none; border-radius:8px 0 0 8px; padding:12px 10px;
+    cursor:pointer; backdrop-filter:blur(12px);
+    display:flex; flex-direction:column; gap:5px; align-items:center;
+    transition:background var(--transition);
+  }
+  #menu-toggle:hover { background:rgba(201,169,110,0.15); }
+  #menu-toggle span { display:block; width:18px; height:1.5px; background:var(--gold); border-radius:2px; transition:transform 300ms ease, opacity 300ms ease; }
+  #menu-toggle.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+  #menu-toggle.open span:nth-child(2) { opacity:0; }
+  #menu-toggle.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+
+  #side-menu {
+    position:fixed; top:0; right:-300px; width:280px; height:100%;
+    background:var(--glass); backdrop-filter:blur(24px);
+    border-left:1px solid var(--glass-border); z-index:55;
+    display:flex; flex-direction:column; padding:80px 0 32px;
+    transition:right var(--transition);
+  }
+  #side-menu.open { right:0; }
+  .menu-title { font-size:0.65rem; letter-spacing:0.4em; text-transform:uppercase; color:var(--gold); padding:0 28px 18px; border-bottom:1px solid var(--glass-border); margin-bottom:12px; }
+  .menu-item { display:flex; align-items:center; gap:14px; padding:13px 28px; cursor:pointer; transition:background 200ms; position:relative; }
+  .menu-item:hover { background:rgba(201,169,110,0.08); }
+  .menu-item.active { background:rgba(201,169,110,0.12); }
+  .menu-item.active::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--gold); border-radius:0 2px 2px 0; }
+  .menu-emoji { font-size:20px; flex-shrink:0; width:28px; text-align:center; }
+  .menu-info { flex:1; min-width:0; }
+  .menu-item-name { font-size:0.78rem; font-weight:500; letter-spacing:0.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .menu-item-desc { font-size:0.62rem; color:var(--text-dim); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .menu-item-num { font-family:'Cormorant Garamond',serif; font-size:0.75rem; color:var(--gold); opacity:0.5; flex-shrink:0; }
+
+  /* ── MAP ── */
+  #map-panel {
+    position:fixed; bottom:24px; left:24px; z-index:50;
+    background:var(--glass); backdrop-filter:blur(16px);
+    border:1px solid var(--glass-border); border-radius:12px;
+    padding:14px; user-select:none;
+  }
+  .map-panel-title { font-size:0.55rem; letter-spacing:0.35em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; opacity:0.8; }
+  #map-container { position:relative; width:320px; height:180px; border-radius:6px; overflow:hidden; background:rgba(255,255,255,0.03); }
+  #map-img { display:block; width:100%; height:100%; object-fit:cover; opacity:0.85; }
+  #map-dots { position:absolute; inset:0; }
+
+  .map-dot-btn {
+    position:absolute; transform:translate(-50%,-50%);
+    width:12px; height:12px; border-radius:50%;
+    background:rgba(201,169,110,0.4); border:1.5px solid var(--gold);
+    cursor:pointer; transition:transform 200ms, background 200ms, box-shadow 200ms;
+  }
+  .map-dot-btn:hover { transform:translate(-50%,-50%) scale(1.5); background:var(--gold); }
+  .map-dot-btn.active {
+    background:var(--gold); transform:translate(-50%,-50%) scale(1.3);
+    box-shadow:0 0 0 4px rgba(201,169,110,0.25), 0 0 10px rgba(201,169,110,0.5);
+  }
+  .map-dot-label {
+    position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.85); color:var(--text); font-size:0.58rem;
+    letter-spacing:0.06em; white-space:nowrap; padding:2px 6px; border-radius:3px;
+    opacity:0; pointer-events:none; transition:opacity 150ms;
+  }
+  .map-dot-btn:hover .map-dot-label { opacity:1; }
+
+  /* ── HOTSPOTS ── */
+  .hotspot { position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; cursor:pointer; pointer-events:all; z-index:20; transition:opacity 300ms; }
+  .hotspot-ring {
+    width:46px; height:46px; border-radius:50%;
+    border:2px solid var(--gold); background:rgba(0,0,0,0.4);
+    backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center;
+    font-size:18px; color:var(--gold); position:relative;
+    animation:hs-pulse 2.5s ease infinite;
+    transition:transform 200ms, background 200ms;
+  }
+  .hotspot:hover .hotspot-ring { transform:scale(1.2); background:rgba(201,169,110,0.2); animation:none; }
+  .hotspot-ring::after { content:''; position:absolute; inset:-8px; border-radius:50%; border:1px solid rgba(201,169,110,0.3); animation:hs-outer 2.5s ease infinite; }
+  .hotspot-text { margin-top:8px; font-size:0.6rem; letter-spacing:0.12em; text-transform:uppercase; white-space:nowrap; text-shadow:0 1px 6px rgba(0,0,0,1); background:rgba(0,0,0,0.55); padding:3px 8px; border-radius:3px; backdrop-filter:blur(4px); }
+  @keyframes hs-pulse { 0%,100%{box-shadow:0 0 0 0 rgba(201,169,110,0.4)} 50%{box-shadow:0 0 0 8px rgba(201,169,110,0)} }
+  @keyframes hs-outer { 0%,100%{opacity:.3;transform:scale(1)} 50%{opacity:0;transform:scale(1.35)} }
+
+  /* ── COMPASS ── */
+  #compass { position:fixed; bottom:24px; right:24px; z-index:50; width:52px; height:52px; }
+  #compass-bg { width:100%; height:100%; border-radius:50%; background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; font-size:9px; letter-spacing:.05em; color:var(--gold); opacity:.7; text-transform:uppercase; }
+  #compass-needle { position:absolute; inset:0; display:flex; align-items:flex-start; justify-content:center; padding-top:7px; transition:transform 80ms linear; }
+  #compass-needle::before { content:''; width:2.5px; height:16px; background:linear-gradient(to bottom,#e05555,rgba(201,169,110,0.4)); border-radius:2px; }
+
+  /* ── LOADING ── */
+  #loading { position:fixed; inset:0; background:var(--dark); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; transition:opacity 600ms ease; }
+  #loading.hidden { opacity:0; pointer-events:none; }
+  .loading-title { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:300; letter-spacing:.3em; text-transform:uppercase; }
+  .loading-bar { width:180px; height:1px; background:rgba(255,255,255,.1); border-radius:1px; overflow:hidden; }
+  .loading-fill { height:100%; background:linear-gradient(to right,var(--gold),var(--gold-light)); animation:load 1.5s ease forwards; }
+  @keyframes load { from{width:0} to{width:100%} }
+  .loading-sub { font-size:.58rem; letter-spacing:.4em; color:var(--gold); opacity:.7; text-transform:uppercase; }
+
+  #hint { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:50; font-size:.6rem; letter-spacing:.18em; text-transform:uppercase; color:var(--text-dim); pointer-events:none; transition:opacity 1s; text-shadow:0 1px 6px rgba(0,0,0,.8); }
+  #hint.hidden { opacity:0; }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loading-title">Virtual Tour</div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+  <div class="loading-sub">Загрузка сцены</div>
+</div>
+
+<canvas id="canvas"></canvas>
+<div id="fade"></div>
+<div id="hotspot-container" style="position:fixed;inset:0;pointer-events:none;z-index:20;overflow:hidden;"></div>
+
+<div id="location-label">
+  <div id="location-name"></div>
+  <div id="location-sub"></div>
+  <div class="label-line"></div>
+</div>
+
+<button id="menu-toggle"><span></span><span></span><span></span></button>
+<nav id="side-menu">
+  <div class="menu-title">Локации</div>
+  <div id="menu-list"></div>
+</nav>
+
+<div id="map-panel">
+  <div class="map-panel-title">Карта</div>
+  <div id="map-container">
+    <img id="map-img" src="/virtual-tour/map.jpg" alt="Карта">
+    <div id="map-dots"></div>
+  </div>
+</div>
+
+<div id="compass">
+  <div id="compass-bg">С</div>
+  <div id="compass-needle"></div>
+</div>
+
+<div id="hint">👆 Перетащите для осмотра · Нажмите стрелку для перехода</div>
+
+<script src="/virtual-tour/three.min.js"></script>
+<script>
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║                   КОНФИГУРАЦИЯ ТУРА                          ║
+// ╠══════════════════════════════════════════════════════════════╣
+// ║  mapPos — положение точки на карте в ПРОЦЕНТАХ от размера    ║
+// ║    x: 0 = левый край,  x: 100 = правый край                 ║
+// ║    y: 0 = верхний край, y: 100 = нижний край                 ║
+// ║                                                              ║
+// ║  hotspots.yaw — направление стрелки перехода:                ║
+// ║    0 = прямо, 90 = вправо, 180 = назад, 270 = влево          ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const SCENES = [
+  {
+    id:    'hall',
+    name:  'Главный холл',
+    sub:   '1-й этаж · Вход',
+    image: '/virtual-tour/panoramas/image1.jpg',
+    emoji: '🏛️',
+    mapPos: { x: 48.75, y: 13.4 },    // ← измени проценты под свою карту
+    hotspots: [
+      { toId: 'lounge', label: 'Лаунж', yaw: 90,  pitch: -5 },
+      { toId: 'garden', label: 'Сад',   yaw: 270, pitch: -5 },
+    ]
+  },
+  {
+    id:    'lounge',
+    name:  'Лаунж-зона',
+    sub:   '1-й этаж · Крыло A',
+    image: '/virtual-tour/panoramas/image3.jpg',
+    emoji: '🛋️',
+    mapPos: { x: 42, y: 49.16 },
+    hotspots: [
+      { toId: 'hall',    label: 'Холл',    yaw: 270, pitch: -5 },
+      { toId: 'gallery', label: 'Галерея', yaw: 90,  pitch: -5 },
+    ]
+  },
+  {
+    id:    'garden',
+    name:  'Зимний сад',
+    sub:   '1-й этаж · Атриум',
+    image: '/virtual-tour/panoramas/image4.jpg',
+    emoji: '🌿',
+    mapPos: { x: 80.46, y: 98.33 },
+    hotspots: [
+      { toId: 'hall',    label: 'Холл',    yaw: 90,  pitch: -5 },
+      { toId: 'gallery', label: 'Галерея', yaw: 180, pitch: -5 },
+    ]
+  },
+  {
+    id:    'gallery',
+    name:  'Галерея',
+    sub:   '2-й этаж · Восточное крыло',
+    image: '/virtual-tour/panoramas/image2.jpg',
+    emoji: '🖼️',
+    mapPos: { x: 44.16, y: 70.83 },
+    hotspots: [
+      { toId: 'lounge', label: 'Лаунж', yaw: 200, pitch: -5 },
+      { toId: 'garden', label: 'Сад',   yaw: 320, pitch: -5 },
+    ]
+  },
+];
+
+// ══════════════════════════════════════════════
+//  THREE.JS
+// ══════════════════════════════════════════════
+const canvas = document.getElementById('canvas');
+const W = () => window.innerWidth, H = () => window.innerHeight;
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W(), H());
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, W()/H(), 0.1, 1000);
+camera.position.set(0, 0, 0.001);
+
+const geo    = new THREE.SphereGeometry(500, 60, 40);
+const mat    = new THREE.MeshBasicMaterial({ side: THREE.BackSide });
+const sphere = new THREE.Mesh(geo, mat);
+scene.add(sphere);
+
+// ── TEXTURE ──
+const cache = {};
+function loadTexture(sc, cb) {
+  if (cache[sc.id]) { cb(cache[sc.id]); return; }
+  if (!sc.image)    { cb(null); return; }
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = () => {
+    const tex = new THREE.Texture(img);
+    tex.minFilter   = THREE.LinearFilter;
+    tex.magFilter   = THREE.LinearFilter;
+    tex.flipY       = false;
+    tex.needsUpdate = true;
+    cache[sc.id] = tex;
+    cb(tex);
+  };
+  img.onerror = () => { console.error('Ошибка загрузки:', sc.image); cb(null); };
+  img.src = sc.image;
+}
+
+function applyTexture(tex) {
+  mat.map = tex || null;
+  if (tex) tex.needsUpdate = true;
+  mat.needsUpdate = true;
+}
+
+// ── CONTROLS ──
+let lon = 0, lat = 0, isDown = false;
+let sx = 0, sy = 0, lLon = 0, lLat = 0, vx = 0, vy = 0;
+const LMAX = 85;
+
+canvas.addEventListener('mousedown', e => { isDown=true; sx=e.clientX; sy=e.clientY; lLon=lon; lLat=lat; vx=vy=0; });
+window.addEventListener('mouseup', () => isDown=false);
+window.addEventListener('mousemove', e => {
+  if (!isDown) return;
+  lon = lLon - (e.clientX-sx)*0.3;
+  lat = Math.max(-LMAX, Math.min(LMAX, lLat+(e.clientY-sy)*0.15));
+  vx=-e.movementX*0.3; vy=e.movementY*0.15;
+});
+let t0=null;
+canvas.addEventListener('touchstart', e => { if(e.touches.length===1){t0=e.touches[0]; lLon=lon; lLat=lat;} }, {passive:true});
+canvas.addEventListener('touchmove',  e => {
+  if(!t0||e.touches.length!==1) return; e.preventDefault();
+  lon=lLon-(e.touches[0].clientX-t0.clientX)*0.3;
+  lat=Math.max(-LMAX,Math.min(LMAX,lLat+(e.touches[0].clientY-t0.clientY)*0.15));
+}, {passive:false});
+canvas.addEventListener('touchend', ()=>t0=null);
+canvas.addEventListener('wheel', e => { camera.fov=Math.max(30,Math.min(100,camera.fov+e.deltaY*0.05)); camera.updateProjectionMatrix(); }, {passive:true});
+
+// ── HOTSPOTS ──
+let hsObjs = [];
+function vec3(yaw, pitch) {
+  const y=THREE.MathUtils.degToRad(yaw), p=THREE.MathUtils.degToRad(pitch);
+  return new THREE.Vector3(Math.sin(y)*Math.cos(p), Math.sin(p), -Math.cos(y)*Math.cos(p)).normalize();
+}
+function project(v) {
+  const c=v.clone().project(camera);
+  return {x:(c.x+1)/2*W(), y:(1-c.y)/2*H(), behind:c.z>1};
+}
+function buildHotspots(sc) {
+  document.getElementById('hotspot-container').innerHTML='';
+  hsObjs=[];
+  sc.hotspots.forEach(h => {
+    const el=document.createElement('div');
+    el.className='hotspot';
+    el.innerHTML=`<div class="hotspot-ring">▶</div><div class="hotspot-text">${h.label}</div>`;
+    el.onclick=()=>goToScene(h.toId);
+    document.getElementById('hotspot-container').appendChild(el);
+    hsObjs.push({el, vec:vec3(h.yaw,h.pitch)});
+  });
+}
+function updateHotspots() {
+  hsObjs.forEach(({el,vec})=>{
+    const p=project(vec);
+    el.style.opacity=p.behind?'0':'1';
+    el.style.pointerEvents=p.behind?'none':'all';
+    el.style.left=p.x+'px'; el.style.top=p.y+'px';
+  });
+}
+
+// ── MAP DOTS ──
+function buildMapDots() {
+  const c=document.getElementById('map-dots');
+  c.innerHTML='';
+  SCENES.forEach(sc=>{
+    const d=document.createElement('div');
+    d.className='map-dot-btn'; d.id='dot-'+sc.id;
+    d.style.left=sc.mapPos.x+'%'; d.style.top=sc.mapPos.y+'%';
+    d.innerHTML=`<div class="map-dot-label">${sc.name}</div>`;
+    d.onclick=()=>goToScene(sc.id);
+    c.appendChild(d);
+  });
+}
+function updateMapDots(id) {
+  document.querySelectorAll('.map-dot-btn').forEach(d=>d.classList.toggle('active', d.id==='dot-'+id));
+}
+
+// ── MENU ──
+SCENES.forEach((sc,i)=>{
+  const el=document.createElement('div');
+  el.className='menu-item'+(i===0?' active':'');
+  el.dataset.id=sc.id;
+  el.innerHTML=`<div class="menu-emoji">${sc.emoji}</div><div class="menu-info"><div class="menu-item-name">${sc.name}</div><div class="menu-item-desc">${sc.sub}</div></div><div class="menu-item-num">0${i+1}</div>`;
+  el.onclick=()=>{ goToScene(sc.id); document.getElementById('side-menu').classList.remove('open'); document.getElementById('menu-toggle').classList.remove('open'); };
+  document.getElementById('menu-list').appendChild(el);
+});
+document.getElementById('menu-toggle').addEventListener('click', function(){ this.classList.toggle('open'); document.getElementById('side-menu').classList.toggle('open'); });
+function updateMenu(id){ document.querySelectorAll('.menu-item').forEach(el=>el.classList.toggle('active',el.dataset.id===id)); }
+
+// ── TRANSITION ──
+let currentId = SCENES[0].id;
+function goToScene(id) {
+  if (id===currentId) return;
+  const sc=SCENES.find(s=>s.id===id); if(!sc) return;
+  const fade=document.getElementById('fade');
+  fade.classList.add('active');
+  setTimeout(()=>{
+    loadTexture(sc, tex=>{
+      applyTexture(tex);
+      currentId=id; lon=0; lat=0; vx=vy=0;
+      document.getElementById('location-name').textContent=sc.name;
+      document.getElementById('location-sub').textContent=sc.sub;
+      buildHotspots(sc); updateMenu(id); updateMapDots(id);
+      setTimeout(()=>fade.classList.remove('active'),80);
+    });
+  },460);
+}
+
+// ── RENDER LOOP ──
+function animate(){
+  requestAnimationFrame(animate);
+  if(!isDown){ vx*=0.9; vy*=0.9; lon+=vx*0.5; lat=Math.max(-LMAX,Math.min(LMAX,lat+vy*0.5)); }
+  const phi=THREE.MathUtils.degToRad(90-lat), theta=THREE.MathUtils.degToRad(lon);
+  camera.lookAt(500*Math.sin(phi)*Math.cos(theta), 500*Math.cos(phi), 500*Math.sin(phi)*Math.sin(theta));
+  document.getElementById('compass-needle').style.transform=`rotate(${-lon}deg)`;
+  updateHotspots();
+  renderer.render(scene,camera);
+}
+window.addEventListener('resize',()=>{ camera.aspect=W()/H(); camera.updateProjectionMatrix(); renderer.setSize(W(),H()); });
+
+// ── INIT ──
+buildMapDots();
+const first=SCENES[0];
+document.getElementById('location-name').textContent=first.name;
+document.getElementById('location-sub').textContent=first.sub;
+updateMapDots(first.id);
+loadTexture(first, tex=>{
+  applyTexture(tex);
+  buildHotspots(first);
+  renderer.render(scene,camera);
+  animate();
+  setTimeout(()=>document.getElementById('loading').classList.add('hidden'),1400);
+  setTimeout(()=>document.getElementById('hint').classList.add('hidden'),6000);
+});
+</script>
+</body>
+</html>
