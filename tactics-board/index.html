@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tactics Board</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Tactics Board</h2>
+
+        <div>
+            <h3>Map</h3>
+            <select id="mode-select" style="margin-bottom:6px;"></select>
+            <select id="map-select"></select>
+            <label class="checkbox-label">
+                <input type="checkbox" id="toggleGrid" checked> Show Grid
+            </label>
+        </div>
+        
+        <div>
+            <h3>Actions</h3>
+            <div id="actions">
+                <button id="undo" title="Undo"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05 1-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88c3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8"/></svg></button>
+                <button id="redo" title="Redo"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M18.4 10.6C16.55 9 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16a8 8 0 0 1 7.6-5.5c1.95 0 3.73.72 5.12 1.88L13 16h9V7z"/></svg></button>
+                <button id="clear" title="Clear all"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M9 3v1H4v2h1v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6h1V4h-5V3zm0 5h2v9H9zm4 0h2v9h-2z"/></svg></button>
+                <button id="export" title="Export PNG"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M8.5 13.498l2.5 3.006l3.5-4.506l4.5 6H5m16 1v-14a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" fill="currentColor"/></svg></button>
+                <button id="save" title="Save JSON"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.996 3h14.012l1.728 2.993l-.006.004c.172.294.27.637.27 1.003v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7c0-.362.096-.702.264-.994l-.003-.002L4.996 3zm.577 1l-.577 1H19.008l-.578-1H5.573zM7 12l5 5l5-5h-3v-2h-4v2H7z" fill="currentColor"/></svg></button>
+                <button id="load" title="Load JSON"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M4.996 3h14.012l1.728 2.993l-.006.004c.172.294.27.637.27 1.003v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7c0-.362.096-.702.264-.994l-.003-.002L4.996 3zm.577 1l-.577 1H19.008l-.578-1H5.573zM7 15h3v2h4v-2h3l-5-5l-5 5z" fill="currentColor"/></svg></button>
+            </div>
+        </div>
+
+        <div>
+            <h3>Tools</h3>
+            <div id="tools">
+                <button class="tool-btn active" data-tool="ping" title="Ping"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m0 2a8 8 0 0 1 8 8a8 8 0 0 1-8 8a8 8 0 0 1-8-8a8 8 0 0 1 8-8m0 2a6 6 0 0 0-6 6a6 6 0 0 0 6 6a6 6 0 0 0 6-6a6 6 0 0 0-6-6m0 2a4 4 0 0 1 4 4a4 4 0 0 1-4 4a4 4 0 0 1-4-4a4 4 0 0 1 4-4"/></svg></span></button>
+                <button class="tool-btn" data-tool="line" title="Line / Arrow"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m12.07 19l-2.83-2.82L19 6.42L17.58 5l-9.76 9.76L5 11.94V19Z"/></svg></span></button>
+                <button class="tool-btn" data-tool="circle" title="Circle"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M12 20c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8m0-18A10 10 0 0 0 2 12a10 10 0 0 0 10 10a10 10 0 0 0 10-10A10 10 0 0 0 12 2m1 5h-2v4H7v2h4v4h2v-4h4v-2h-4z"/></svg></span></button>
+                <button class="tool-btn" data-tool="polygon" title="Polygon"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M17 15.7V13h2v4l-9 4l-7-7l4-9h4v2H8.3l-2.9 6.6l5 5zM22 5v2h-3v3h-2V7h-3V5h3V2h2v3z"/></svg></span></button>
+                <button class="tool-btn" data-tool="ruler" title="Ruler"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m1.39 18.36l1.77-1.76L4.58 18l1.06-1.05l-1.42-1.41l1.42-1.42l2.47 2.48l1.06-1.06l-2.47-2.48l1.41-1.41l1.42 1.41L10.59 12l-1.42-1.41l1.42-1.42l2.47 2.48l1.06-1.06l-2.47-2.48l1.41-1.41l1.41 1.41l1.07-1.06l-1.42-1.41l1.42-1.42L18 6.7l1.07-1.06l-2.47-2.48l1.76-1.77l4.25 4.25L5.64 22.61z"/></svg></span></button>
+                <button class="tool-btn" data-tool="eraser" title="Eraser"><span class="tool-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="m16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.01 4.01 0 0 1-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0M4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53l-4.95-4.95z"/></svg></span></button>
+            </div>
+        </div>
+
+        <div>
+            <h3>Vehicles</h3>
+            <div id="units-panel">
+                <div class="unit-btn" data-type="tank_heavy">Heavy Tank</div>
+                <div class="unit-btn" data-type="tank_medium">Medium Tank</div>
+                <div class="unit-btn" data-type="tank_light">Light Tank</div>
+                <div class="unit-btn" data-type="destroyer">Tank destroyer</div>
+                <div class="unit-btn" data-type="arty">Artillery</div>
+            </div>
+        </div>
+
+        <div>
+            <h3>Color</h3>
+            <div id="colors">
+                <button class="color-btn active" data-color="red" style="background: #e05050;"></button>
+                <button class="color-btn" data-color="green" style="background: #50b050;"></button>
+                <button class="color-btn" data-color="blue" style="background: #5080cc;"></button>
+                <button class="color-btn" data-color="yellow" style="background: #d0b040;"></button>
+                <button class="color-btn" data-color="orange" style="background: #d08040;"></button>
+                <button class="color-btn" data-color="purple" style="background: #9060b0;"></button>
+            </div>
+        </div>
+
+        <div id="arrow-option" class="hidden">
+            <label>
+                <input type="checkbox" id="showArrow"> Show Arrowhead
+            </label>
+        </div>
+    </div>
+
+    <div id="canvas-container">
+        <div id="board">
+            <img id="map" src="" alt="Map">
+            <canvas id="grid"></canvas>
+            <canvas id="draw"></canvas>
+            <div id="unitLayer"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
