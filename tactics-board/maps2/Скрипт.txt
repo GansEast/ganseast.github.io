@@ -1,0 +1,73 @@
+(async () => {
+    // Загружаем html2canvas
+    if (!window.html2canvas) {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    const container = document.querySelector("#cboxLoadedContent");
+    const img = container.querySelector(".cboxPhoto");
+    const overlay = container.querySelector(".map-points-overlay");
+
+    if (!img.complete) {
+        await new Promise(resolve => img.onload = resolve);
+    }
+
+    console.log("Отображается:", img.clientWidth, "x", img.clientHeight);
+    console.log("Оригинал:", img.naturalWidth, "x", img.naturalHeight);
+
+    const old = {
+        cWidth: container.style.width,
+        cHeight: container.style.height,
+        iWidth: img.style.width,
+        iHeight: img.style.height,
+        oWidth: overlay.style.width,
+        oHeight: overlay.style.height
+    };
+
+    // Масштабируем DOM до оригинального размера
+    container.style.width = img.naturalWidth + "px";
+    container.style.height = img.naturalHeight + "px";
+
+    img.style.width = img.naturalWidth + "px";
+    img.style.height = img.naturalHeight + "px";
+
+    overlay.style.width = img.naturalWidth + "px";
+    overlay.style.height = img.naturalHeight + "px";
+
+    // Даем браузеру перерисоваться
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    const points = document.querySelectorAll('.map-point');
+
+    points.forEach(p => {
+        p.dataset.oldBoxShadow = p.style.boxShadow;
+        p.style.boxShadow = 'none';
+    });
+
+    const canvas = await html2canvas(container, {
+        useCORS: true,
+        backgroundColor: null,
+        scale: 1,
+        width: img.naturalWidth,
+        height: img.naturalHeight
+    });
+
+    // Возвращаем размеры
+    container.style.width = old.cWidth;
+    container.style.height = old.cHeight;
+    img.style.width = old.iWidth;
+    img.style.height = old.iHeight;
+    overlay.style.width = old.oWidth;
+    overlay.style.height = old.oHeight;
+
+    const a = document.createElement("a");
+    a.download = "map_full.png";
+    a.href = canvas.toDataURL("image/png");
+    a.click();
+})();
