@@ -329,7 +329,7 @@ function redrawFromHistory() {
 }
 
 // Mouse down
-draw.addEventListener("mousedown", e => {
+draw.addEventListener("pointerdown", e => {
     e.preventDefault();
     const pos = getMousePos(e);
     if (e.button === 2) {
@@ -394,7 +394,7 @@ draw.addEventListener("mousedown", e => {
 });
 
 // Mouse move
-draw.addEventListener("mousemove", e => {
+draw.addEventListener("pointermove", e => {
     const pos = getMousePos(e);
     if (isPanning) {
         offsetX = e.clientX - panStartX;
@@ -432,7 +432,7 @@ draw.addEventListener("mousemove", e => {
 });
 
 // Mouse up
-draw.addEventListener("mouseup", e => {
+draw.addEventListener("pointerup", e => {
     if (e.button === 2) { isPanning = false; board.style.cursor = "crosshair"; return; }
     if (e.button !== 0) return;
     if (isDraggingElement) { isDraggingElement = false; save(); return; }
@@ -471,7 +471,7 @@ draw.addEventListener("mouseup", e => {
 
 draw.addEventListener("contextmenu", e => e.preventDefault());
 
-document.addEventListener("mousemove", e => {
+document.addEventListener("pointermove", e => {
     if (draggedUnit) {
         const p = getMousePos(e);
         draggedUnit.style.left = (p.x - 16) + "px";
@@ -479,7 +479,7 @@ document.addEventListener("mousemove", e => {
     }
 });
 
-document.addEventListener("mouseup", () => {
+document.addEventListener("pointerup", () => {
     isPanning = false;
     if (tool === "ping") stopPing();
     if (draggedUnit) save();
@@ -728,7 +728,7 @@ function addUnit(type, x, y, unitColor) {
         selectedUnit = container;
     });
 
-    img.addEventListener("mousedown", e => {
+    img.addEventListener("pointerdown", e => {
         if (e.button !== 0) return;
         e.stopPropagation();
         draggedUnit = container;
