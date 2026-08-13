@@ -78,7 +78,7 @@ img {
 .split .visual { flex: 1; align-self: stretch; }
 
 .label-tag {
-  position: fixed; top: 32px; left: 32px; z-index: 2;
+  position: fixed; top: 32px; left: 32px; z-index: 150;
   font-size: 12px; text-transform: uppercase; letter-spacing: 3px;
   color: var(--accent); font-weight: 700;
   display: flex; align-items: center; gap: 12px;
@@ -174,7 +174,12 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   border-radius: 22px; padding: 32px 24px; text-align: center; position: relative;
   display: flex; flex-direction: column;
 }
-.p-tier.featured { border-color: var(--border-ac); background: rgba(47,229,131,0.04); }
+.p-tier.featured {
+  border-color: var(--border-ac); background: rgba(47,229,131,0.04);
+  flex: 1.15; padding: 40px 28px;
+}
+.p-tier.featured .p-price { font-size: 44px; }
+.p-tier.featured .p-name { font-size: 15px; }
 .p-badge {
   position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
   background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 700;
@@ -274,7 +279,20 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   .split .visual { width: 100%; order: -1; }
   .placeholder { min-height: 180px; }
   .mini-cards { flex-direction: column; }
-  .pricing-row { flex-direction: column; }
+
+  /* карусель тарифов работает свайпом/колесом на любом экране ≤980px, не только на телефоне */
+  .pricing-row {
+    display: flex; flex-direction: row; align-items: center;
+    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+    gap: 14px; margin: 16px -48px 0; padding: 22px 48px 8px;
+  }
+  .pricing-row::-webkit-scrollbar { display: none; }
+  .p-tier { scroll-snap-align: center; flex: 0 0 min(78%, 320px); padding: 24px 20px; }
+  .p-tier .p-price { font-size: 30px; margin-bottom: 14px; }
+  .p-tier.featured { flex: 0 0 min(88%, 360px); padding: 32px 24px; }
+  .p-tier.featured .p-price { font-size: 38px; }
+  .p-tier.featured .p-name { font-size: 15px; }
+
   .steps-row { flex-direction: column; gap: 22px; align-items: flex-start; }
   .step { flex-direction: row; text-align: left; align-items: center; gap: 16px; width: 100%; padding: 0; }
   .step-icon { margin-bottom: 0; flex-shrink: 0; }
@@ -313,14 +331,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   .mini-card .t { font-size: 10.5px; margin-bottom: 0; }
   .mini-card .d { display: none; }
 
-  .pricing-row {
-    display: flex; flex-direction: row;
-    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-    gap: 14px; margin: 12px -24px 0; padding: 6px 24px 8px;
-  }
-  .pricing-row::-webkit-scrollbar { display: none; }
-  .p-tier { scroll-snap-align: center; flex: 0 0 78%; padding: 24px 20px; }
-  .p-tier .p-price { font-size: 30px; margin-bottom: 14px; }
+  .pricing-row { margin: 12px -24px 0; padding: 22px 24px 8px; }
 
   .steps-row { margin-top: 10px; }
   .step-icon { width: 46px; height: 46px; }
@@ -341,13 +352,13 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 
 <div class="logo-slot"><img src="logo.png" alt=""></div>
 <a href="mailto:support@lazeyka.pro" class="support-contact">support@lazeyka.pro</a>
+<div class="label-tag" id="labelTag">01</div>
 
 <div class="scroll-container">
 
   <section class="slide" data-name="Главная" data-dir="up">
     <div class="slide-inner split">
       <div class="text">
-        <div class="label-tag reveal rv-0">01</div>
         <h1 class="hero-h1 reveal rv-1">Быстрый и безопасный<span class="big">VPN <span class="grad">VLESS</span></span></h1>
         <p class="lead reveal rv-2">Свобода без границ.<br>Скорость без компромиссов.</p>
         <a href="#pricing" class="btn-green reveal rv-5">Подключайся сейчас
@@ -367,7 +378,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   <section class="slide" id="about" data-name="О протоколе" data-dir="up">
     <div class="slide-inner split">
       <div class="text">
-        <div class="label-tag reveal rv-0">02</div>
         <h2 class="reveal rv-1">Что такое <span class="grad">VLESS VPN</span>?</h2>
         <p class="lead reveal rv-2">VLESS — это современный VPN-протокол, созданный для высокой скорости, безопасности и стабильности даже в сложных сетевых условиях.</p>
         <div class="mini-cards">
@@ -407,7 +417,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   <section class="slide" data-name="Преимущества" data-dir="left">
     <div class="slide-inner split">
       <div class="text">
-        <div class="label-tag reveal rv-0">03</div>
         <h2 class="reveal rv-1">Преимущества <span class="grad">VLESS VPN</span></h2>
         <ul class="check-list">
           <li class="reveal rv-2"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3 3 7-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Обходит блокировки и ограничения</li>
@@ -430,7 +439,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 
   <section class="slide" data-name="География" data-dir="right">
     <div class="slide-inner center">
-      <div class="label-tag reveal rv-0">04</div>
       <h2 class="reveal rv-1">Где это <span class="grad">работает</span>?</h2>
       <div class="use-grid">
         <div class="use-cell reveal rv-2"><div class="icon-circle">
@@ -458,7 +466,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 
   <section class="slide" id="pricing" data-name="Тарифы" data-dir="up">
     <div class="slide-inner center">
-      <div class="label-tag reveal rv-0">05</div>
       <h2 class="reveal rv-1">Выберите свой <span class="grad">тариф</span></h2>
       <div class="pricing-row">
         <div class="p-tier reveal rv-2">
@@ -498,7 +505,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 
   <section class="slide" data-name="Подключение" data-dir="up">
     <div class="slide-inner center">
-      <div class="label-tag reveal rv-0">06</div>
       <h2 class="reveal rv-1">Как <span class="grad">подключиться</span>?</h2>
       <div class="steps-row">
         <div class="step reveal rv-2">
@@ -536,7 +542,6 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   <section class="slide" id="cta" data-name="Начать" data-dir="up">
     <div class="slide-inner split">
       <div class="text">
-        <div class="label-tag reveal rv-0">07</div>
         <h2 class="reveal rv-1">Готов к <span class="grad">свободе</span>?</h2>
         <p class="lead reveal rv-2">Подключайся к VLESS VPN и открой интернет без границ уже сегодня!</p>
         <a href="#pricing" class="btn-green reveal rv-4">Начать сейчас
@@ -595,6 +600,12 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
     dots.forEach((d, i) => d.classList.toggle('active', i === index));
   }
 
+  // Номер слайда — постоянный элемент поверх слайдов (как логотип и почта), не улетает вместе с карточкой
+  const labelTagEl = document.getElementById('labelTag');
+  function updateLabelTag(index) {
+    labelTagEl.textContent = String(index + 1).padStart(2, '0');
+  }
+
   function revealSlide(sec) {
     const els = sec.querySelectorAll('.reveal');
     els.forEach(el => el.classList.remove('visible'));
@@ -646,16 +657,18 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 
     current = to;
     updateDots(to);
+    updateLabelTag(to);
     revealSlide(incoming);
     history.replaceState(null, '', sections[to].id ? '#' + sections[to].id : location.pathname);
     setTimeout(() => { isAnimating = false; }, SLIDE_MS + 50);
   }
   updateDots(0);
+  updateLabelTag(0);
   revealSlide(sections[0]);
 
   // На мобильных карусель тарифов открывается сразу на популярном тарифе, по бокам — остальные
   function centerFeaturedTier() {
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (!window.matchMedia('(max-width: 980px)').matches) return;
     const row = document.querySelector('.pricing-row');
     const featured = document.querySelector('.p-tier.featured');
     if (!row || !featured) return;
