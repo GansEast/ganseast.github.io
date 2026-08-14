@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Биэс ойбон</title>
+<style>
+  :root {
+    --wood-light: #e8c896;
+    --wood-dark: #a8763f;
+    --hole-color: #3a2718;
+    --bg-top: #2b1d12;
+    --bg-bottom: #120c07;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: radial-gradient(ellipse at 50% 20%, var(--bg-top), var(--bg-bottom));
+    overflow: hidden;
+    touch-action: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #f0e6d6;
+  }
+  #app {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center;
+  }
+  header {
+    width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: env(safe-area-inset-top, 10px) 16px 6px;
+    box-sizing: border-box;
+    z-index: 5;
+  }
+  header h1 {
+    font-size: 18px; margin: 0; letter-spacing: 1px;
+    color: #f0e6d6; text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  }
+  #stats { font-size: 15px; font-variant-numeric: tabular-nums; opacity: .9; }
+  #boardWrap {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 0;
+  }
+  canvas {
+    touch-action: none;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.55), inset 0 0 0 2px rgba(0,0,0,.25);
+  }
+  #overlay {
+    position: fixed; inset: 0;
+    background: rgba(10,7,4,.88);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 20; text-align: center; padding: 24px;
+  }
+  #overlay .card {
+    max-width: 340px;
+  }
+  #overlay h2 { margin: 0 0 10px; font-size: 24px; }
+  #overlay p { line-height: 1.5; opacity: .85; font-size: 14px; margin: 0 0 20px; }
+  button.big {
+    background: linear-gradient(180deg, var(--wood-light), var(--wood-dark));
+    color: #2b1d12; border: none; border-radius: 12px;
+    padding: 14px 28px; font-size: 16px; font-weight: 600;
+    box-shadow: 0 4px 0 #6b4a26, 0 8px 14px rgba(0,0,0,.4);
+    cursor: pointer;
+  }
+  button.big:active { transform: translateY(3px); box-shadow: 0 1px 0 #6b4a26; }
+  #hint { position: fixed; bottom: 10px; width: 100%; text-align: center; font-size: 12px; opacity: .5; z-index: 4;}
+  #modeTag {
+    position: fixed; top: env(safe-area-inset-top, 10px); left: 50%; transform: translateX(-50%);
+    font-size: 11px; background: rgba(0,0,0,.4); padding: 3px 10px; border-radius: 20px; opacity: .7;
+    z-index: 6;
+  }
+  #winCard { display: none; }
+  #winCard.show { display: block; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>Биэс ойбон</h1>
+    <div id="stats">⏱ <span id="time">0.0</span>с &nbsp; ●<span id="filled">0</span>/5</div>
+  </header>
+  <div id="modeTag">режим: —</div>
+  <div id="boardWrap">
+    <canvas id="board"></canvas>
+  </div>
+  <div id="hint">Наклоняй телефон, чтобы закатить все шарики в лунки</div>
+</div>
+
+<div id="overlay">
+  <div class="card" id="startCard">
+    <h2>Биэс ойбон</h2>
+    <p>Пять шариков — пять лунок. Наклоняй телефон (гироскоп), чтобы закатить все шарики в лунки. Руками шариков касаться нельзя — только наклон!</p>
+    <button class="big" id="startBtn">Начать игру</button>
+  </div>
+  <div class="card" id="winCard">
+    <h2>Готово! 🎉</h2>
+    <p>Все шарики в лунках за <b><span id="finalTime">0.0</span> с</b></p>
+    <button class="big" id="againBtn">Играть снова</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const timeEl = document.getElementById('time');
+  const filledEl = document.getElementById('filled');
+  const modeTag = document.getElementById('modeTag');
+  const overlay = document.getElementById('overlay');
+  const startCard = document.getElementById('startCard');
+  const winCard = document.getElementById('winCard');
+  const startBtn = document.getElementById('startBtn');
+  const againBtn = document.getElementById('againBtn');
+  const finalTimeEl = document.getElementById('finalTime');
+
+  // ---- board geometry (design space, scaled to canvas) ----
+  const DESIGN_W = 400, DESIGN_H = 640;
+  const BALL_R = 15;
+  const HOLE_R = 19;
+  const WALL = 12;
+
+  // 5 holes arranged like the photo: 1 top, 2-2 staggered below
+  const holes = [
+    {x: 200, y: 150},
+    {x: 150, y: 230}, {x: 250, y: 230},
+    {x: 130, y: 310}, {x: 270, y: 310}
+  ].map(h => ({...h, filled: false}));
+
+  // balls start in a row near the bottom trough
+  function makeBalls(){
+    return [
+      {x: 130, y: 560, vx:0, vy:0},
+      {x: 175, y: 560, vx:0, vy:0},
+      {x: 200, y: 560, vx:0, vy:0},
+      {x: 225, y: 560, vx:0, vy:0},
+      {x: 270, y: 560, vx:0, vy:0},
+    ];
+  }
+  let balls = makeBalls();
+
+  let scale = 1, offX = 0, offY = 0;
+  function resize(){
+    const wrap = document.getElementById('boardWrap');
+    const maxW = wrap.clientWidth - 20;
+    const maxH = wrap.clientHeight - 20;
+    scale = Math.min(maxW / DESIGN_W, maxH / DESIGN_H);
+    canvas.width = DESIGN_W * scale * devicePixelRatio;
+    canvas.height = DESIGN_H * scale * devicePixelRatio;
+    canvas.style.width = (DESIGN_W * scale) + 'px';
+    canvas.style.height = (DESIGN_H * scale) + 'px';
+    ctx.setTransform(scale * devicePixelRatio, 0, 0, scale * devicePixelRatio, 0, 0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ---- tilt input ----
+  let tiltX = 0, tiltY = 0; // gravity direction in board space (-1..1)
+  let usingGyro = false;
+
+  function handleOrientation(e){
+    // beta: front-back tilt (-180..180), gamma: left-right tilt (-90..90)
+    const beta = e.beta || 0;
+    const gamma = e.gamma || 0;
+    const clamp = (v, lim) => Math.max(-lim, Math.min(lim, v));
+    tiltX = clamp(gamma, 35) / 35;
+    tiltY = clamp(beta - 20, 35) / 35; // subtract ~20deg for comfortable holding angle
+    usingGyro = true;
+    modeTag.textContent = 'режим: гироскоп';
+  }
+
+  // fallback: mouse/touch drag simulates tilt, keyboard arrows too
+  let usingPointerFallback = false;
+  function setupFallback(){
+    let dragging = false;
+    canvas.addEventListener('pointerdown', e => { dragging = true; });
+    window.addEventListener('pointerup', () => { dragging = false; });
+    window.addEventListener('pointermove', e => {
+      if (usingGyro) return;
+      const rect = canvas.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const nx = (e.clientX - cx) / (rect.width/2);
+      const ny = (e.clientY - cy) / (rect.height/2);
+      tiltX = Math.max(-1, Math.min(1, nx));
+      tiltY = Math.max(-1, Math.min(1, ny));
+      usingPointerFallback = true;
+      modeTag.textContent = 'режим: мышь/тач (наклон эмулирован)';
+    });
+    const keys = {};
+    window.addEventListener('keydown', e => keys[e.key] = true);
+    window.addEventListener('keyup', e => keys[e.key] = false);
+    setInterval(() => {
+      if (usingGyro) return;
+      if (keys['ArrowLeft'] || keys['ArrowRight'] || keys['ArrowUp'] || keys['ArrowDown']) {
+        let tx = (keys['ArrowRight']?1:0) - (keys['ArrowLeft']?1:0);
+        let ty = (keys['ArrowDown']?1:0) - (keys['ArrowUp']?1:0);
+        tiltX = tx; tiltY = ty;
+        usingPointerFallback = true;
+        modeTag.textContent = 'режим: клавиатура (наклон эмулирован)';
+      }
+    }, 16);
+  }
+
+  async function enableGyro(){
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      try {
+        const res = await DeviceOrientationEvent.requestPermission();
+        if (res === 'granted') {
+          window.addEventListener('deviceorientation', handleOrientation);
+          return true;
+        }
+      } catch (err) {
+        console.warn('gyro permission error', err);
+      }
+      return false;
+    } else if ('DeviceOrientationEvent' in window) {
+      window.addEventListener('deviceorientation', handleOrientation);
+      return true;
+    }
+    return false;
+  }
+
+  // ---- physics ----
+  const GRAVITY = 900; // px/s^2 at full tilt (design space)
+  const FRICTION = 0.995; // per-frame velocity damping
+  const RESTITUTION = 0.55;
+
+  function stepPhysics(dt){
+    const gx = tiltX * GRAVITY;
+    const gy = tiltY * GRAVITY;
+
+    for (const b of balls) {
+      if (b.done) continue;
+      b.vx += gx * dt;
+      b.vy += gy * dt;
+      b.vx *= FRICTION;
+      b.vy *= FRICTION;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+
+      // walls
+      if (b.x < WALL + BALL_R) { b.x = WALL + BALL_R; b.vx = -b.vx * RESTITUTION; }
+      if (b.x > DESIGN_W - WALL - BALL_R) { b.x = DESIGN_W - WALL - BALL_R; b.vx = -b.vx * RESTITUTION; }
+      if (b.y < WALL + BALL_R) { b.y = WALL + BALL_R; b.vy = -b.vy * RESTITUTION; }
+      if (b.y > DESIGN_H - WALL - BALL_R) { b.y = DESIGN_H - WALL - BALL_R; b.vy = -b.vy * RESTITUTION; }
+
+      // check holes
+      for (const h of holes) {
+        if (h.filled) continue;
+        const dx = b.x - h.x, dy = b.y - h.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < HOLE_R - BALL_R * 0.35) {
+          h.filled = true;
+          b.done = true;
+          b.homeX = h.x; b.homeY = h.y;
+          checkWin();
+        }
+      }
+    }
+
+    // ball-ball collisions (simple elastic)
+    for (let i = 0; i < balls.length; i++) {
+      const a = balls[i];
+      if (a.done) continue;
+      for (let j = i+1; j < balls.length; j++) {
+        const b = balls[j];
+        if (b.done) continue;
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const dist = Math.hypot(dx, dy) || 0.001;
+        const minDist = BALL_R * 2;
+        if (dist < minDist) {
+          const overlap = (minDist - dist) / 2;
+          const nx = dx / dist, ny = dy / dist;
+          a.x -= nx * overlap; a.y -= ny * overlap;
+          b.x += nx * overlap; b.y += ny * overlap;
+          const relVx = b.vx - a.vx, relVy = b.vy - a.vy;
+          const rel = relVx * nx + relVy * ny;
+          if (rel < 0) {
+            const imp = -rel * 0.9;
+            a.vx -= imp * nx; a.vy -= imp * ny;
+            b.vx += imp * nx; b.vy += imp * ny;
+          }
+        }
+      }
+    }
+  }
+
+  let startTime = null, elapsed = 0, won = false;
+  function checkWin(){
+    if (holes.every(h => h.filled) && !won) {
+      won = true;
+      finalTimeEl.textContent = elapsed.toFixed(1);
+      setTimeout(() => {
+        overlay.style.display = 'flex';
+        startCard.style.display = 'none';
+        winCard.classList.add('show');
+      }, 400);
+    }
+  }
+
+  // ---- render ----
+  function draw(){
+    ctx.clearRect(0,0,DESIGN_W,DESIGN_H);
+
+    // wood board background
+    const grad = ctx.createLinearGradient(0,0,0,DESIGN_H);
+    grad.addColorStop(0, '#e6c48d');
+    grad.addColorStop(1, '#c9a165');
+    ctx.fillStyle = grad;
+    roundRect(0,0,DESIGN_W,DESIGN_H,16);
+    ctx.fill();
+
+    // wood grain lines
+    ctx.strokeStyle = 'rgba(120,80,40,.15)';
+    ctx.lineWidth = 1;
+    for (let i=0;i<14;i++){
+      ctx.beginPath();
+      ctx.moveTo(0, 20 + i*44 + Math.sin(i)*6);
+      ctx.bezierCurveTo(DESIGN_W*0.3, 15+i*44, DESIGN_W*0.7, 25+i*44, DESIGN_W, 20+i*44);
+      ctx.stroke();
+    }
+
+    // inner border
+    ctx.strokeStyle = 'rgba(80,50,20,.5)';
+    ctx.lineWidth = 3;
+    roundRect(WALL/2, WALL/2, DESIGN_W-WALL, DESIGN_H-WALL, 12);
+    ctx.stroke();
+
+    // trough line near bottom (visual only)
+    ctx.strokeStyle = 'rgba(80,50,20,.35)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(WALL+6, 520);
+    ctx.lineTo(DESIGN_W-WALL-6, 520);
+    ctx.stroke();
+
+    // holes
+    for (const h of holes){
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, HOLE_R, 0, Math.PI*2);
+      const hg = ctx.createRadialGradient(h.x,h.y,2,h.x,h.y,HOLE_R);
+      hg.addColorStop(0, '#000000');
+      hg.addColorStop(1, '#3a2718');
+      ctx.fillStyle = h.filled ? '#1c130b' : hg;
+      ctx.fill();
+      if (h.filled) {
+        ctx.beginPath();
+        ctx.arc(h.x, h.y, HOLE_R*0.55, 0, Math.PI*2);
+        ctx.fillStyle = '#d94f3a';
+        ctx.fill();
+      }
+    }
+
+    // balls
+    for (const b of balls){
+      const x = b.done ? b.homeX : b.x;
+      const y = b.done ? b.homeY : b.y;
+      ctx.beginPath();
+      ctx.arc(x, y, BALL_R, 0, Math.PI*2);
+      const bg = ctx.createRadialGradient(x-5,y-5,2,x,y,BALL_R);
+      bg.addColorStop(0, b.done ? '#f2a08f' : '#ff6b52');
+      bg.addColorStop(1, b.done ? '#a83526' : '#c22c1a');
+      ctx.fillStyle = bg;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.25)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+  }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r);
+    ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r);
+    ctx.arcTo(x,y,x+w,y,r);
+    ctx.closePath();
+  }
+
+  let lastT = null;
+  function loop(t){
+    if (lastT == null) lastT = t;
+    let dt = (t - lastT) / 1000;
+    dt = Math.min(dt, 0.033);
+    lastT = t;
+
+    if (!won && startTime != null) {
+      elapsed = (performance.now() - startTime) / 1000;
+      timeEl.textContent = elapsed.toFixed(1);
+      filledEl.textContent = holes.filter(h=>h.filled).length;
+      stepPhysics(dt);
+    }
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  function resetGame(){
+    balls = makeBalls();
+    holes.forEach(h => h.filled = false);
+    won = false;
+    startTime = performance.now();
+    elapsed = 0;
+    timeEl.textContent = '0.0';
+    filledEl.textContent = '0';
+  }
+
+  startBtn.addEventListener('click', async () => {
+    const granted = await enableGyro();
+    if (!granted) {
+      modeTag.textContent = 'режим: наклон недоступен — используй мышь/тач или стрелки';
+      setupFallback();
+    }
+    overlay.style.display = 'none';
+    resetGame();
+  });
+
+  againBtn.addEventListener('click', () => {
+    winCard.classList.remove('show');
+    overlay.style.display = 'none';
+    resetGame();
+  });
+
+  setupFallback();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
