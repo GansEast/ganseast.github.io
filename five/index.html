@@ -75,6 +75,11 @@
     font-size: 11px; background: rgba(0,0,0,.4); padding: 3px 10px; border-radius: 20px; opacity: .7;
     z-index: 6;
   }
+  #levelTag {
+    position: fixed; top: calc(env(safe-area-inset-top, 10px) + 26px); left: 50%; transform: translateX(-50%);
+    font-size: 11px; background: rgba(0,0,0,.3); padding: 3px 10px; border-radius: 20px; opacity: .7;
+    z-index: 6;
+  }
   #winCard { display: none; }
   #winCard.show { display: block; }
 </style>
@@ -83,9 +88,10 @@
 <div id="app">
   <header>
     <h1>Биэс ойбон</h1>
-    <div id="stats">⏱ <span id="time">0.0</span>с &nbsp; ●<span id="filled">0</span>/5</div>
+    <div id="stats">⏱ <span id="time">0.0</span>с &nbsp; ●<span id="filled">0</span>/<span id="totalHoles">5</span></div>
   </header>
   <div id="modeTag">режим: —</div>
+  <div id="levelTag">уровень —</div>
   <div id="boardWrap">
     <canvas id="board"></canvas>
   </div>
@@ -113,7 +119,9 @@
   const ctx = canvas.getContext('2d');
   const timeEl = document.getElementById('time');
   const filledEl = document.getElementById('filled');
+  const totalHolesEl = document.getElementById('totalHoles');
   const modeTag = document.getElementById('modeTag');
+  const levelTag = document.getElementById('levelTag');
   const overlay = document.getElementById('overlay');
   const startCard = document.getElementById('startCard');
   const winCard = document.getElementById('winCard');
@@ -127,24 +135,51 @@
   const HOLE_R = 19;
   const WALL = 12;
 
-  // 5 holes arranged like the photo: 1 top, 2-2 staggered below
-  const holes = [
-    {x: 200, y: 150},
-    {x: 150, y: 230}, {x: 250, y: 230},
-    {x: 130, y: 310}, {x: 270, y: 310}
-  ].map(h => ({...h, filled: false}));
+  // ---- levels (loaded from levels.json, matrix of hole coordinates per level) ----
+  const DEFAULT_LEVELS = [
+    { name: 'Пирамида', holes: [
+      {x: 200, y: 150},
+      {x: 150, y: 230}, {x: 250, y: 230},
+      {x: 130, y: 310}, {x: 270, y: 310}
+    ] }
+  ];
+  let LEVELS = DEFAULT_LEVELS;
+  let levelIndex = 0;
+  let holes = [];
+  let balls = [];
 
-  // balls start in a row near the bottom trough
-  function makeBalls(){
-    return [
-      {x: 130, y: 560, vx:0, vy:0},
-      {x: 175, y: 560, vx:0, vy:0},
-      {x: 200, y: 560, vx:0, vy:0},
-      {x: 225, y: 560, vx:0, vy:0},
-      {x: 270, y: 560, vx:0, vy:0},
-    ];
+  // balls start in a row near the bottom trough, evenly spread to match hole count
+  function makeBalls(holesArr){
+    const n = holesArr.length;
+    const marginX = WALL + BALL_R + 6;
+    const usableW = DESIGN_W - marginX * 2;
+    const arr = [];
+    for (let i = 0; i < n; i++) {
+      const x = n === 1 ? DESIGN_W / 2 : marginX + usableW * (i / (n - 1));
+      arr.push({x, y: 560, vx: 0, vy: 0});
+    }
+    return arr;
   }
-  let balls = makeBalls();
+
+  function setupLevel(idx){
+    levelIndex = ((idx % LEVELS.length) + LEVELS.length) % LEVELS.length;
+    const lvl = LEVELS[levelIndex];
+    holes = lvl.holes.map(h => ({x: h.x, y: h.y, filled: false}));
+    totalHolesEl.textContent = holes.length;
+    levelTag.textContent = 'уровень ' + (levelIndex + 1) + '/' + LEVELS.length + (lvl.name ? ' — ' + lvl.name : '');
+  }
+
+  setupLevel(0);
+
+  fetch('levels.json')
+    .then(r => r.json())
+    .then(data => {
+      if (data && Array.isArray(data.levels) && data.levels.length) {
+        LEVELS = data.levels;
+        setupLevel(0);
+      }
+    })
+    .catch(() => { /* keep DEFAULT_LEVELS */ });
 
   let scale = 1, offX = 0, offY = 0;
   function resize(){
@@ -166,6 +201,9 @@
   let usingGyro = false;
 
   function handleOrientation(e){
+    // desktop browsers without a real sensor still fire deviceorientation
+    // with beta/gamma == null — ignore those instead of "locking in" a dead gyro
+    if (e.beta == null && e.gamma == null) return;
     // beta: front-back tilt (-180..180), gamma: left-right tilt (-90..90)
     const beta = e.beta || 0;
     const gamma = e.gamma || 0;
@@ -223,8 +261,26 @@
       }
       return false;
     } else if ('DeviceOrientationEvent' in window) {
-      window.addEventListener('deviceorientation', handleOrientation);
-      return true;
+      // desktop browsers report DeviceOrientationEvent as defined even with
+      // no physical sensor, and often fire one empty (null beta/gamma) event
+      // just for API compatibility — wait for a real reading before trusting it
+      return await new Promise(resolve => {
+        let resolved = false;
+        function onReading(e){
+          if (e.beta == null && e.gamma == null) return; // not a real reading, keep waiting
+          resolved = true;
+          window.removeEventListener('deviceorientation', onReading);
+          window.addEventListener('deviceorientation', handleOrientation);
+          handleOrientation(e);
+          resolve(true);
+        }
+        window.addEventListener('deviceorientation', onReading);
+        setTimeout(() => {
+          if (resolved) return;
+          window.removeEventListener('deviceorientation', onReading);
+          resolve(false);
+        }, 600);
+      });
     }
     return false;
   }
@@ -233,6 +289,16 @@
   const GRAVITY = 900; // px/s^2 at full tilt (design space)
   const FRICTION = 0.995; // per-frame velocity damping
   const RESTITUTION = 0.55;
+
+  // hole "pocket" physics: a ball rolling near a hole gets pulled toward
+  // its center and slowed by extra rolling resistance, like a real funnel.
+  // it only drops in once it's deep enough AND slow enough — fast balls
+  // rim around and can roll back out instead of teleporting in.
+  const HOLE_CAPTURE_R = HOLE_R + BALL_R * 0.6; // radius where the pocket starts pulling
+  const HOLE_DROP_R = HOLE_R - BALL_R * 0.35;   // deep enough to fall in
+  const HOLE_PULL = 2600;                        // px/s^2 pull toward hole center at the rim
+  const HOLE_DRAG = 0.90;                        // extra per-frame damping inside the pocket
+  const HOLE_SETTLE_SPEED = 55;                  // px/s — must be this slow (at drop depth) to settle
 
   function stepPhysics(dt){
     const gx = tiltX * GRAVITY;
@@ -253,42 +319,69 @@
       if (b.y < WALL + BALL_R) { b.y = WALL + BALL_R; b.vy = -b.vy * RESTITUTION; }
       if (b.y > DESIGN_H - WALL - BALL_R) { b.y = DESIGN_H - WALL - BALL_R; b.vy = -b.vy * RESTITUTION; }
 
-      // check holes
+      // check holes: pocket pulls the ball in and adds rolling resistance;
+      // only settles once the ball is deep enough and slow enough
       for (const h of holes) {
         if (h.filled) continue;
         const dx = b.x - h.x, dy = b.y - h.y;
-        const dist = Math.hypot(dx, dy);
-        if (dist < HOLE_R - BALL_R * 0.35) {
-          h.filled = true;
-          b.done = true;
-          b.homeX = h.x; b.homeY = h.y;
-          checkWin();
+        const dist = Math.hypot(dx, dy) || 0.001;
+        if (dist < HOLE_CAPTURE_R) {
+          const nx = dx / dist, ny = dy / dist;
+          const pull = HOLE_PULL * (1 - dist / HOLE_CAPTURE_R);
+          b.vx -= nx * pull * dt;
+          b.vy -= ny * pull * dt;
+          b.vx *= HOLE_DRAG;
+          b.vy *= HOLE_DRAG;
+
+          if (dist < HOLE_DROP_R) {
+            const speed = Math.hypot(b.vx, b.vy);
+            if (speed < HOLE_SETTLE_SPEED) {
+              h.filled = true;
+              b.done = true;
+              b.homeX = h.x; b.homeY = h.y;
+              checkWin();
+            }
+          }
+          break; // only one pocket affects a ball at a time
         }
       }
     }
 
-    // ball-ball collisions (simple elastic)
+    // ball-ball collisions (simple elastic). Balls already settled in a hole
+    // stay put (homeX/homeY, zero velocity) but still occupy space — a rolling
+    // ball bounces off them instead of passing through.
+    const BALL_RESTITUTION = 0.85;
     for (let i = 0; i < balls.length; i++) {
       const a = balls[i];
-      if (a.done) continue;
       for (let j = i+1; j < balls.length; j++) {
         const b = balls[j];
-        if (b.done) continue;
-        const dx = b.x - a.x, dy = b.y - a.y;
+        if (a.done && b.done) continue; // both fixed, nothing to resolve
+
+        const ax = a.done ? a.homeX : a.x, ay = a.done ? a.homeY : a.y;
+        const bx = b.done ? b.homeX : b.x, by = b.done ? b.homeY : b.y;
+        const dx = bx - ax, dy = by - ay;
         const dist = Math.hypot(dx, dy) || 0.001;
         const minDist = BALL_R * 2;
-        if (dist < minDist) {
-          const overlap = (minDist - dist) / 2;
-          const nx = dx / dist, ny = dy / dist;
-          a.x -= nx * overlap; a.y -= ny * overlap;
-          b.x += nx * overlap; b.y += ny * overlap;
-          const relVx = b.vx - a.vx, relVy = b.vy - a.vy;
-          const rel = relVx * nx + relVy * ny;
-          if (rel < 0) {
-            const imp = -rel * 0.9;
-            a.vx -= imp * nx; a.vy -= imp * ny;
-            b.vx += imp * nx; b.vy += imp * ny;
-          }
+        if (dist >= minDist) continue;
+
+        const nx = dx / dist, ny = dy / dist;
+        const overlap = minDist - dist;
+        const invA = a.done ? 0 : 1, invB = b.done ? 0 : 1;
+        const invSum = invA + invB;
+
+        // push apart only the ball(s) that are free to move
+        a.x -= nx * overlap * (invA / invSum);
+        a.y -= ny * overlap * (invA / invSum);
+        b.x += nx * overlap * (invB / invSum);
+        b.y += ny * overlap * (invB / invSum);
+
+        const relVx = (b.done ? 0 : b.vx) - (a.done ? 0 : a.vx);
+        const relVy = (b.done ? 0 : b.vy) - (a.done ? 0 : a.vy);
+        const rel = relVx * nx + relVy * ny;
+        if (rel < 0) {
+          const imp = -(1 + BALL_RESTITUTION) * rel / invSum;
+          a.vx -= imp * invA * nx; a.vy -= imp * invA * ny;
+          b.vx += imp * invB * nx; b.vy += imp * invB * ny;
         }
       }
     }
@@ -299,6 +392,8 @@
     if (holes.every(h => h.filled) && !won) {
       won = true;
       finalTimeEl.textContent = elapsed.toFixed(1);
+      const hasNext = levelIndex + 1 < LEVELS.length;
+      againBtn.textContent = hasNext ? 'Следующий уровень' : 'Играть снова (с 1-го уровня)';
       setTimeout(() => {
         overlay.style.display = 'flex';
         startCard.style.display = 'none';
@@ -405,8 +500,8 @@
   }
 
   function resetGame(){
-    balls = makeBalls();
     holes.forEach(h => h.filled = false);
+    balls = makeBalls(holes);
     won = false;
     startTime = performance.now();
     elapsed = 0;
@@ -418,15 +513,17 @@
     const granted = await enableGyro();
     if (!granted) {
       modeTag.textContent = 'режим: наклон недоступен — используй мышь/тач или стрелки';
-      setupFallback();
     }
     overlay.style.display = 'none';
+    setupLevel(0);
     resetGame();
   });
 
   againBtn.addEventListener('click', () => {
     winCard.classList.remove('show');
     overlay.style.display = 'none';
+    const hasNext = levelIndex + 1 < LEVELS.length;
+    setupLevel(hasNext ? levelIndex + 1 : 0);
     resetGame();
   });
 
