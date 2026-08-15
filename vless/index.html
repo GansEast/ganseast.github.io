@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KeyzGO — Быстрый и безопасный VPN VLESS</title>
+<title>Lazeyka — Быстрый и безопасный VPN VLESS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -212,6 +212,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   background: var(--accent);
   transform: translateX(50%);
 }
+.step-text { flex: 1; min-width: 0; }
 .step .t { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
 .step .d { font-size: 12.5px; color: var(--text-sec); line-height: 1.5; max-width: 180px; }
 
@@ -297,7 +298,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
   .step { flex-direction: row; text-align: left; align-items: center; gap: 16px; width: 100%; padding: 0; }
   .step-icon { margin-bottom: 0; flex-shrink: 0; }
   .step .d { max-width: none; }
-  .step::before, .step::after { content: none; }
+  .step:not(:last-child)::after { content: none; }
 }
 
 @media (max-width: 768px) {
@@ -350,7 +351,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
 </head>
 <body>
 
-<div class="logo-slot"><img src="logo.png" alt=""></div>
+<div class="logo-slot"><img src="logo.png" alt="Lazeyka"></div>
 <a href="mailto:support@lazeyka.pro" class="support-contact">support@lazeyka.pro</a>
 <div class="label-tag" id="labelTag">01</div>
 
@@ -370,7 +371,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9"/></svg>
           изображение
         </div> -->
-        <img class="reveal rv-1" src="hero.jpeg" alt="">
+        <img class="reveal rv-1" src="hero.png" alt="">
       </div>
     </div>
   </section>
@@ -511,29 +512,37 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
           <div class="step-icon"><div class="step-num">1</div>
             <svg viewBox="0 0 640 640" fill="currentColor"><path d="M304 112L192 112C183.2 112 176 119.2 176 128L176 512C176 520.8 183.2 528 192 528L448 528C456.8 528 464 520.8 464 512L464 272L376 272C336.2 272 304 239.8 304 200L304 112zM444.1 224L352 131.9L352 200C352 213.3 362.7 224 376 224L444.1 224zM128 128C128 92.7 156.7 64 192 64L325.5 64C342.5 64 358.8 70.7 370.8 82.7L493.3 205.3C505.3 217.3 512 233.6 512 250.6L512 512C512 547.3 483.3 576 448 576L192 576C156.7 576 128 547.3 128 512L128 128z"/></svg>
           </div>
-          <div class="t">Выберите тариф</div>
-          <div class="d">Выберите подходящий тарифный план</div>
+          <div class="step-text">
+            <div class="t">Выберите тариф</div>
+            <div class="d">Выберите подходящий тарифный план</div>
+          </div>
         </div>
         <div class="step reveal rv-3">
           <div class="step-icon"><div class="step-num">2</div>
             <svg viewBox="0 0 640 640" fill="currentColor"><path d="M512 176C520.8 176 528 183.2 528 192L528 224L112 224L112 192C112 183.2 119.2 176 128 176L512 176zM528 288L528 448C528 456.8 520.8 464 512 464L128 464C119.2 464 112 456.8 112 448L112 288L528 288zM128 128C92.7 128 64 156.7 64 192L64 448C64 483.3 92.7 512 128 512L512 512C547.3 512 576 483.3 576 448L576 192C576 156.7 547.3 128 512 128L128 128zM144 408C144 421.3 154.7 432 168 432L216 432C229.3 432 240 421.3 240 408C240 394.7 229.3 384 216 384L168 384C154.7 384 144 394.7 144 408zM288 408C288 421.3 298.7 432 312 432L376 432C389.3 432 400 421.3 400 408C400 394.7 389.3 384 376 384L312 384C298.7 384 288 394.7 288 408z"/></svg>
           </div>
-          <div class="t">Оплатите</div>
-          <div class="d">Быстрая и безопасная оплата любым удобным способом</div>
+          <div class="step-text">
+            <div class="t">Оплатите</div>
+            <div class="d">Быстрая и безопасная оплата любым удобным способом</div>
+          </div>
         </div>
         <div class="step reveal rv-4">
           <div class="step-icon"><div class="step-num">3</div>
             <svg viewBox="0 0 640 640" fill="currentColor"><path d="M352 96C352 78.3 337.7 64 320 64C302.3 64 288 78.3 288 96L288 306.7L246.6 265.3C234.1 252.8 213.8 252.8 201.3 265.3C188.8 277.8 188.8 298.1 201.3 310.6L297.3 406.6C309.8 419.1 330.1 419.1 342.6 406.6L438.6 310.6C451.1 298.1 451.1 277.8 438.6 265.3C426.1 252.8 405.8 252.8 393.3 265.3L352 306.7L352 96zM160 384C124.7 384 96 412.7 96 448L96 480C96 515.3 124.7 544 160 544L480 544C515.3 544 544 515.3 544 480L544 448C544 412.7 515.3 384 480 384L433.1 384L376.5 440.6C345.3 471.8 294.6 471.8 263.4 440.6L206.9 384L160 384zM464 440C477.3 440 488 450.7 488 464C488 477.3 477.3 488 464 488C450.7 488 440 477.3 440 464C440 450.7 450.7 440 464 440z"/></svg>
           </div>
-          <div class="t">Получите доступ</div>
-          <div class="d">Мгновенно получите конфигурацию и инструкции</div>
+          <div class="step-text">
+            <div class="t">Получите доступ</div>
+            <div class="d">Мгновенно получите конфигурацию и инструкции</div>
+          </div>
         </div>
         <div class="step reveal rv-5">
           <div class="step-icon"><div class="step-num">4</div>
             <svg viewBox="0 0 640 640" fill="currentColor"><path d="M192 384L88.5 384C63.6 384 48.3 356.9 61.1 335.5L114 247.3C122.7 232.8 138.3 224 155.2 224L250.2 224C326.3 95.1 439.8 88.6 515.7 99.7C528.5 101.6 538.5 111.6 540.3 124.3C551.4 200.2 544.9 313.7 416 389.8L416 484.8C416 501.7 407.2 517.3 392.7 526L304.5 578.9C283.2 591.7 256 576.3 256 551.5L256 448C256 412.7 227.3 384 192 384L191.9 384zM464 224C464 197.5 442.5 176 416 176C389.5 176 368 197.5 368 224C368 250.5 389.5 272 416 272C442.5 272 464 250.5 464 224z"/></svg>
           </div>
-          <div class="t">Подключитесь</div>
-          <div class="d">Наслаждайтесь быстрым и безопасным интернетом</div>
+          <div class="step-text">
+            <div class="t">Подключитесь</div>
+            <div class="d">Наслаждайтесь быстрым и безопасным интернетом</div>
+          </div>
         </div>
       </div>
     </div>
@@ -553,7 +562,7 @@ h2 { font-size: clamp(30px, 3.5vw, 46px); }
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5-9 9"/></svg>
           изображение
         </div> -->
-        <img class="reveal rv-1" src="door.jpeg" alt="">
+        <img class="reveal rv-1" src="door.png" alt="">
       </div>
     </div>
   </section>
